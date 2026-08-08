@@ -181,6 +181,18 @@ const BESTIARY = {
     attack: { name: 'Stridio + artigli', bonus: 4, dice: [1, 6], plus: 2 },
     flavor: 'Guardia personale di Lord Morn. Stona quando stride.',
   },
+  anguilla: {
+    name: 'Anguilla del Torbido', sprite: 'anguilla',
+    maxHp: 11, ac: 12, ai: 'random',
+    attack: { name: 'Morso Guizzante', bonus: 3, dice: [1, 6], plus: 1 },
+    flavor: 'Lunga, viscida e permalosissima se le tocchi il nido tra le canne.',
+  },
+  spirito_fiume: {
+    name: 'Spirito del Fiume', sprite: 'spirito_fiume',
+    maxHp: 20, ac: 13, ai: 'weakest', undead: true,
+    attack: { name: 'Corrente Gelida', bonus: 4, dice: [1, 8], plus: 1 },
+    flavor: 'Un\'ombra d\'acqua che sorveglia il canneto da più tempo di quanto chiunque ricordi.',
+  },
   gerbold: {
     name: 'Gerbold, Maggiordomo Scheletrico', sprite: 'gerbold',
     maxHp: 40, ac: 14, ai: 'strongest', undead: true, boss: true,

@@ -62,4 +62,8 @@ const IMPRESE = [
   { flag: 'finale_vittoria',        icon: '🏆', title: 'Il Sole Torna sul Serio',     desc: 'Avete sconfitto Vesper in battaglia e distrutto la Corona.' },
   { flag: 'finale_redenzione',      icon: '🎶', title: 'Un Vampiro Redento',          desc: 'Avete convinto Vespertino a scegliere un applauso vero, non la vendetta.' },
   { flag: 'finale_corona_distrutta', icon: '💥', title: 'Corona in Mille Pezzi',      desc: 'Avete strappato la Corona di Mezzanotte prima che fosse troppo tardi.' },
+  { flag: 'via_fiume',              icon: '🛶', title: 'Marinai d\'Acqua Dolce',       desc: 'Avete scelto la via del Fiume Torbido, rapide e fantasmi compresi.' },
+  { flag: 'bertoldo_amico',         icon: '👻', title: 'Amici di un Fantasma Bagnato', desc: 'Avete ascoltato la storia di Bertoldo. Nessuno gliel\'aveva mai chiesta.' },
+  { flag: 'lacrima_ceduta',         icon: '🌙', title: 'Un Ricordo per la Luce',       desc: 'Qualcuno di voi ha ceduto un ricordo felice al Pescatore. Per tutti.' },
+  { flag: 'lacrima_usata',          icon: '🌅', title: 'La Scelta della Taverna',      desc: 'Con una lacrima e un ricordo avete salvato il mondo senza sguainare la spada.' },
 ];

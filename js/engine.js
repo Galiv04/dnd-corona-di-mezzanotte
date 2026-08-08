@@ -533,6 +533,7 @@ const Engine = (() => {
     const path = (a, b) => { const [x1, y1] = pts(a), [x2, y2] = pts(b); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
     path('brindolo', 'ponte'); path('ponte', 'bivio'); path('bivio', 'bosco'); path('bivio', 'miniere');
     path('bosco', 'castello'); path('miniere', 'castello');
+    path('bivio', 'molo'); path('molo', 'castello');
     ctx.setLineDash([]);
 
     // luogo corrente
@@ -551,6 +552,13 @@ const Engine = (() => {
       } else if (loc.key === 'miniere') {
         ctx.fillStyle = '#4a3524'; ctx.fillRect(x - 14, y - 14, 28, 14);
         ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 6, y - 10, 12, 10);
+      } else if (loc.key === 'molo') {
+        // barcone sul fiume
+        ctx.fillStyle = '#3a2a18'; ctx.fillRect(x - 16, y - 8, 32, 8);
+        ctx.fillRect(x - 2, y - 24, 4, 16);
+        ctx.fillStyle = '#e8e0d0';
+        ctx.beginPath(); ctx.moveTo(x + 2, y - 24); ctx.lineTo(x + 14, y - 12); ctx.lineTo(x + 2, y - 12); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#2a4a6e'; ctx.fillRect(x - 20, y, 40, 4);
       } else if (loc.key === 'ponte') {
         ctx.fillStyle = '#6e5238'; ctx.fillRect(x - 16, y - 6, 32, 8);
         ctx.fillStyle = '#4a3524'; ctx.fillRect(x - 16, y + 2, 6, 8); ctx.fillRect(x + 10, y + 2, 6, 8);

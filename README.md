@@ -10,10 +10,12 @@ Il vampiro Lord Vesper Morn ha spento il sole. Avete tempo fino a mezzanotte per
 
 - 🎭 **6 eroi pregenerati** con storia, abilità e personalità (scegliete da 1 a 6 personaggi)
 - 🎙 **Dungeon Master automatico**: il gioco narra, propone scelte, tira i dadi e arbitra i combattimenti
-- 🗺 **Storia ramificata**: 105 scene, 2 percorsi principali, 3 finali diversi
+- 🗺 **Storia ramificata**: 133 scene, 3 percorsi principali (bosco, miniere, fiume), una side-quest, 3 finali diversi e 23 imprese sbloccabili
 - ⚔ **Combattimenti a turni** semplificati in stile D&D (d20, CA, vantaggio/svantaggio)
 - 📖 **Regole consultabili in un click** — pensato per chi non ha MAI giocato a D&D
-- 💾 **Salvataggio automatico** a ogni scena (si può giocare in più serate)
+- 💾 **Salvataggio automatico** su 3 slot (gruppi diversi sullo stesso dispositivo) con riepilogo alla ripresa
+- 🎵 **Effetti sonori chiptune** generati via WebAudio (disattivabili)
+- 🌟 **Modalità Eroe Solitario** per giocare da soli con bonus dedicati
 - 🕹 Grafica pixel-art disegnata interamente via canvas, zero dipendenze
 
 ## Come si gioca

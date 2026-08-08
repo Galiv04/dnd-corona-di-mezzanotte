@@ -175,7 +175,9 @@ Il canneto esplode di movimento: bolle, fango sollevato, tre paia di occhi giall
 
 > Bertoldo: *(dal molo, per niente utile)* "OH NO. Il guardiano del canneto! Non lo disturbo dai tempi in cui ero VIVO! Fate silenzio, magari se ne va!"
 
-Non se ne va. Anzi, si avvicina.`,
+Non se ne va. Anzi, si avvicina, e l'acqua intorno comincia a girare lenta, come in un imbuto che si sta decidendo se inghiottirvi o solo spaventarvi a morte. Da qualche parte, tra le radici sommerse, intravedete un bagliore che potrebbe essere il remo perduto — o solo il riflesso della luna che non c'è più.
+
+> Bertoldo: "Se vi serve un consiglio da esperto: NON toccate altra acqua per un po'. Anche se, ripensandoci, è un po' tardi per quel consiglio."`,
     choices: [
       { text: '⚔ Affrontate anguille e guardiano', next: 'r1_anguille' },
       { text: '🧠 Distraetele gettando in acqua il cesto di pesce essiccato di Bertoldo', tag: 'Prova di Intelligenza — CD 11', check: { stat: 'INT', dc: 11, success: 'r2', fail: 'r1_anguille' } },
@@ -190,6 +192,8 @@ Non se ne va. Anzi, si avvicina.`,
 Nel caos della mischia, qualcosa bianco lampeggia sott'acqua vicino ai vostri piedi: il remo di Bertoldo, incastrato tra le radici da centocinquant'anni, liberato dal trambusto. Non è il momento di festeggiare: prima bisogna sopravvivere alla festa che avete involontariamente organizzato.
 
 > Bertoldo: *(urlando dal sicuro, cioè da un metro sopra l'acqua)* "NON GLI SERVE UN MOTIVO! DIFENDETEVI E BASTA! ...e se vedete un remo, portatemelo, già che ci siete!"
+
+Le anguille sfrecciano tra le gambe cercando di trascinarvi verso il fondo, mentre lo Spirito allunga braccia d'acqua fredda che passano attraverso gli scudi come se non esistessero. È una lotta scomoda, bagnata, e assolutamente non prevista nel programma della serata — ma il canneto, a modo suo, sembra quasi rispettarvi per esserci finiti dentro con tanto entusiasmo.
 
 **(Combattimento! Lo Spirito del Fiume è un'entità spettrale: la Sacra Folgore e la magia funzionano meglio del solito.)**`,
     sets: { remo_ritrovato: true },
@@ -210,7 +214,7 @@ Dopo pochi minuti, un rombo sordo cresce dal buio a valle: le **Rapide del Singh
 
 > Bertoldo: "Tenetevi forte e REMATE quando dico remate! Le rapide non perdonano gli sbadati, e io, ricordo, non sono un granché nel salvare gente in acqua!"
 
-Il barcone si impenna, i massi neri sfrecciano a un palmo dallo scafo, e serve ogni braccio del gruppo, coordinato, per non finire rovesciati nella corrente gelida.`,
+Il barcone si impenna, i massi neri sfrecciano a un palmo dallo scafo, e serve ogni braccio del gruppo, coordinato, per non finire rovesciati nella corrente gelida. Bertoldo grida ordini a raffica — "SINISTRA! NO, L'ALTRA SINISTRA! LA MIA O LA VOSTRA?!" — mentre il rombo dell'acqua diventa quasi assordante e la prima onda alta vi si rovescia addosso come un secchio gelato.`,
     choices: [
       { text: '🚣 Remate insieme, con tutta la forza che avete', tag: 'Prova di Destrezza (di gruppo) — CD 12', check: { stat: 'DES', dc: 12, success: 'r3', fail: 'r2_ko' } },
     ],
@@ -225,7 +229,7 @@ Lo scafo si inclina, l'acqua invade la stiva fino alle caviglie, e nel caos qual
 
 > Bertoldo: *(aggrappato disperatamente al timone, un metro sopra l'acqua che tanto teme)* "AH-HA! VISTO? VISTO?! Ecco perché ODIO queste rapide! Nessuno è mai bravo la prima volta! ...la seconda nemmeno, a dire il vero."
 
-Il barcone, ammaccato ma intero, esce dalle rapide zoppicando come un'anatra ubriaca e decisamente offesa.`,
+Il barcone, ammaccato ma intero, esce dalle rapide zoppicando come un'anatra ubriaca e decisamente offesa. Da qualche parte sotto i sedili, qualcuno recupera un elmo, uno stivale spaiato e — mistero irrisolto — un cucchiaio che nessuno del gruppo ricorda di aver portato. Il Fiume Torbido, evidentemente, colleziona souvenir a modo suo.`,
     damage: 3,
     goldLoss: 10,
     choices: [{ text: 'Riprendete la corrente, gocciolanti', next: 'r3' }],
@@ -343,7 +347,7 @@ Il barcone punta dritto contro la corrente, verso il muro d'acqua che ruggisce.`
 
 > Bertoldo: *(aggrappato al timone con tutt'e due le mani trasparenti)* "ECCO PERCHÉ NON CI PROVO MAI! Ogni notte la stessa storia, in fondo! Vi avevo avvertiti che non sono bravo con l'acqua!"
 
-Bisogna riprendere la rincorsa: i remi doloranti, i muscoli che protestano formalmente — ma stavolta, sapendo dove NON spingere, il barcone trova finalmente la fessura giusta nel velo d'acqua e scivola dentro la grotta, ansante ma intero.`,
+Bisogna riprendere la rincorsa: i remi doloranti, i muscoli che protestano formalmente, e Bertoldo che ripete a voce sempre più acuta "STAVOLTA VA MEGLIO, STAVOLTA VA MEGLIO" come un mantra poco convincente. Ma stavolta, sapendo dove NON spingere, il barcone trova finalmente la fessura giusta nel velo d'acqua e scivola dentro la grotta, ansante ma intero — con un ultimo spruzzo vendicativo della cascata che vi saluta bagnandovi fino all'ultimo centimetro rimasto asciutto.`,
     damage: 3,
     choices: [{ text: 'Dentro, finalmente', next: 'r6' }],
   },
