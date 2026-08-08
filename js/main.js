@@ -47,6 +47,7 @@ const Main = (() => {
 
   function refreshTitle() {
     $('btn-continue').style.display = Engine.hasSave() ? '' : 'none';
+    Sound.music('title');
   }
 
   function init() {
@@ -84,10 +85,50 @@ const Main = (() => {
     $('btn-rules').onclick = Engine.showRules;
     $('btn-sound').textContent = Sound.isMuted() ? '🔇' : '🔊';
     $('btn-sound').onclick = () => { $('btn-sound').textContent = Sound.toggleMute() ? '🔇' : '🔊'; };
+    $('btn-music').style.opacity = Sound.isMusicMuted() ? '.5' : '1';
+    $('btn-music').onclick = () => {
+      const off = Sound.toggleMusicMute();
+      $('btn-music').style.opacity = off ? '.5' : '1';
+    };
+    // testo grande (persistente)
+    try { if (localStorage.getItem('corona-textsize') === 'large') document.documentElement.classList.add('text-large'); } catch (e) {}
+    $('btn-textsize').onclick = () => {
+      const large = document.documentElement.classList.toggle('text-large');
+      try { localStorage.setItem('corona-textsize', large ? 'large' : 'normal'); } catch (e) {}
+    };
     $('btn-fullscreen').onclick = () => {
       if (document.fullscreenElement) document.exitFullscreen();
       else document.documentElement.requestFullscreen().catch(() => {});
     };
+
+    // scorciatoie da tastiera: 1-9 scelte/azioni, Invio = continua (dado), Esc = chiudi modale
+    document.addEventListener('keydown', e => {
+      if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.key === 'Escape') {
+        $('modal-generic').classList.add('hidden');
+        $('modal-char').classList.add('hidden');
+        return;
+      }
+      const diceBtn = $('btn-dice-continue');
+      if ((e.key === 'Enter' || e.key === ' ') && !$('dice-overlay').classList.contains('hidden') && !diceBtn.classList.contains('hidden')) {
+        e.preventDefault();
+        diceBtn.click();
+        return;
+      }
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= 9) {
+        // priorità: modale aperta > azioni di combattimento > scelte di scena
+        const pools = [
+          '#modal-generic:not(.hidden) .choice-btn',
+          '#screen-combat.active #combat-actions .action-btn',
+          '#screen-game.active #choices .choice-btn',
+        ];
+        for (const sel of pools) {
+          const btns = [...document.querySelectorAll(sel)].filter(b => !b.disabled);
+          if (btns.length) { if (btns[n - 1]) btns[n - 1].click(); return; }
+        }
+      }
+    });
     $('btn-menu').onclick = Engine.showMenu;
 
     // chiusura modali cliccando fuori

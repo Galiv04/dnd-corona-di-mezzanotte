@@ -87,7 +87,7 @@ const Combat = (() => {
     banner.classList.remove('hidden', 'victory');
     render();
 
-    if (typeof Sound !== 'undefined') Sound.play('combat');
+    if (typeof Sound !== 'undefined') { Sound.play('combat'); Sound.music(battle.isBoss ? 'boss' : 'combat'); }
     log(`<b>Nemici:</b> ${battle.enemies.map(e => e.name).join(', ')}`, 'log-info');
     for (const e of [...new Set(battle.enemies.map(e => e.key))]) {
       log(`<i>${BESTIARY[e].name}: ${BESTIARY[e].flavor}</i>`, 'log-info');
@@ -129,7 +129,7 @@ const Combat = (() => {
     heroes.forEach((h, i) => {
       const cols = Math.min(3, heroes.length);
       const col = i % cols, row = Math.floor(i / cols);
-      const bob = h.down ? 0 : Math.round(Math.sin(ts / 320 + i * 1.4) * 3);
+      const bob = (h.down || reducedMotion) ? 0 : Math.round(Math.sin(ts / 320 + i * 1.4) * 3);
       const x = 30 + col * (hSize + 16), y = H - 20 - hSize - row * (hSize + 14) + bob;
       h._x = x; h._y = y; h._size = hSize;
       const def = Sprites.registry[h.sprite];
@@ -144,7 +144,7 @@ const Combat = (() => {
     const eScale = battle.enemies.length > 2 ? 4 : 5;
     const eSize = 16 * eScale;
     alive.forEach((e, i) => {
-      const bob = e.dead ? 0 : Math.round(Math.sin(ts / 280 + i * 2.1) * 3);
+      const bob = (e.dead || reducedMotion) ? 0 : Math.round(Math.sin(ts / 280 + i * 2.1) * 3);
       const x = W - 60 - eSize - (i % 3) * (eSize + 26);
       const y = 60 + Math.floor(i / 3) * (eSize + 30) + (i % 2) * 18 + bob;
       e._x = x; e._y = y; e._size = eSize;
@@ -170,6 +170,7 @@ const Combat = (() => {
   }
 
   const now = () => (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const reducedMotion = (typeof matchMedia !== 'undefined') && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const raf = (typeof requestAnimationFrame !== 'undefined') ? requestAnimationFrame : null;
   const caf = (typeof cancelAnimationFrame !== 'undefined') ? cancelAnimationFrame : () => {};
 
@@ -367,7 +368,9 @@ const Combat = (() => {
           if (h.rageRounds > 0) dmg += 3;
           if (opts.holy && e.undead) dmg *= 2;
           e.hp -= dmg;
-          log(`${res.crit ? '💥 <b>CRITICO!</b> ' : ''}⚔ ${h.name} colpisce ${e.name}: <b>${dmg} danni</b>${opts.holy && e.undead ? ' (DOPPI sul non-morto!)' : ''}.`, res.crit ? 'log-crit' : 'log-hit');
+          const verbi = ['colpisce', 'centra in pieno', 'travolge', 'raggiunge', 'sorprende', 'castiga'];
+          const verbo = res.crit ? 'DEVASTA' : verbi[Math.floor(Math.random() * verbi.length)];
+          log(`${res.crit ? '💥 <b>CRITICO!</b> ' : ''}⚔ ${h.name} ${verbo} ${e.name}: <b>${dmg} danni</b>${opts.holy && e.undead ? ' (DOPPI sul non-morto!)' : ''}.`, res.crit ? 'log-crit' : 'log-hit');
           if (typeof Sound !== 'undefined') Sound.play('hit');
           floatText(e._x + e._size / 2, e._y, `-${dmg}`, res.crit ? 'float-crit' : 'float-dmg');
           checkEnemyDeath(e);

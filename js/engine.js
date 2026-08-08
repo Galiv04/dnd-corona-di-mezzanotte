@@ -221,8 +221,13 @@ const Engine = (() => {
 
   let typeTimer = null;
 
+  const MUSIC_BY_LOCATION = { taverna: 'village', villaggio: 'village', alba: 'alba', vetta: 'boss' };
+
   function renderScene(scene, instant = false) {
     showScreen('screen-game');
+    if (typeof Sound !== 'undefined') {
+      Sound.music(scene.ending ? 'alba' : (MUSIC_BY_LOCATION[scene.location] || 'explore'));
+    }
     $('hud-location').textContent = '📍 ' + (scene.caption || '');
     Scenes.paint('scene-canvas', scene.location);
     $('scene-caption').textContent = scene.caption || '';

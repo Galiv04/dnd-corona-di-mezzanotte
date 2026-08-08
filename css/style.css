@@ -345,6 +345,29 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; display:block
   display:inline-block;
 }
 
+/* ---------- accessibilità ---------- */
+
+/* focus visibile per la navigazione da tastiera */
+.btn:focus-visible, .choice-btn:focus-visible, .action-btn:focus-visible, .party-slot:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* modalità testo grande */
+html.text-large { font-size: 26px; }
+html.text-large .narration { font-size: 27px; line-height: 1.55; }
+html.text-large .choice-btn { font-size: 25px; }
+html.text-large .action-btn { font-size: 23px; }
+html.text-large .combat-log { font-size: 24px; height: 240px; }
+html.text-large .rules-body, html.text-large .backstory, html.text-large .ability-box .ability-desc { font-size: 24px; }
+
+/* riduzione del movimento: niente scanline animate, niente fluttuazioni */
+@media (prefers-reduced-motion: reduce) {
+  .dmg-float { animation-duration: .6s; }
+  .combat-banner { animation: none; }
+  .narration .cursor { animation: none; }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 760px) {
   html, body { font-size: 19px; }

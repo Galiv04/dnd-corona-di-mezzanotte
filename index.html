@@ -74,8 +74,10 @@
         <button class="btn btn-small" id="btn-party">🎭 Eroi</button>
         <button class="btn btn-small" id="btn-inventory">🎒 Zaino</button>
         <button class="btn btn-small" id="btn-rules">📖 Regole</button>
-        <button class="btn btn-small" id="btn-sound">🔊</button>
-        <button class="btn btn-small" id="btn-fullscreen" title="Schermo intero">⛶</button>
+        <button class="btn btn-small" id="btn-sound" title="Effetti sonori" aria-label="Attiva o disattiva gli effetti sonori">🔊</button>
+        <button class="btn btn-small" id="btn-music" title="Musica" aria-label="Attiva o disattiva la musica">🎵</button>
+        <button class="btn btn-small" id="btn-textsize" title="Testo grande" aria-label="Ingrandisci il testo">A±</button>
+        <button class="btn btn-small" id="btn-fullscreen" title="Schermo intero" aria-label="Schermo intero">⛶</button>
         <button class="btn btn-small" id="btn-menu">☰</button>
       </div>
     </header>
@@ -86,7 +88,7 @@
     </div>
 
     <div class="narration-wrap">
-      <div id="narration" class="narration"></div>
+      <div id="narration" class="narration" aria-live="polite"></div>
       <div id="choices" class="choices"></div>
     </div>
 

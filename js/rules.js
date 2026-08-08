@@ -41,6 +41,11 @@ Se cade tutto il gruppo... il DM è clemente, ma la storia prenderà una piega m
 • Tenete d'occhio le pozioni prima del gran finale.<br>
 • Il gioco salva da solo a ogni scena: potete chiudere e riprendere quando volete. Ci sono <b>3 slot di salvataggio</b>: gruppi diversi possono avere ognuno la propria partita sullo stesso dispositivo, e alla ripresa un riepilogo vi ricorda dov'eravate.</p>
 
+<h3>⌨ Scorciatoie e comodità</h3>
+<p>• Tasti <b>1-9</b>: scelgono l'opzione corrispondente (scene, combattimento, modali) · <b>Invio</b>: conferma il tiro di dado · <b>Esc</b>: chiude le finestre.<br>
+• Pulsanti in alto: <b>🔊</b> effetti sonori · <b>🎵</b> musica di sottofondo · <b>A±</b> testo grande · <b>⛶</b> schermo intero.<br>
+• Il gioco rispetta l'impostazione di sistema "riduci animazioni".</p>
+
 <h3>⏱ Durata</h3>
 <p>Una partita completa dura <b>2-4 ore</b>. Volendo si può spezzare in due serate: il salvataggio automatico vi aspetta.</p>
 `;

@@ -72,5 +72,115 @@ const Sound = (() => {
 
   function isMuted() { return muted; }
 
-  return { play, toggleMute, isMuted };
+  /* ================= MUSICA DI SOTTOFONDO =================
+     Piccolo sequencer chiptune: basso a onda triangolare + melodia quadra,
+     tracce componibili come array di semitoni (null = pausa).          */
+
+  let musicMuted = false;
+  try { musicMuted = localStorage.getItem('corona-music-muted') === '1'; } catch (e) {}
+
+  const NOTE = st => 440 * Math.pow(2, (st - 57) / 12); // semitono MIDI -> Hz (A4 = 57)
+
+  // tracce: { bpm, bass: [semitoni x step], lead: [...] } — un giro = bass.length step da 1/8
+  const TRACKS = {
+    title: {
+      bpm: 66, vol: 0.045,
+      bass: [38, null, null, null, 45, null, null, null, 41, null, null, null, 43, null, 43, null],
+      lead: [62, null, 65, null, 69, null, 65, null, 62, null, null, null, 60, null, 57, null],
+    },
+    explore: {
+      bpm: 92, vol: 0.04,
+      bass: [45, null, 45, null, 43, null, 43, null, 41, null, 41, null, 43, null, 45, null],
+      lead: [null, 64, null, 67, null, 64, null, 62, null, 60, null, 64, null, 62, null, null],
+    },
+    village: {
+      bpm: 100, vol: 0.04,
+      bass: [48, null, 43, null, 45, null, 43, null, 41, null, 45, null, 43, null, 43, null],
+      lead: [72, 71, 72, null, 74, null, 72, null, 71, null, 69, 71, 72, null, null, null],
+    },
+    combat: {
+      bpm: 132, vol: 0.05,
+      bass: [40, 40, null, 40, 43, null, 40, null, 38, 38, null, 38, 41, null, 43, null],
+      lead: [null, null, 64, null, null, 67, 64, null, null, null, 62, null, 65, null, null, null],
+    },
+    boss: {
+      bpm: 148, vol: 0.055,
+      bass: [38, 38, 44, 38, 38, 45, 38, 44, 37, 37, 43, 37, 37, 44, 37, 43],
+      lead: [62, null, null, 62, 63, null, 62, null, 61, null, null, 61, 62, null, 61, null],
+    },
+    alba: {
+      bpm: 84, vol: 0.045,
+      bass: [36, null, 43, null, 45, null, 43, null, 41, null, 48, null, 43, null, 43, null],
+      lead: [64, null, 67, 69, 72, null, 69, 67, 65, null, 64, 65, 67, null, null, null],
+    },
+  };
+
+  let music = { track: null, timer: null, step: 0, nextTime: 0 };
+
+  function stopMusic() {
+    if (music.timer) { clearInterval(music.timer); music.timer = null; }
+    music.track = null;
+  }
+
+  function scheduleNote(freq, t, dur, type, vol) {
+    const a = ac();
+    if (!a) return;
+    const osc = a.createOscillator();
+    const gain = a.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain); gain.connect(a.destination);
+    osc.start(t); osc.stop(t + dur + 0.03);
+  }
+
+  function playMusic(name) {
+    if (music.track === name) return;      // già in riproduzione
+    stopMusic();
+    if (muted || musicMuted) { music.track = name; return; } // ricorda la traccia per il toggle
+    const a = ac();
+    const tr = TRACKS[name];
+    if (!a || !tr) { music.track = name; return; }
+    music.track = name;
+    music.step = 0;
+    music.nextTime = a.currentTime + 0.06;
+    const stepDur = 60 / tr.bpm / 2; // ottavi
+    music.timer = setInterval(() => {
+      if (muted || musicMuted) return;
+      const ahead = a.currentTime + 0.25;
+      while (music.nextTime < ahead) {
+        const i = music.step % tr.bass.length;
+        const b = tr.bass[i], l = tr.lead[i];
+        if (b != null) scheduleNote(NOTE(b), music.nextTime, stepDur * 0.9, 'triangle', tr.vol * 1.15);
+        if (l != null) scheduleNote(NOTE(l), music.nextTime, stepDur * 0.75, 'square', tr.vol * 0.7);
+        music.nextTime += stepDur;
+        music.step++;
+      }
+    }, 100);
+  }
+
+  function toggleMusicMute() {
+    musicMuted = !musicMuted;
+    try { localStorage.setItem('corona-music-muted', musicMuted ? '1' : '0'); } catch (e) {}
+    const cur = music.track;
+    stopMusic();
+    if (!musicMuted && cur) playMusic(cur);
+    else music.track = cur;
+    return musicMuted;
+  }
+
+  // le AudioContext partono "suspended" finché l'utente non interagisce:
+  // al primo gesto riavviamo la traccia richiesta
+  if (typeof document !== 'undefined') {
+    document.addEventListener('pointerdown', () => {
+      const a = ac();
+      if (a && music.track && !music.timer && !muted && !musicMuted) {
+        const cur = music.track; music.track = null; playMusic(cur);
+      }
+    });
+  }
+
+  return { play, toggleMute, isMuted, music: playMusic, toggleMusicMute, isMusicMuted: () => musicMuted };
 })();
