@@ -312,6 +312,27 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; display:block
 .inv-item .inv-desc { color: var(--text-dim); font-size: 18px; flex:1; }
 .gold-display { font-family: var(--font-pixel); font-size: 13px; color: var(--gold); margin-bottom: 12px; }
 
+/* ---------- numeri di danno fluttuanti ---------- */
+.dmg-float {
+  position: absolute;
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  pointer-events: none;
+  transform: translateX(-50%);
+  text-shadow: 2px 2px 0 #000;
+  animation: floatUp 1.05s ease-out forwards;
+  z-index: 5;
+}
+.dmg-float.float-dmg  { color: var(--red); }
+.dmg-float.float-crit { color: var(--gold); font-size: 20px; }
+.dmg-float.float-heal { color: var(--green); }
+.dmg-float.float-miss { color: var(--text-dim); font-size: 12px; }
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translate(-50%, 6px) scale(.7); }
+  15%  { opacity: 1; transform: translate(-50%, -4px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+}
+
 /* ---------- effetto macchina da scrivere ---------- */
 .narration .cursor { display:inline-block; width: 10px; height: 20px; background: var(--gold); animation: blink .7s infinite; vertical-align: text-bottom; }
 @keyframes blink { 50% { opacity: 0; } }

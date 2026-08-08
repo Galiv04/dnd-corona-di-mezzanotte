@@ -33,7 +33,14 @@ const Combat = (() => {
       round: 1,
       enemies: combatDef.enemies.map((key, i) => {
         const b = BESTIARY[key];
-        return { ...b, key, hp: b.maxHp, idx: i, stunned: false, distracted: false, dead: false };
+        const e = { ...b, key, hp: b.maxHp, idx: i, stunned: false, distracted: false, dead: false,
+          attack: { ...b.attack } };
+        if (G.difficulty === 'facile') {
+          e.maxHp = Math.max(1, Math.round(e.maxHp * 0.8));
+          e.hp = e.maxHp;
+          e.attack.bonus = Math.max(0, e.attack.bonus - 1);
+        }
+        return e;
       }),
       turnQueue: [],
       turnPtr: -1,
@@ -84,6 +91,15 @@ const Combat = (() => {
     log(`<b>Nemici:</b> ${battle.enemies.map(e => e.name).join(', ')}`, 'log-info');
     for (const e of [...new Set(battle.enemies.map(e => e.key))]) {
       log(`<i>${BESTIARY[e].name}: ${BESTIARY[e].flavor}</i>`, 'log-info');
+      if (!G.seenEnemies) G.seenEnemies = [];
+      if (!G.seenEnemies.includes(e)) G.seenEnemies.push(e);
+    }
+    // reazioni situazionali degli eroi
+    if (battle.enemies.some(e => e.key === 'ragno') && G.party.some(h => h.id === 'zonk' && !h.down)) {
+      log(`🕷 Zonk: "RAGNI. Perché sempre RAGNI. Zonk combattere... da molto, MOLTO lontano."`, 'log-turn');
+    }
+    if (battle.enemies.some(e => e.undead) && G.party.some(h => h.id === 'brunilde' && !h.down)) {
+      log(`⛪ Brunilde fa scrocchiare le nocche: "Non-morti. Il mio genere di congregazione."`, 'log-turn');
     }
     openLines.forEach(l => log(l, 'log-heal'));
     log(`Ordine di iniziativa: ${battle.turnQueue.map(c => c.type === 'hero' ? G.party[c.idx].name.split(' ')[0] : battle.enemies[c.idx].name.split(',')[0]).join(' → ')}`, 'log-info');
@@ -94,11 +110,12 @@ const Combat = (() => {
     if (battle.isBoss && G.flags.vesper_turbato) log(`🎭 Vesper è emotivamente scosso: i suoi primi attacchi saranno più deboli.`, 'log-heal');
 
     setTimeout(() => { banner.classList.add('hidden'); nextTurn(); }, 1600);
+    if (raf) battle._raf = raf(animLoop);
   }
 
   /* ---------- rendering ---------- */
 
-  function render() {
+  function renderCanvas(ts = 0) {
     const canvas = $('combat-canvas');
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
@@ -106,13 +123,15 @@ const Combat = (() => {
     const scene = Engine.currentScene();
     (Scenes.painters[scene && scene.location] || Scenes.painters.strada)(ctx, W, H);
 
-    // eroi a sinistra
+    // eroi a sinistra (con leggera oscillazione "idle")
     const heroes = G.party;
     const hScale = 4, hSize = 16 * hScale;
     heroes.forEach((h, i) => {
       const cols = Math.min(3, heroes.length);
       const col = i % cols, row = Math.floor(i / cols);
-      const x = 30 + col * (hSize + 16), y = H - 20 - hSize - row * (hSize + 14);
+      const bob = h.down ? 0 : Math.round(Math.sin(ts / 320 + i * 1.4) * 3);
+      const x = 30 + col * (hSize + 16), y = H - 20 - hSize - row * (hSize + 14) + bob;
+      h._x = x; h._y = y; h._size = hSize;
       const def = Sprites.registry[h.sprite];
       ctx.globalAlpha = h.down ? 0.35 : 1;
       Sprites.drawSprite(ctx, def.map, def.palette, x, y, hScale);
@@ -125,8 +144,9 @@ const Combat = (() => {
     const eScale = battle.enemies.length > 2 ? 4 : 5;
     const eSize = 16 * eScale;
     alive.forEach((e, i) => {
+      const bob = e.dead ? 0 : Math.round(Math.sin(ts / 280 + i * 2.1) * 3);
       const x = W - 60 - eSize - (i % 3) * (eSize + 26);
-      const y = 60 + Math.floor(i / 3) * (eSize + 30) + (i % 2) * 18;
+      const y = 60 + Math.floor(i / 3) * (eSize + 30) + (i % 2) * 18 + bob;
       e._x = x; e._y = y; e._size = eSize;
       if (e.dead) { ctx.globalAlpha = 0.18; }
       const def = Sprites.registry[e.sprite];
@@ -147,8 +167,36 @@ const Combat = (() => {
         if (e.stunned) { ctx.font = "14px 'Press Start 2P'"; ctx.fillText('💫', x + eSize - 10, y + 4); }
       }
     });
+  }
 
+  const now = () => (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const raf = (typeof requestAnimationFrame !== 'undefined') ? requestAnimationFrame : null;
+  const caf = (typeof cancelAnimationFrame !== 'undefined') ? cancelAnimationFrame : () => {};
+
+  function render() {
+    renderCanvas(now());
     Engine.renderPartyBar('combat-party-bar');
+  }
+
+  // ciclo di animazione: attivo solo durante il combattimento
+  function animLoop(ts) {
+    if (!battle || battle.over || !raf) return;
+    if ($('screen-combat').classList.contains('active')) renderCanvas(ts);
+    battle._raf = raf(animLoop);
+  }
+
+  // numeri di danno/cura fluttuanti sopra il canvas
+  function floatText(cx, cy, text, cls = '') {
+    const canvas = $('combat-canvas');
+    const wrap = canvas.parentElement;
+    const scale = canvas.clientWidth / canvas.width;
+    const span = document.createElement('span');
+    span.className = 'dmg-float ' + cls;
+    span.textContent = text;
+    span.style.left = Math.round(cx * scale) + 'px';
+    span.style.top = Math.round(cy * scale) + 'px';
+    wrap.appendChild(span);
+    setTimeout(() => span.remove(), 1100);
   }
 
   /* ---------- gestione turni ---------- */
@@ -320,9 +368,12 @@ const Combat = (() => {
           if (opts.holy && e.undead) dmg *= 2;
           e.hp -= dmg;
           log(`${res.crit ? '💥 <b>CRITICO!</b> ' : ''}⚔ ${h.name} colpisce ${e.name}: <b>${dmg} danni</b>${opts.holy && e.undead ? ' (DOPPI sul non-morto!)' : ''}.`, res.crit ? 'log-crit' : 'log-hit');
+          if (typeof Sound !== 'undefined') Sound.play('hit');
+          floatText(e._x + e._size / 2, e._y, `-${dmg}`, res.crit ? 'float-crit' : 'float-dmg');
           checkEnemyDeath(e);
         } else {
           log(`${h.name} manca ${e.name}. ${res.fumble ? 'Malissimo. Con stile, ma malissimo.' : ''}`, 'log-info');
+          floatText(e._x + e._size / 2, e._y, 'MANCATO', 'float-miss');
         }
         render();
         if (opts.after) opts.after(res); else endHeroAction();
@@ -392,6 +443,7 @@ const Combat = (() => {
           ally.down = false;
           ally.hp = Math.min(ally.maxHp, Math.max(0, ally.hp) + amount);
           log(`✨ <b>${ab.name}</b>: ${ally.name} ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${amount} PV</b>!`, 'log-heal');
+          if (ally._x != null) floatText(ally._x + ally._size / 2, ally._y, `+${amount}`, 'float-heal');
           if (typeof Sound !== 'undefined') Sound.play('heal');
           render(); endHeroAction();
         }, true);
@@ -459,6 +511,7 @@ const Combat = (() => {
     let extra = '';
     if (item.combat.distract && !e.dead) { e.distracted = true; extra = ' Il tanfo lo stordisce: svantaggio al prossimo attacco!'; }
     log(`${item.icon || '🎯'} ${G.party[hIdx].name} lancia ${item.name} su ${e.name}: <b>${dmg} danni</b>${doubled ? ' (DOPPI sul non-morto!)' : ''}.${extra}`, 'log-hit');
+    if (e._x != null) floatText(e._x + e._size / 2, e._y, `-${dmg}`, 'float-dmg');
     if (typeof Sound !== 'undefined') Sound.play('hit');
     checkEnemyDeath(e); render(); endHeroAction();
   }
@@ -472,6 +525,7 @@ const Combat = (() => {
     ally.down = false;
     ally.hp = Math.min(ally.maxHp, Math.max(0, ally.hp) + item.heal);
     log(`🧪 ${G.party[hIdx].name} usa ${item.name} su ${ally.name}: ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${item.heal} PV</b>!`, 'log-heal');
+    if (ally._x != null) floatText(ally._x + ally._size / 2, ally._y, `+${item.heal}`, 'float-heal');
     if (typeof Sound !== 'undefined') Sound.play('heal');
     render(); endHeroAction();
   }
@@ -537,6 +591,8 @@ const Combat = (() => {
       if (battle.tauntHeroIdx === tIdx) dmg = Math.max(1, Math.floor(dmg / 2));
       h.hp -= dmg;
       log(`${crit ? '💥 <b>CRITICO!</b> ' : ''}🗡 ${e.name} colpisce ${h.name} con ${e.attack.name}: <b>${dmg} danni</b>.`, crit ? 'log-crit' : 'log-hit');
+      if (typeof Sound !== 'undefined') Sound.play('hit');
+      if (h._x != null) floatText(h._x + h._size / 2, h._y, `-${dmg}`, 'float-dmg');
       if (h.hp <= 0) {
         // passiva Zonk
         if (h.id === 'zonk' && !h.zonkGritUsed) {
@@ -560,6 +616,7 @@ const Combat = (() => {
   function victory() {
     if (battle.over) return;
     battle.over = true;
+    if (battle._raf) caf(battle._raf);
     const banner = $('combat-banner');
     banner.textContent = '🏆 VITTORIA! 🏆';
     banner.classList.add('victory');
@@ -585,6 +642,7 @@ const Combat = (() => {
   function defeat() {
     if (battle.over) return;
     battle.over = true;
+    if (battle._raf) caf(battle._raf);
     const banner = $('combat-banner');
     banner.textContent = '💀 SCONFITTA... 💀';
     banner.classList.remove('hidden', 'victory');

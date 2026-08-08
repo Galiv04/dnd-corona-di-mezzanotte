@@ -5,6 +5,7 @@ const Main = (() => {
   const $ = id => document.getElementById(id);
   let selection = {}; // heroId -> { selected: bool, player: '' }
   let pendingSlot = null; // slot scelto per la nuova partita
+  let pendingDifficulty = 'normale';
 
   /* Selettore degli slot di salvataggio (mode: 'load' | 'overwrite') */
   function pickSlot(mode) {
@@ -73,6 +74,8 @@ const Main = (() => {
     $('btn-howto-back').onclick = () => Engine.showScreen('screen-title');
     $('btn-setup-back').onclick = () => Engine.showScreen('screen-title');
     $('btn-start-adventure').onclick = startAdventure;
+    $('btn-diff-normale').onclick = () => setDifficulty('normale');
+    $('btn-diff-facile').onclick = () => setDifficulty('facile');
 
     // header di gioco
     $('btn-map').onclick = Engine.showMap;
@@ -91,6 +94,12 @@ const Main = (() => {
     for (const mid of ['modal-generic', 'modal-char']) {
       $(mid).addEventListener('click', e => { if (e.target === $(mid)) $(mid).classList.add('hidden'); });
     }
+  }
+
+  function setDifficulty(d) {
+    pendingDifficulty = d;
+    $('btn-diff-normale').classList.toggle('btn-gold', d === 'normale');
+    $('btn-diff-facile').classList.toggle('btn-gold', d === 'facile');
   }
 
   /* ---------- setup della compagnia ---------- */
@@ -174,7 +183,7 @@ const Main = (() => {
     const chosen = HEROES.filter(h => selection[h.id].selected)
       .map(h => ({ heroId: h.id, player: selection[h.id].player.trim() }));
     if (chosen.length < 1) return;
-    Engine.newGame(chosen, pendingSlot);
+    Engine.newGame(chosen, pendingSlot, pendingDifficulty);
     pendingSlot = null;
   }
 

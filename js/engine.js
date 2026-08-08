@@ -20,7 +20,7 @@ const Engine = (() => {
 
   /* ---------- stato ---------- */
 
-  function newGame(selection, slot = null) {
+  function newGame(selection, slot = null, difficulty = 'normale') {
     // selection: [{heroId, player}]
     if (slot == null) slot = firstFreeSlot() || 1;
     const solo = selection.length === 1;
@@ -44,7 +44,9 @@ const Engine = (() => {
       enteredScenes: {}, // sceneId -> true (per effetti one-shot)
       lastCombatSceneId: null,
       history: [],       // tappe della storia (per il riepilogo alla ripresa)
+      seenEnemies: [],   // nemici incontrati (per il bestiario)
       slot,
+      difficulty,
       stats: { combats: 0, checksPassed: 0, checksFailed: 0, scenes: 0, start: Date.now() },
     };
     for (const h of G.party) {
@@ -210,7 +212,7 @@ const Engine = (() => {
     if (!G.history) G.history = [];
     if (scene.caption && G.history[G.history.length - 1] !== scene.caption) {
       G.history.push(scene.caption);
-      if (G.history.length > 12) G.history.shift();
+      if (G.history.length > 60) G.history.shift();
     }
 
     saveGame();
@@ -592,9 +594,41 @@ const Engine = (() => {
     box.innerHTML = `<h2>☰ Menu</h2>
       <p style="color:var(--text-dim);margin-bottom:14px">La partita si salva da sola a ogni scena. Potete chiudere il browser e riprendere quando volete.</p>
       <button class="choice-btn" onclick="document.getElementById('modal-generic').classList.add('hidden')">▶ Torna alla partita</button>
+      <button class="choice-btn" onclick="Engine.showDiary()">📔 Diario di viaggio</button>
+      <button class="choice-btn" onclick="Engine.showBestiary()">🐺 Bestiario (nemici incontrati)</button>
       <button class="choice-btn" onclick="Engine.backToTitle()">🏠 Torna al titolo (la partita resta salvata)</button>
       <button class="choice-btn" style="border-left-color:var(--red)" onclick="Engine.confirmRestart()">🗑 Ricomincia da capo (cancella il salvataggio)</button>`;
     $('modal-generic').classList.remove('hidden');
+  }
+
+  function showDiary() {
+    const box = $('modal-generic-content');
+    const beats = (G.history || []).map((c, i) => `<div class="ability-box" style="border-left-color:var(--gold)"><div class="ability-desc">${i + 1}. ${c}</div></div>`).join('') ||
+      '<p style="color:var(--text-dim)">Il diario è ancora bianco. Le grandi storie iniziano così.</p>';
+    box.innerHTML = `<h2>📔 Diario di Viaggio</h2>
+      <p style="color:var(--text-dim);margin-bottom:10px">Le tappe della vostra impresa, in ordine:</p>
+      ${beats}
+      <button class="btn" style="margin-top:12px" onclick="Engine.showMenu()">↩ Menu</button>`;
+  }
+
+  function showBestiary() {
+    const box = $('modal-generic-content');
+    const seen = G.seenEnemies || [];
+    let html = `<h2>🐺 Bestiario di Lumelia</h2>
+      <p style="color:var(--text-dim);margin-bottom:10px">Creature incontrate finora: ${seen.length}. Le altre... le scoprirete nel modo divertente.</p>`;
+    if (!seen.length) html += '<p style="color:var(--text-dim)">Nessuno scontro finora. Beati voi.</p>';
+    for (const key of seen) {
+      const b = BESTIARY[key];
+      if (!b) continue;
+      html += `<div class="ability-box" style="display:flex;gap:12px;align-items:center">
+        <canvas data-sprite="${b.sprite}" width="56" height="56" style="border:2px solid var(--border);background:#111;flex-shrink:0"></canvas>
+        <div><span class="ability-name">${b.name}</span>${b.undead ? ' <span style="color:var(--purple)">· non-morto</span>' : ''}${b.boss ? ' <span style="color:var(--red)">· BOSS</span>' : ''}
+        <div class="ability-desc">${b.flavor}<br>PV ${b.maxHp} · CA ${b.ac} · ${b.attack.name}</div></div>
+      </div>`;
+    }
+    html += `<button class="btn" style="margin-top:12px" onclick="Engine.showMenu()">↩ Menu</button>`;
+    box.innerHTML = html;
+    box.querySelectorAll('canvas[data-sprite]').forEach(cv => Sprites.renderToCanvas(cv, Sprites.registry[cv.dataset.sprite]));
   }
 
   function backToTitle() {
@@ -677,7 +711,7 @@ const Engine = (() => {
   return {
     newGame, saveGame, loadGame, hasSave, clearSave, listSaves, firstFreeSlot,
     showScreen, gotoScene, currentScene, renderPartyBar,
-    showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu,
+    showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu, showDiary, showBestiary,
     usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,
     heroSheetHTML, formatText,
   };
