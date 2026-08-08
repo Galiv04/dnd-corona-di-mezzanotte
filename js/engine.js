@@ -1,0 +1,555 @@
+/* ============ ENGINE — stato di gioco, scene, prove, modali ============ */
+
+let G = null; // stato di gioco globale
+
+const Engine = (() => {
+
+  const SAVE_KEY = 'corona-di-mezzanotte-save-v1';
+  const $ = id => document.getElementById(id);
+
+  /* ---------- stato ---------- */
+
+  function newGame(selection) {
+    // selection: [{heroId, player}]
+    G = {
+      party: selection.map(s => {
+        const base = HEROES.find(h => h.id === s.heroId);
+        return { ...JSON.parse(JSON.stringify(base)), hp: base.maxHp, down: false, player: s.player || '' };
+      }),
+      uses: {},
+      gold: 30,
+      inventory: [],
+      flags: {},
+      sceneId: CAMPAIGN_START,
+      usedChoices: {},   // sceneId -> [testi scelti "once"]
+      enteredScenes: {}, // sceneId -> true (per effetti one-shot)
+      lastCombatSceneId: null,
+      stats: { combats: 0, checksPassed: 0, checksFailed: 0, scenes: 0, start: Date.now() },
+    };
+    for (const h of G.party) {
+      G.uses[h.id] = {};
+      for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
+    }
+    saveGame();
+    gotoScene(CAMPAIGN_START);
+  }
+
+  function saveGame() {
+    if (!G) return;
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) { /* storage pieno o disabilitato */ }
+  }
+
+  function hasSave() {
+    try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; }
+  }
+
+  function loadGame() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return false;
+      G = JSON.parse(raw);
+      // ripristina metodi/dati non serializzati: niente da fare, è tutto dati
+      const scene = CAMPAIGN[G.sceneId];
+      if (!scene) { G.sceneId = CAMPAIGN_START; }
+      renderScene(CAMPAIGN[G.sceneId], true);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function clearSave() {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+  }
+
+  /* ---------- navigazione schermate ---------- */
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+  }
+
+  function currentScene() { return CAMPAIGN[G && G.sceneId] || null; }
+
+  /* ---------- formattazione testo ---------- */
+
+  function formatText(text) {
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc(text)
+      .split('\n')
+      .map(line => {
+        const m = line.match(/^&gt; ([^:]+): ?(.*)$/);
+        if (m) return `<span class="speaker">${m[1]}:</span> ${m[2]}`;
+        return line;
+      })
+      .join('\n')
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\*(.+?)\*/g, '<i>$1</i>');
+  }
+
+  /* ---------- scene ---------- */
+
+  function gotoScene(id) {
+    if (id === 'RETRY_COMBAT') id = G.lastCombatSceneId || CAMPAIGN_START;
+    const scene = CAMPAIGN[id];
+    if (!scene) { console.error('Scena mancante:', id); return; }
+    G.sceneId = id;
+    G.stats.scenes++;
+
+    const firstVisit = !G.enteredScenes[id];
+    G.enteredScenes[id] = true;
+
+    // effetti d'ingresso (solo alla prima visita)
+    if (firstVisit) {
+      if (scene.sets) Object.assign(G.flags, scene.sets);
+      if (scene.gold) G.gold = Math.max(0, G.gold + scene.gold);
+      if (scene.goldLoss) G.gold = Math.max(0, G.gold - scene.goldLoss);
+      if (scene.item) G.inventory.push(scene.item);
+      if (scene.item2) G.inventory.push(scene.item2);
+      if (scene.heal) for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + scene.heal);
+      if (scene.damage) for (const h of G.party) if (!h.down) h.hp = Math.max(1, h.hp - scene.damage);
+      if (scene.fullHeal) {
+        for (const h of G.party) {
+          h.hp = h.maxHp; h.down = false;
+          for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
+        }
+      }
+      if (scene.onEnterOnce && scene.onEnterOnce.itemEach) {
+        for (const h of G.party) G.inventory.push(scene.onEnterOnce.itemEach);
+      }
+    }
+
+    if (scene.combat) G.lastCombatSceneId = id;
+
+    saveGame();
+    renderScene(scene);
+  }
+
+  let typeTimer = null;
+
+  function renderScene(scene, instant = false) {
+    showScreen('screen-game');
+    $('hud-location').textContent = '📍 ' + (scene.caption || '');
+    Scenes.paint('scene-canvas', scene.location);
+    $('scene-caption').textContent = scene.caption || '';
+
+    const narr = $('narration');
+    const choicesEl = $('choices');
+    choicesEl.innerHTML = '';
+
+    const html = `<span class="dm-label">🎙 IL NARRATORE</span>` + formatText(scene.text);
+
+    if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+
+    const finishRender = () => {
+      narr.innerHTML = html;
+      renderChoices(scene);
+      renderPartyBar('party-bar');
+    };
+
+    if (instant) { finishRender(); return; }
+
+    // effetto macchina da scrivere (cliccabile per saltare)
+    narr.innerHTML = '';
+    const plain = document.createElement('div');
+    narr.appendChild(plain);
+    let i = 0;
+    const step = 3; // caratteri per tick
+    const raw = scene.text;
+    typeTimer = setInterval(() => {
+      i += step;
+      if (i >= raw.length) {
+        clearInterval(typeTimer); typeTimer = null;
+        finishRender();
+      } else {
+        plain.innerHTML = `<span class="dm-label">🎙 IL NARRATORE</span>` + formatText(raw.slice(0, i)) + '<span class="cursor"></span>';
+      }
+    }, 12);
+    narr.onclick = () => {
+      if (typeTimer) { clearInterval(typeTimer); typeTimer = null; finishRender(); }
+    };
+    renderPartyBar('party-bar');
+  }
+
+  function choiceAvailable(c) {
+    if (c.requires) {
+      if (c.requires.flag && !G.flags[c.requires.flag]) return false;
+      if (c.requires.notFlag && G.flags[c.requires.notFlag]) return false;
+      if (c.requires.item && !G.inventory.includes(c.requires.item)) return false;
+      if (c.requires.notItem && G.inventory.includes(c.requires.notItem)) return false;
+    }
+    if (c.once && (G.usedChoices[G.sceneId] || []).includes(c.text)) return false;
+    return true;
+  }
+
+  function renderChoices(scene) {
+    const choicesEl = $('choices');
+    choicesEl.innerHTML = '';
+
+    if (scene.ending) {
+      renderEnding(scene);
+      return;
+    }
+
+    if (scene.combat) {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.innerHTML = `⚔ <b>INIZIA IL COMBATTIMENTO!</b> <span class="choice-tag">Preparatevi: si combatte a turni, il gioco vi guida.</span>`;
+      b.onclick = () => { G.stats.combats++; Combat.start(scene.combat, G.sceneId); };
+      choicesEl.appendChild(b);
+      return;
+    }
+
+    for (const c of (scene.choices || [])) {
+      if (!choiceAvailable(c)) continue;
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      let inner = c.text;
+      if (c.tag) inner += ` <span class="choice-check">🎲 ${c.tag}</span>`;
+      const poor = c.requiresGold && G.gold < c.requiresGold;
+      if (poor) inner += ` <span class="choice-tag">(vi servono ${c.requiresGold} monete — ne avete ${G.gold})</span>`;
+      b.innerHTML = inner;
+      b.disabled = !!poor;
+      b.onclick = () => resolveChoice(scene, c);
+      choicesEl.appendChild(b);
+    }
+  }
+
+  function resolveChoice(scene, c) {
+    if (c.once) {
+      if (!G.usedChoices[G.sceneId]) G.usedChoices[G.sceneId] = [];
+      G.usedChoices[G.sceneId].push(c.text);
+    }
+    if (c.gold) G.gold = Math.max(0, G.gold + c.gold);
+    if (c.item) G.inventory.push(c.item);
+    if (c.removeItem) {
+      const i = G.inventory.indexOf(c.removeItem);
+      if (i >= 0) G.inventory.splice(i, 1);
+    }
+    if (c.sets) Object.assign(G.flags, c.sets);
+    saveGame();
+
+    if (c.check) {
+      pickHeroForCheck(c.check);
+    } else if (c.next) {
+      gotoScene(c.next);
+    } else {
+      // scelta "da negozio": resta nella scena e aggiorna
+      renderScene(scene, true);
+    }
+  }
+
+  /* ---------- prove di abilità ---------- */
+
+  const STAT_NAMES = { FOR: 'Forza', DES: 'Destrezza', COS: 'Costituzione', INT: 'Intelligenza', SAG: 'Saggezza', CAR: 'Carisma' };
+
+  function heroCheckMod(h, stat) {
+    let m = h.stats[stat] || 0;
+    if (h.id === 'lyra' && stat === 'INT') m += 2;
+    if (h.id === 'kael' && stat === 'SAG') m += 2;
+    return m;
+  }
+
+  function pickHeroForCheck(check) {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>🎲 Prova di ${STAT_NAMES[check.stat]} — CD ${check.dc}</h2>
+      <p style="margin-bottom:12px">Chi ci prova? Scegliete l'eroe (contano i suoi bonus!):</p>`;
+    G.party.forEach(h => {
+      if (h.down) return;
+      const mod = heroCheckMod(h, check.stat);
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.innerHTML = `${h.name} <span class="choice-tag">${STAT_NAMES[check.stat]}: ${mod >= 0 ? '+' + mod : mod}${h.player ? ' · giocato da ' + h.player : ''}</span>`;
+      b.onclick = () => {
+        $('modal-generic').classList.add('hidden');
+        Dice.showRoll({
+          title: `${h.name} tenta:<br>${STAT_NAMES[check.stat]} — CD ${check.dc}`,
+          mod, dc: check.dc,
+          onDone: res => {
+            if (res.success) G.stats.checksPassed++; else G.stats.checksFailed++;
+            gotoScene(res.success ? check.success : check.fail);
+          },
+        });
+      };
+      box.appendChild(b);
+    });
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  /* ---------- barra del gruppo ---------- */
+
+  function renderPartyBar(containerId, activeIdx = -1) {
+    const bar = $(containerId);
+    bar.innerHTML = '';
+    G.party.forEach((h, i) => {
+      const slot = document.createElement('div');
+      slot.className = 'party-slot' + (i === activeIdx ? ' active-turn' : '') + (h.down ? ' dead' : '');
+      const cv = document.createElement('canvas');
+      cv.width = 36; cv.height = 36;
+      slot.appendChild(cv);
+      const info = document.createElement('div');
+      info.className = 'party-slot-info';
+      const frac = h.hp / h.maxHp;
+      info.innerHTML = `
+        <div class="party-slot-name">${h.name.split(' ')[0]}</div>
+        ${h.player ? `<div class="party-slot-player">${h.player}</div>` : ''}
+        <div class="hp-bar"><div class="hp-fill ${frac > 0.5 ? 'high' : frac > 0.25 ? 'mid' : ''}" style="width:${Math.max(0, frac * 100)}%"></div></div>
+        <span class="hp-text">${h.down ? 'A TERRA' : h.hp + '/' + h.maxHp + ' PV'}</span>`;
+      slot.appendChild(info);
+      slot.onclick = () => showHeroSheet(h);
+      bar.appendChild(slot);
+      Sprites.renderToCanvas(cv, Sprites.registry[h.sprite]);
+    });
+  }
+
+  /* ---------- schede e modali ---------- */
+
+  function heroSheetHTML(h, withUses = true) {
+    const stats = Object.entries(h.stats).map(([k, v]) =>
+      `<div class="stat-chip"><span class="stat-label">${k}</span><span class="stat-val">${v >= 0 ? '+' + v : v}</span></div>`).join('');
+    const abilities = h.abilities.map(ab => {
+      const left = withUses && G && G.uses[h.id] ? ` — usi rimasti: <b>${G.uses[h.id][ab.id]}</b>` : ` — usi per avventura: <b>${ab.uses}</b>`;
+      return `<div class="ability-box"><span class="ability-name">✨ ${ab.name}</span>${left}<div class="ability-desc">${ab.desc}</div></div>`;
+    }).join('');
+    return `
+      <h2>${h.name}</h2>
+      <p style="color:var(--blue);font-size:20px">${h.class} — <i>${h.tagline}</i></p>
+      ${h.player ? `<p style="color:var(--text-dim)">Giocato da: <b>${h.player}</b></p>` : ''}
+      <div class="stat-row">
+        <div class="stat-chip"><span class="stat-label">PV</span><span class="stat-val">${G ? h.hp + '/' + h.maxHp : h.maxHp}</span></div>
+        <div class="stat-chip"><span class="stat-label">CA</span><span class="stat-val">${h.ac}</span></div>
+        ${stats}
+      </div>
+      <h3>⚔ Attacco</h3>
+      <div class="ability-box"><span class="ability-name">${h.attack.name}</span><div class="ability-desc">${h.attack.desc}</div></div>
+      <h3>✨ Abilità speciali</h3>
+      ${abilities}
+      <div class="ability-box"><span class="ability-name">🌟 Passiva</span><div class="ability-desc">${h.passive}</div></div>
+      <h3>📜 Storia</h3>
+      <div class="backstory">${h.backstory}</div>
+      <div class="backstory" style="border-left:5px solid var(--green)"><b>Come interpretarlo:</b> ${h.voice}</div>
+      <p style="font-size:19px;color:var(--text-dim);margin-top:8px"><b>Ruolo nel gruppo:</b> ${h.role}</p>`;
+  }
+
+  function showHeroSheet(h) {
+    const box = $('modal-generic-content');
+    box.innerHTML = heroSheetHTML(h) + `<button class="btn" style="margin-top:14px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function showParty() {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>🎭 La Compagnia</h2>` +
+      G.party.map((h, i) => `<div class="ability-box" style="cursor:pointer" onclick="Engine.showHeroSheetIdx(${i})">
+        <span class="ability-name">${h.name}</span> — ${h.class}${h.player ? ' · ' + h.player : ''}
+        <div class="ability-desc">PV ${h.hp}/${h.maxHp} · CA ${h.ac} ${h.down ? '· 💀 A TERRA' : ''} — <i>tocca per la scheda completa</i></div>
+      </div>`).join('') +
+      `<button class="btn" style="margin-top:14px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function showHeroSheetIdx(i) { showHeroSheet(G.party[i]); }
+
+  function showInventory() {
+    const box = $('modal-generic-content');
+    const counts = {};
+    for (const it of G.inventory) counts[it] = (counts[it] || 0) + 1;
+    let itemsHtml = Object.entries(counts).map(([it, n]) => {
+      const item = ITEMS[it];
+      const useBtn = item.usable ? `<button class="btn btn-small" onclick="Engine.usePotionOutside('${it}')">🧪 Bevi</button>` : '';
+      return `<div class="inv-item"><span class="inv-name">${item.name}${n > 1 ? ' ×' + n : ''}</span><span class="inv-desc">${item.desc}</span>${useBtn}</div>`;
+    }).join('') || '<p style="color:var(--text-dim)">Lo zaino è vuoto. Succede ai migliori.</p>';
+    box.innerHTML = `<h2>🎒 Zaino del Gruppo</h2>
+      <div class="gold-display">💰 ${G.gold} monete d'oro</div>
+      ${itemsHtml}
+      <button class="btn" style="margin-top:14px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function usePotionOutside(itemId) {
+    const box = $('modal-generic-content');
+    const item = ITEMS[itemId];
+    box.innerHTML = `<h2>🧪 ${item.name}</h2><p style="margin-bottom:12px">Chi la beve?</p>` +
+      G.party.map((h, i) => `<button class="choice-btn" onclick="Engine.applyPotion('${itemId}', ${i})">${h.name} <span class="choice-tag">PV ${h.hp}/${h.maxHp}${h.down ? ' — A TERRA' : ''}</span></button>`).join('');
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function applyPotion(itemId, heroIdx) {
+    const i = G.inventory.indexOf(itemId);
+    if (i < 0) return;
+    G.inventory.splice(i, 1);
+    const h = G.party[heroIdx];
+    h.down = false;
+    h.hp = Math.min(h.maxHp, Math.max(0, h.hp) + ITEMS[itemId].heal);
+    saveGame();
+    renderPartyBar('party-bar');
+    showInventory();
+  }
+
+  function showRules() {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>📖 Regole Rapide</h2>${RULES_QUICK}
+      <button class="btn" style="margin-top:14px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  /* ---------- mappa ---------- */
+
+  function showMap() {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>🗺 Regno di Lumelia</h2><canvas id="map-canvas" width="720" height="480"></canvas>
+      <p style="color:var(--text-dim);font-size:19px;margin-top:8px">⭐ = posizione attuale della compagnia</p>
+      <button class="btn" style="margin-top:10px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    $('modal-generic').classList.remove('hidden');
+    drawMap();
+  }
+
+  function drawMap() {
+    const canvas = $('map-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    const W = canvas.width, H = canvas.height;
+    const r = Scenes.rng(500);
+
+    // sfondo pergamena notturna
+    Scenes.blocks(ctx, 0, 0, W, H, '#1d1a2e', 20, r, 0.12);
+    // montagne a nord
+    for (let i = 0; i < 6; i++) {
+      const x = W * 0.1 + i * W * 0.15, s = 40 + r() * 30;
+      ctx.fillStyle = '#2e2a3d';
+      ctx.beginPath(); ctx.moveTo(x, H * 0.18); ctx.lineTo(x + s, H * 0.18 - s); ctx.lineTo(x + s * 2, H * 0.18); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#4a4560';
+      ctx.beginPath(); ctx.moveTo(x + s * 0.6, H * 0.18 - s * 0.6); ctx.lineTo(x + s, H * 0.18 - s); ctx.lineTo(x + s * 1.4, H * 0.18 - s * 0.6); ctx.closePath(); ctx.fill();
+    }
+    // bosco a ovest
+    for (let i = 0; i < 14; i++) {
+      const x = W * (0.12 + r() * 0.25), y = H * (0.22 + r() * 0.2);
+      ctx.fillStyle = '#1d3a25'; ctx.fillRect(x, y, 14, 14);
+      ctx.fillStyle = '#2a4d33'; ctx.fillRect(x + 2, y - 6, 10, 10);
+    }
+    // fiume
+    ctx.strokeStyle = '#2a4a6e'; ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.moveTo(W * 0.05, H * 0.85);
+    ctx.quadraticCurveTo(W * 0.4, H * 0.75, W * 0.55, H * 0.45);
+    ctx.quadraticCurveTo(W * 0.65, H * 0.28, W * 0.9, H * 0.2); ctx.stroke();
+
+    // strade tra i luoghi
+    ctx.strokeStyle = '#6e5a42'; ctx.lineWidth = 4; ctx.setLineDash([8, 6]);
+    const pts = k => { const l = WORLD_MAP.find(w => w.key === k); return [l.x * W, l.y * H]; };
+    const path = (a, b) => { const [x1, y1] = pts(a), [x2, y2] = pts(b); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+    path('brindolo', 'ponte'); path('ponte', 'bivio'); path('bivio', 'bosco'); path('bivio', 'miniere');
+    path('bosco', 'castello'); path('miniere', 'castello');
+    ctx.setLineDash([]);
+
+    // luogo corrente
+    const cur = WORLD_MAP.find(w => w.scenes.includes(G.sceneId));
+
+    for (const loc of WORLD_MAP) {
+      const x = loc.x * W, y = loc.y * H;
+      // icona
+      if (loc.key === 'castello') {
+        ctx.fillStyle = '#3a3045'; ctx.fillRect(x - 14, y - 20, 28, 20);
+        ctx.fillRect(x - 20, y - 30, 10, 30); ctx.fillRect(x + 10, y - 30, 10, 30);
+        ctx.fillStyle = '#e84a5a'; ctx.fillRect(x - 3, y - 16, 6, 8);
+      } else if (loc.key === 'bosco') {
+        ctx.fillStyle = '#2a4d33'; ctx.fillRect(x - 12, y - 16, 24, 16);
+        ctx.fillStyle = '#1d3a25'; ctx.fillRect(x - 6, y - 24, 12, 12);
+      } else if (loc.key === 'miniere') {
+        ctx.fillStyle = '#4a3524'; ctx.fillRect(x - 14, y - 14, 28, 14);
+        ctx.fillStyle = '#1a1a22'; ctx.fillRect(x - 6, y - 10, 12, 10);
+      } else if (loc.key === 'ponte') {
+        ctx.fillStyle = '#6e5238'; ctx.fillRect(x - 16, y - 6, 32, 8);
+        ctx.fillStyle = '#4a3524'; ctx.fillRect(x - 16, y + 2, 6, 8); ctx.fillRect(x + 10, y + 2, 6, 8);
+      } else {
+        ctx.fillStyle = '#8a6a45'; ctx.fillRect(x - 10, y - 12, 20, 12);
+        ctx.fillStyle = '#7a3025';
+        ctx.beginPath(); ctx.moveTo(x - 14, y - 12); ctx.lineTo(x, y - 24); ctx.lineTo(x + 14, y - 12); ctx.closePath(); ctx.fill();
+      }
+      // etichetta
+      ctx.fillStyle = cur && cur.key === loc.key ? '#f5c542' : '#a89cc8';
+      ctx.font = "10px 'Press Start 2P'";
+      ctx.textAlign = 'center';
+      ctx.fillText(loc.label, x, y + 22);
+      if (cur && cur.key === loc.key) {
+        ctx.fillStyle = '#f5c542';
+        ctx.font = "18px 'Press Start 2P'";
+        ctx.fillText('⭐', x, y - 34);
+      }
+      ctx.textAlign = 'left';
+    }
+
+    // eclissi nell'angolo
+    ctx.fillStyle = '#0d0a1a'; ctx.beginPath(); ctx.arc(W - 50, 46, 26, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#e84a5a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W - 50, 46, 26, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  /* ---------- menu ---------- */
+
+  function showMenu() {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>☰ Menu</h2>
+      <p style="color:var(--text-dim);margin-bottom:14px">La partita si salva da sola a ogni scena. Potete chiudere il browser e riprendere quando volete.</p>
+      <button class="choice-btn" onclick="document.getElementById('modal-generic').classList.add('hidden')">▶ Torna alla partita</button>
+      <button class="choice-btn" onclick="Engine.backToTitle()">🏠 Torna al titolo (la partita resta salvata)</button>
+      <button class="choice-btn" style="border-left-color:var(--red)" onclick="Engine.confirmRestart()">🗑 Ricomincia da capo (cancella il salvataggio)</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function backToTitle() {
+    $('modal-generic').classList.add('hidden');
+    showScreen('screen-title');
+    Main.refreshTitle();
+  }
+
+  function confirmRestart() {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>⚠ Sicuri sicuri?</h2>
+      <p style="margin-bottom:14px">Cancellerete il salvataggio e tutta la gloria accumulata. Per sempre.</p>
+      <button class="choice-btn" onclick="Engine.doRestart()">🗑 Sì, ricominciamo da capo</button>
+      <button class="choice-btn" onclick="Engine.showMenu()">↩ No, torna al menu</button>`;
+  }
+
+  function doRestart() {
+    clearSave();
+    $('modal-generic').classList.add('hidden');
+    showScreen('screen-title');
+    Main.refreshTitle();
+  }
+
+  /* ---------- finale ---------- */
+
+  function renderEnding(scene) {
+    const choicesEl = $('choices');
+    const mins = Math.round((Date.now() - G.stats.start) / 60000);
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="ability-box" style="border-left-color:var(--gold)">
+        <span class="ability-name">📊 Cronaca dell'impresa</span>
+        <div class="ability-desc">
+          Eroi: ${G.party.map(h => h.name.split(' ')[0]).join(', ')}<br>
+          Combattimenti affrontati: ${G.stats.combats} · Prove superate: ${G.stats.checksPassed} · Prove fallite: ${G.stats.checksFailed} (le più divertenti)<br>
+          Oro finale: ${G.gold} monete · Durata: circa ${mins} minuti<br>
+          Via scelta: ${G.flags.via === 'bosco' ? '🌲 il Bosco dei Sussurri' : G.flags.via === 'miniere' ? '⛏ le Miniere di Ferrovecchio' : '—'}
+        </div>
+      </div>`;
+    choicesEl.appendChild(div);
+
+    const replay = document.createElement('button');
+    replay.className = 'choice-btn';
+    replay.innerHTML = `🔄 <b>Nuova partita</b> <span class="choice-tag">Provate l'altra strada al bivio, un altro modo di entrare nel castello, un altro finale...</span>`;
+    replay.onclick = () => { clearSave(); showScreen('screen-title'); Main.refreshTitle(); };
+    choicesEl.appendChild(replay);
+
+    const title = document.createElement('button');
+    title.className = 'choice-btn';
+    title.innerHTML = `🏠 Torna al titolo`;
+    title.onclick = () => { showScreen('screen-title'); Main.refreshTitle(); };
+    choicesEl.appendChild(title);
+  }
+
+  return {
+    newGame, saveGame, loadGame, hasSave, clearSave,
+    showScreen, gotoScene, currentScene, renderPartyBar,
+    showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu,
+    usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,
+    heroSheetHTML, formatText,
+  };
+})();

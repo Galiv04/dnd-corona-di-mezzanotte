@@ -1,0 +1,202 @@
+/* ============ PERSONAGGI — 6 eroi pregenerati + bestiario ============ */
+
+/* Sistema semplificato:
+   - Caratteristiche come modificatori diretti (da -1 a +4)
+   - Tiro: d20 + modificatore  vs  CD (difficoltà)
+   - Attacco: d20 + mod arma   vs  CA del bersaglio
+   - Danno: dadi + modificatore                                    */
+
+const HEROES = [
+  {
+    id: 'torvald',
+    sprite: 'torvald',
+    name: 'Torvald Martellone',
+    class: 'Guerriero Nano',
+    tagline: 'Ex-cuoco. Ora "cucina" i mostri.',
+    role: 'Il muro del gruppo: tanti punti vita, protegge gli altri.',
+    stats: { FOR: 3, DES: 0, COS: 3, INT: 0, SAG: 1, CAR: 1 },
+    maxHp: 30, ac: 16,
+    attack: { name: 'Martello da guerra', stat: 'FOR', dice: [1, 10], bonus: 0, desc: '1d10+3 danni' },
+    abilities: [
+      { id: 'urlo', name: 'Urlo del Cuoco', uses: 2, type: 'taunt',
+        desc: 'Urla una ricetta terrificante: per 1 turno tutti i nemici attaccano solo Torvald, e lui subisce metà danni.' },
+      { id: 'colpo_fornello', name: 'Colpo del Fornello', uses: 3, type: 'bighit', dice: [2, 10], stat: 'FOR',
+        desc: 'Un colpo devastante a due mani: 2d10+3 danni a un nemico.' },
+    ],
+    passive: 'Pelle Dura: quando subisce danni, li riduce sempre di 1.',
+    backstory: `Torvald era il cuoco più famoso di Roccafonda, finché un cliente osò dire che il suo stufato era "insipido". Il cliente era un drago. Lo stufato successivo fu... al drago. Da quel giorno Torvald ha capito che maneggiare il martello da guerra non è poi così diverso dal batter la carne: serve ritmo, passione e nessuna pietà. Gira il regno con la sua fidata pentola-elmo, in cerca di ingredienti rari e torti da raddrizzare. Il suo sogno: aprire una locanda dove nessuno, MAI, si lamenti del cibo.`,
+    voice: 'Parla dei nemici come di ricette: "Questo goblin va rosolato a fuoco vivo!"',
+  },
+  {
+    id: 'lyra',
+    sprite: 'lyra',
+    name: 'Lyra Ventolieve',
+    class: 'Maga Elfa',
+    tagline: 'Espulsa dall\'Accademia per "eccesso di entusiasmo".',
+    role: 'Danni magici enormi, ma fragile: proteggetela!',
+    stats: { FOR: -1, DES: 2, COS: 0, INT: 4, SAG: 1, CAR: 1 },
+    maxHp: 18, ac: 12,
+    attack: { name: 'Dardo di fuoco', stat: 'INT', dice: [1, 10], bonus: 0, desc: '1d10+4 danni' },
+    abilities: [
+      { id: 'dardo_incantato', name: 'Dardi Incantati', uses: 3, type: 'autohit', dice: [2, 4], bonus: 2,
+        desc: 'Tre dardi di pura magia che colpiscono SEMPRE (niente tiro): 2d4+2 danni.' },
+      { id: 'palla_fuoco', name: 'Palla di Fuoco', uses: 1, type: 'aoe', dice: [4, 6], stat: 'INT',
+        desc: 'BOOM. 4d6 danni a TUTTI i nemici. Una sola volta: usatela bene.' },
+    ],
+    passive: 'Mente Acuta: +2 a tutte le prove di Intelligenza.',
+    backstory: `Prima della storia dell'Accademia in fiamme (VERSIONE UFFICIALE: un incidente; versione di Lyra: "un esperimento riuscito benissimo, solo nel posto sbagliato"), Lyra era la studentessa più promettente della sua generazione. Ha letto ogni libro della biblioteca proibita, due volte, e annota TUTTO in un taccuino che esplode se qualcun altro lo apre. Vuole dimostrare all'Arcimaga Selestra che espellerla è stato il più grande errore della storia della magia. Trovare e sconfiggere il ladro del sole sarebbe un ottimo inizio.`,
+    voice: 'Cita continuamente libri: "Secondo il Trattato di Vermilius, capitolo sette..."',
+  },
+  {
+    id: 'fizzle',
+    sprite: 'fizzle',
+    name: 'Fizzle Grimpiglia',
+    class: 'Ladro Halfling',
+    tagline: 'Non ruba: "ricolloca oggetti con stile".',
+    role: 'Colpi critici micidiali e prove di agilità: serrature, trappole, tasche.',
+    stats: { FOR: 0, DES: 4, COS: 1, INT: 2, SAG: 0, CAR: 2 },
+    maxHp: 22, ac: 15,
+    attack: { name: 'Pugnali gemelli', stat: 'DES', dice: [1, 6], bonus: 2, desc: '1d6+6 danni' },
+    abilities: [
+      { id: 'attacco_furtivo', name: 'Attacco Furtivo', uses: 3, type: 'sneak', dice: [3, 6], stat: 'DES',
+        desc: 'Colpisce dove fa più male, con vantaggio (tira 2 dadi, tieni il migliore): 3d6+4 danni.' },
+      { id: 'fumogeno', name: 'Bomba Fumogena', uses: 2, type: 'smoke',
+        desc: 'PUFF! Per 1 turno tutti i nemici hanno svantaggio ad attaccare (tirano 2 dadi, tengono il peggiore).' },
+    ],
+    passive: 'Fortuna Sfacciata: una volta per combattimento, se tira 1 sul d20, può ritirare.',
+    backstory: `Fizzle è nato in una famiglia di rispettabilissimi contadini halfling, tutti convinti che lui lavori "nel commercio". Tecnicamente è vero: commercia in oggetti che i legittimi proprietari non sapevano di voler vendere. Ha un codice ferreo: mai rubare ai poveri, mai rubare agli amici, e restituire sempre (il 60% circa) del maltolto a chi ne ha bisogno. Nelle sue tasche si trovano: tre chiavi misteriose, un dado truccato, mezzo panino e una lettera d'amore mai consegnata. Non chiedetegli della lettera.`,
+    voice: 'Chiama tutti "socio" e valuta a occhio il prezzo di qualunque oggetto.',
+  },
+  {
+    id: 'brunilde',
+    sprite: 'brunilde',
+    name: 'Sorella Brunilde',
+    class: 'Chierica Umana',
+    tagline: 'Suora del Sole. Predica bene e picchia benissimo.',
+    role: 'La guaritrice: tiene in vita il gruppo. E il suo mazzafrusto non perdona.',
+    stats: { FOR: 2, DES: 0, COS: 2, INT: 1, SAG: 4, CAR: 1 },
+    maxHp: 26, ac: 15,
+    attack: { name: 'Mazzafrusto benedetto', stat: 'FOR', dice: [1, 8], bonus: 1, desc: '1d8+3 danni' },
+    abilities: [
+      { id: 'cura', name: 'Luce Curativa', uses: 4, type: 'heal', dice: [2, 8], bonus: 4,
+        desc: 'Cura un alleato di 2d8+4 punti vita. Funziona anche su un eroe a terra: lo rialza!' },
+      { id: 'sacra_folgore', name: 'Sacra Folgore', uses: 2, type: 'holy', dice: [3, 8], stat: 'SAG',
+        desc: 'Luce solare divina: 3d8+4 danni, DOPPI contro non-morti (scheletri, vampiri...).' },
+    ],
+    passive: 'Benedizione dell\'Alba: a inizio combattimento tutto il gruppo recupera 3 PV.',
+    backstory: `Al convento di Santa Aurora dicevano che Brunilde avesse "troppa energia per la vita contemplativa". Dopo che ha messo al tappeto tre briganti che disturbavano la messa — usando solo un candelabro e una sana dose di fede — la Madre Superiora le ha affidato una missione speciale: portare la luce nel mondo. Letteralmente, ora che il sole è sparito. Brunilde considera la scomparsa del sole un insulto personale al suo ordine e intende presentare reclamo. Con il mazzafrusto.`,
+    voice: 'Benedice tutto, anche i nemici: "Che la luce ti accolga. ADESSO."',
+  },
+  {
+    id: 'kael',
+    sprite: 'kael',
+    name: 'Kael Ombraluna',
+    class: 'Ranger Mezzelfo',
+    tagline: 'Misterioso, tenebroso, drammatico. Il suo tasso si chiama Biscotto.',
+    role: 'Attacchi a distanza precisi e doppi. Biscotto morde.',
+    stats: { FOR: 1, DES: 3, COS: 1, INT: 0, SAG: 2, CAR: 0 },
+    maxHp: 24, ac: 14,
+    attack: { name: 'Arco lungo', stat: 'DES', dice: [1, 8], bonus: 1, desc: '1d8+4 danni' },
+    abilities: [
+      { id: 'doppia_freccia', name: 'Raffica Gemella', uses: 3, type: 'double', dice: [1, 8], stat: 'DES',
+        desc: 'Due frecce in un lampo: due attacchi separati da 1d8+3 (anche su bersagli diversi).' },
+      { id: 'biscotto', name: 'All\'attacco, Biscotto!', uses: 2, type: 'pet', dice: [2, 6], bonus: 3,
+        desc: 'Il tasso Biscotto si lancia sul nemico: 2d6+3 danni automatici e il nemico ha svantaggio al prossimo attacco (è distratto dal tasso).' },
+    ],
+    passive: 'Occhio del Cacciatore: +2 a tutte le prove di Saggezza (percezione, tracce).',
+    backstory: `Kael vorrebbe tanto essere un lupo solitario, avvolto nel mistero e nella tragedia. Purtroppo per lui, la sua "tragica origine" è che si è perso nel bosco a otto anni ed è stato cresciuto da una famiglia di tassi molto affettuosa. Parla poco, medita molto e cura maniacalmente il suo mantello, ma basta grattare la superficie (o il mento di Biscotto) per scoprire un cuore d'oro. Biscotto, il tasso, lo segue ovunque: è convinto che Kael sia suo fratello minore e che vada protetto. Probabilmente ha ragione.`,
+    voice: 'Frasi brevi e drammatiche, rovinate da Biscotto: "Io cammino da solo... Biscotto, no, giù dal tavolo."',
+  },
+  {
+    id: 'zonk',
+    sprite: 'zonk',
+    name: 'Zonk',
+    class: 'Barbaro Mezzorco',
+    tagline: 'Enorme fuori, tenerissimo dentro. Terrorizzato dai ragni.',
+    role: 'Danni giganteschi in mischia. La FURIA lo rende quasi inarrestabile.',
+    stats: { FOR: 4, DES: 1, COS: 3, INT: -1, SAG: 0, CAR: 1 },
+    maxHp: 32, ac: 13,
+    attack: { name: 'Grande ascia', stat: 'FOR', dice: [1, 12], bonus: 0, desc: '1d12+4 danni' },
+    abilities: [
+      { id: 'furia', name: 'FURIA!', uses: 2, type: 'rage',
+        desc: 'Per 3 turni: +3 a tutti i danni e riduce di 2 i danni subiti. Zonk diventa MOLTO rumoroso.' },
+      { id: 'spallata', name: 'Spallata Sismica', uses: 2, type: 'stun', dice: [1, 12], stat: 'FOR',
+        desc: '1d12+4 danni e il nemico è stordito: salta il suo prossimo turno.' },
+    ],
+    passive: 'Grosso e Solido: quando i suoi PV scendono a 0 la prima volta in un combattimento, resta in piedi con 1 PV.',
+    backstory: `Zonk ha vinto per tre anni di fila il torneo di lotta delle Terre Selvagge, ma il suo vero orgoglio è il primo premio alla mostra di ricamo di Villa Petunia (categoria: "fiorellini"). È gentile con i bambini, gli animali e i fiori. È MENO gentile con chi fa del male a bambini, animali e fiori. Il suo vocabolario è essenziale ma efficace, e la sua saggezza sorprendente: "Zonk pensa che se tutti condividere merenda, niente più guerre." Ha una paura irrazionale e totale dei ragni. Non parlategli dei ragni.`,
+    voice: 'Parla di sé in terza persona: "Zonk non capire, ma Zonk aiutare!"',
+  },
+];
+
+/* ---------- BESTIARIO ---------- */
+/* ai: 'random' colpisce a caso, 'weakest' il PG con meno PV, 'strongest' quello con più PV */
+
+const BESTIARY = {
+  goblin: {
+    name: 'Goblin del Sindacato', sprite: 'goblin',
+    maxHp: 12, ac: 12, ai: 'random',
+    attack: { name: 'Mazza chiodata', bonus: 3, dice: [1, 6], plus: 1 },
+    flavor: 'Piccolo, verde e polemico. Rivendica la pausa merenda.',
+  },
+  goblin_capo: {
+    name: 'Gruk, Capo-Delegato', sprite: 'goblin',
+    maxHp: 20, ac: 13, ai: 'strongest',
+    attack: { name: 'Megafono contundente', bonus: 4, dice: [1, 8], plus: 2 },
+    flavor: 'Il capo del sindacato goblin. Il megafono è anche un\'arma.',
+  },
+  lupo: {
+    name: 'Lupo del Crepuscolo', sprite: 'wolf',
+    maxHp: 14, ac: 13, ai: 'weakest',
+    attack: { name: 'Morso', bonus: 4, dice: [1, 8], plus: 1 },
+    flavor: 'Occhi gialli nel buio. Punta sempre il più debole del branco.',
+  },
+  ragno: {
+    name: 'Ragno Gigante', sprite: 'ragno',
+    maxHp: 16, ac: 13, ai: 'random',
+    attack: { name: 'Zanne velenose', bonus: 4, dice: [1, 10], plus: 0 },
+    flavor: 'Otto zampe, otto occhi, zero simpatia. Zonk NON è contento.',
+  },
+  fungo: {
+    name: 'Fungo Ringhioso', sprite: 'fungo',
+    maxHp: 10, ac: 11, ai: 'random',
+    attack: { name: 'Nuvola di spore', bonus: 3, dice: [1, 6], plus: 0 },
+    flavor: 'Un fungo permaloso. Le spore fanno starnutire fortissimo.',
+  },
+  scheletro: {
+    name: 'Scheletro Burocrate', sprite: 'skeleton',
+    maxHp: 14, ac: 13, ai: 'random', undead: true,
+    attack: { name: 'Timbro "RESPINTO"', bonus: 3, dice: [1, 8], plus: 1 },
+    flavor: 'Morto da 200 anni, in servizio da 199. Chiede sempre i documenti.',
+  },
+  bandito: {
+    name: 'Bandito Mascherato', sprite: 'bandito',
+    maxHp: 16, ac: 13, ai: 'random',
+    attack: { name: 'Sciabola', bonus: 4, dice: [1, 8], plus: 1 },
+    flavor: 'Approfitta del buio perenne. Il buio non approva.',
+  },
+  pipistrello: {
+    name: 'Pipistrello Colossale', sprite: 'pipistrello',
+    maxHp: 13, ac: 14, ai: 'weakest',
+    attack: { name: 'Stridio + artigli', bonus: 4, dice: [1, 6], plus: 2 },
+    flavor: 'Guardia personale di Lord Morn. Stona quando stride.',
+  },
+  gerbold: {
+    name: 'Gerbold, Maggiordomo Scheletrico', sprite: 'gerbold',
+    maxHp: 40, ac: 14, ai: 'strongest', undead: true, boss: true,
+    attack: { name: 'Vassoio d\'argento rotante', bonus: 5, dice: [2, 6], plus: 2 },
+    flavor: '200 anni di servizio impeccabile. Nessun giorno di ferie. NESSUNO.',
+  },
+  vesper: {
+    name: 'Lord Vesper Morn', sprite: 'vesper',
+    maxHp: 65, ac: 16, ai: 'smart', undead: true, boss: true,
+    attack: { name: 'Rapsodia di sangue', bonus: 6, dice: [2, 8], plus: 2 },
+    flavor: 'Vampiro, ex-bardo, drammaticissimo. Il mantello è sempre al vento. Sempre.',
+  },
+  vesper_corona: {
+    name: 'Vesper Incoronato', sprite: 'vesper',
+    maxHp: 45, ac: 17, ai: 'smart', undead: true, boss: true,
+    attack: { name: 'Notte Divorante', bonus: 7, dice: [3, 8], plus: 0 },
+    flavor: 'La Corona di Mezzanotte pulsa sul suo capo. L\'oscurità si piega a lui.',
+  },
+};

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Corona di Mezzanotte — Avventura D&D</title>
+<meta name="description" content="Un'avventura fantasy interattiva in stile D&D per 2-6 giocatori, con Dungeon Master automatico. Gratis, nel browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+</head>
+<body>
+
+<!-- ===== SCHERMATA TITOLO ===== -->
+<div id="screen-title" class="screen active">
+  <div class="title-wrap">
+    <canvas id="title-canvas" width="480" height="270"></canvas>
+    <h1 class="game-title">LA CORONA<br>DI MEZZANOTTE</h1>
+    <p class="game-subtitle">Un'avventura interattiva in stile D&amp;D · 2-6 giocatori · Dungeon Master automatico</p>
+    <div class="title-buttons">
+      <button class="btn btn-big" id="btn-new-game">⚔ Nuova Avventura</button>
+      <button class="btn btn-big btn-secondary" id="btn-continue" style="display:none">▶ Continua Partita</button>
+      <button class="btn btn-big btn-secondary" id="btn-howto">📖 Come si Gioca</button>
+    </div>
+    <p class="title-footer">Nessuna esperienza richiesta · il gioco vi spiega tutto man mano</p>
+  </div>
+</div>
+
+<!-- ===== COME SI GIOCA ===== -->
+<div id="screen-howto" class="screen">
+  <div class="panel panel-scroll">
+    <h2>📖 Come si Gioca</h2>
+    <div id="howto-content"></div>
+    <button class="btn" id="btn-howto-back">← Indietro</button>
+  </div>
+</div>
+
+<!-- ===== SETUP PARTITA ===== -->
+<div id="screen-setup" class="screen">
+  <div class="panel panel-scroll">
+    <h2>🎭 Formate la Compagnia</h2>
+    <p class="setup-hint">Scegliete da 2 a 6 eroi: uno per giocatore. Toccate un personaggio per leggerne la storia, poi selezionatelo. Ogni giocatore scriva il proprio nome sotto l'eroe scelto.</p>
+    <div id="char-grid" class="char-grid"></div>
+    <div class="setup-bar">
+      <span id="setup-count">Eroi selezionati: 0 / 6</span>
+      <button class="btn btn-big" id="btn-start-adventure" disabled>Iniziate l'Avventura →</button>
+      <button class="btn btn-secondary" id="btn-setup-back">← Indietro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETTAGLIO PERSONAGGIO (modale) ===== -->
+<div id="modal-char" class="modal hidden">
+  <div class="modal-box panel-scroll" id="modal-char-content"></div>
+</div>
+
+<!-- ===== SCHERMATA DI GIOCO ===== -->
+<div id="screen-game" class="screen">
+  <div class="game-layout">
+
+    <header class="game-header">
+      <div class="header-left">
+        <span id="hud-location" class="hud-location">📍 —</span>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-small" id="btn-map">🗺 Mappa</button>
+        <button class="btn btn-small" id="btn-party">🎭 Eroi</button>
+        <button class="btn btn-small" id="btn-inventory">🎒 Zaino</button>
+        <button class="btn btn-small" id="btn-rules">📖 Regole</button>
+        <button class="btn btn-small" id="btn-menu">☰</button>
+      </div>
+    </header>
+
+    <div class="scene-wrap">
+      <canvas id="scene-canvas" width="960" height="360"></canvas>
+      <div id="scene-caption" class="scene-caption"></div>
+    </div>
+
+    <div class="narration-wrap">
+      <div id="narration" class="narration"></div>
+      <div id="choices" class="choices"></div>
+    </div>
+
+    <div id="party-bar" class="party-bar"></div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY DADO ===== -->
+<div id="dice-overlay" class="modal hidden">
+  <div class="dice-box">
+    <div id="dice-title" class="dice-title"></div>
+    <canvas id="dice-canvas" width="140" height="140"></canvas>
+    <div id="dice-result" class="dice-result"></div>
+    <div id="dice-detail" class="dice-detail"></div>
+    <button class="btn btn-big hidden" id="btn-dice-continue">Continua →</button>
+  </div>
+</div>
+
+<!-- ===== COMBATTIMENTO ===== -->
+<div id="screen-combat" class="screen">
+  <div class="combat-layout">
+    <div class="combat-scene-wrap">
+      <canvas id="combat-canvas" width="960" height="380"></canvas>
+      <div id="combat-banner" class="combat-banner hidden"></div>
+    </div>
+    <div class="combat-ui">
+      <div id="combat-log" class="combat-log"></div>
+      <div id="combat-actions" class="combat-actions"></div>
+    </div>
+    <div id="combat-party-bar" class="party-bar"></div>
+  </div>
+</div>
+
+<!-- ===== MODALI GENERICHE ===== -->
+<div id="modal-generic" class="modal hidden">
+  <div class="modal-box panel-scroll" id="modal-generic-content"></div>
+</div>
+
+<script src="js/sprites.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/campaign.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/dice.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
