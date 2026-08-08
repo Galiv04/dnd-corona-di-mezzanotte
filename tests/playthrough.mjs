@@ -157,6 +157,47 @@ const scriptCache = SOURCES.map(s => ({ name: s.name, script: new vm.Script(s.co
 const scriptGetG = new vm.Script('(typeof G !== "undefined" ? G : null)');
 const scriptGetApi = new vm.Script('({Engine, Combat, Dice, HEROES, BESTIARY, ITEMS, CAMPAIGN, CAMPAIGN_START, WORLD_MAP})');
 
+// Modello dei timer: setTimeout/setInterval NON eseguono subito la callback (altrimenti
+// una closure come `typeTimer = setInterval(fn, 12)` vedrebbe `typeTimer` ancora
+// `undefined` quando `fn` (già in esecuzione) chiama `clearInterval(typeTimer)` — la
+// stessa callback annullerebbe il timer SBAGLIATO e il loop non terminerebbe mai).
+// Invece accodiamo il lavoro e lo "drainiamo" esplicitamente dopo ogni interazione:
+// questo riproduce fedelmente l'ordine di esecuzione di un vero event loop, ma in modo
+// sincrono e deterministico, così ogni click del test vede lo stato finale già risolto.
+function makeTimers() {
+  let seq = 0;
+  const timers = new Map(); // id -> { fn, repeat }
+  const pending = [];
+  return {
+    setTimeout(fn, _ms, ...args) {
+      const id = ++seq;
+      timers.set(id, { fn: () => fn(...args), repeat: false });
+      pending.push(id);
+      return id;
+    },
+    clearTimeout(id) { timers.delete(id); },
+    setInterval(fn, _ms, ...args) {
+      const id = ++seq;
+      timers.set(id, { fn: () => fn(...args), repeat: true });
+      pending.push(id);
+      return id;
+    },
+    clearInterval(id) { timers.delete(id); },
+    drain(maxSteps = 200000) {
+      let steps = 0;
+      while (pending.length) {
+        steps++;
+        if (steps > maxSteps) throw new Error('I timer non si esauriscono (probabile loop infinito in un setTimeout/setInterval del gioco)');
+        const id = pending.shift();
+        const t = timers.get(id);
+        if (!t) continue; // cancellato nel frattempo
+        t.fn();
+        if (t.repeat && timers.has(id)) pending.push(id); // ancora attivo: richiama al prossimo "tick"
+      }
+    },
+  };
+}
+
 function buildGame(seed) {
   const doc = makeDocument();
   const storage = new Map();
@@ -166,22 +207,15 @@ function buildGame(seed) {
     removeItem: k => storage.delete(k),
   };
   const consoleErrors = [];
-  const activeIntervals = new Set();
+  const timers = makeTimers();
   const sandbox = {
     document: doc,
     localStorage,
     console: { log() {}, warn() {}, error: (...a) => consoleErrors.push(a.map(String).join(' ')), info() {} },
-    setTimeout: (fn, _ms, ...args) => { fn(...args); return 0; },
-    clearTimeout: () => {},
-    setInterval: (fn) => {
-      const id = Symbol('interval');
-      activeIntervals.add(id);
-      let iter = 0;
-      while (activeIntervals.has(id) && iter < 100000) { fn(); iter++; }
-      if (iter >= 100000) throw new Error('setInterval non terminato (probabile loop infinito nella digitazione del testo)');
-      return id;
-    },
-    clearInterval: (id) => { activeIntervals.delete(id); },
+    setTimeout: timers.setTimeout,
+    clearTimeout: timers.clearTimeout,
+    setInterval: timers.setInterval,
+    clearInterval: timers.clearInterval,
   };
   const context = vm.createContext(sandbox);
   for (const { name, script } of scriptCache) {
@@ -194,7 +228,14 @@ function buildGame(seed) {
 
   const api = scriptGetApi.runInContext(context);
   const getG = () => scriptGetG.runInContext(context);
-  return { context, doc, api, getG, consoleErrors };
+  // Ogni azione simulata (click) deve risolversi completamente, inclusi tutti i
+  // setTimeout/setInterval incatenati, prima che il test ispezioni il DOM finto.
+  function act(fn) {
+    const r = fn();
+    timers.drain();
+    return r;
+  }
+  return { context, doc, api, getG, consoleErrors, act };
 }
 
 /* ==================== UTILITA' DI INTERAZIONE ==================== */
@@ -293,7 +334,7 @@ function runCombat(game, scenario, state) {
     if (!diceOverlay.classList.contains('hidden')) {
       const btn = doc.getElementById('btn-dice-continue');
       if (typeof btn.onclick !== 'function') throw new Error('overlay dado visibile ma bottone "Continua" senza onclick');
-      btn.onclick();
+      game.act(() => btn.onclick());
       checkInvariants(game.getG(), 'dopo tiro di dado in combattimento');
       continue;
     }
@@ -316,7 +357,7 @@ function runCombat(game, scenario, state) {
       chosen = pickMainCombatAction(btns, turnCounter++, game.getG());
     }
     if (!chosen) throw new Error(`Nessuna azione selezionabile in combattimento (kind=${kind})`);
-    chosen.onclick();
+    game.act(() => chosen.onclick());
     checkInvariants(game.getG(), 'dopo azione di combattimento');
   }
 }
@@ -359,7 +400,7 @@ function runGame(scenario) {
   const state = { strategy: 'aggressive', firstLossForced: !scenario.forceFirstCombatLoss };
 
   try {
-    api.Engine.newGame(scenario.heroes.map(id => ({ heroId: id, player: '' })));
+    game.act(() => api.Engine.newGame(scenario.heroes.map(id => ({ heroId: id, player: '' }))));
   } catch (e) {
     return { ok: false, scenario, error: `Engine.newGame ha lanciato un'eccezione: ${e.stack || e}`, log };
   }
@@ -386,7 +427,7 @@ function runGame(scenario) {
         const btns = buttons(content);
         if (!btns.length) { modalGeneric.classList.add('hidden'); continue; }
         const chosen = pickCheckHero(btns, scenario);
-        chosen.onclick();
+        game.act(() => chosen.onclick());
         checkInvariants(getG(), `dopo scelta eroe per prova in "${sceneId}"`);
         continue;
       }
@@ -395,7 +436,7 @@ function runGame(scenario) {
       if (!diceOverlay.classList.contains('hidden')) {
         const btn = doc.getElementById('btn-dice-continue');
         if (typeof btn.onclick !== 'function') throw new Error('overlay dado visibile ma bottone "Continua" senza onclick');
-        btn.onclick();
+        game.act(() => btn.onclick());
         checkInvariants(getG(), `dopo tiro di dado fuori combattimento (scena "${sceneId}")`);
         continue;
       }
@@ -411,7 +452,7 @@ function runGame(scenario) {
         } else {
           state.strategy = 'aggressive';
         }
-        startBtn.onclick();
+        game.act(() => startBtn.onclick());
         runCombat(game, scenario, state);
         checkInvariants(getG(), `dopo combattimento originato da "${sceneId}"`);
         continue;
@@ -422,7 +463,7 @@ function runGame(scenario) {
       if (!btns.length) throw new Error(`Nessuna scelta disponibile in scena "${sceneId}" (vicolo cieco a runtime)`);
       const chosen = pickSceneChoice(sceneId, btns, scenario);
       if (!chosen) throw new Error(`pickSceneChoice non ha selezionato nulla in scena "${sceneId}"`);
-      chosen.onclick();
+      game.act(() => chosen.onclick());
       checkInvariants(getG(), `dopo scelta in "${sceneId}"`);
     }
   } catch (e) {
@@ -604,6 +645,14 @@ function bardoAttempt(seedOffset, useTenzone) {
   return scenario(`tentativo finale bardo (${useTenzone ? 'tenzone' : 'corona'}) #${seedOffset}`, heroes, choices, { checkBias: 'best', seed: 900000 + seedOffset });
 }
 for (let i = 0; i < 6; i++) scenarios.push(bardoAttempt(i, i % 2 === 0));
+
+// ---- Ramo dell'aglio (opzione bonus alla vetta, richiede l'oggetto 'aglio' comprato all'emporio) ----
+scenarios.push(scenario("l'aglio come arma segreta alla vetta", ['torvald', 'brunilde'], {
+  v1: 'emporio di Gedeone', v_emporio: "l'aglio", v2: 'LEGNATE', v3: 'Miniere di Ferrovecchio',
+  m1: 'sindaco di Brindolo ci manda', m2: 'Ovviamente carrello', m3: 'Modulo 7-B',
+  c1: 'Passaggio Basso', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
+  c_vetta: 'treccia d\'aglio', e_alba: 'Niente esecuzioni',
+}));
 
 /* ==================== ESECUZIONE ==================== */
 

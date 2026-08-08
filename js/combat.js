@@ -80,6 +80,7 @@ const Combat = (() => {
     banner.classList.remove('hidden', 'victory');
     render();
 
+    if (typeof Sound !== 'undefined') Sound.play('combat');
     log(`<b>Nemici:</b> ${battle.enemies.map(e => e.name).join(', ')}`, 'log-info');
     for (const e of [...new Set(battle.enemies.map(e => e.key))]) {
       log(`<i>${BESTIARY[e].name}: ${BESTIARY[e].flavor}</i>`, 'log-info');
@@ -225,6 +226,14 @@ const Combat = (() => {
       const count = potions.filter(p => p === type).length;
       mkBtn(`🧪 ${ITEMS[type].name} (x${count}) <span class="action-sub">${ITEMS[type].desc} Scegli chi la beve.</span>`,
         () => pickAlly(a => usePotion(hIdx, a, type), true));
+    }
+
+    // oggetti da lancio
+    const throwables = G.inventory.filter(it => ITEMS[it].combat);
+    for (const type of [...new Set(throwables)]) {
+      const count = throwables.filter(p => p === type).length;
+      mkBtn(`${ITEMS[type].icon || '🎯'} ${ITEMS[type].name} (x${count}) <span class="action-sub">${ITEMS[type].desc}</span>`,
+        () => pickTarget(t => useThrowable(hIdx, t, type)));
     }
 
     // difesa
@@ -383,6 +392,7 @@ const Combat = (() => {
           ally.down = false;
           ally.hp = Math.min(ally.maxHp, Math.max(0, ally.hp) + amount);
           log(`✨ <b>${ab.name}</b>: ${ally.name} ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${amount} PV</b>!`, 'log-heal');
+          if (typeof Sound !== 'undefined') Sound.play('heal');
           render(); endHeroAction();
         }, true);
         break;
@@ -437,6 +447,22 @@ const Combat = (() => {
     }
   }
 
+  function useThrowable(hIdx, tIdx, itemId) {
+    const item = ITEMS[itemId];
+    const i = G.inventory.indexOf(itemId);
+    if (i >= 0) G.inventory.splice(i, 1);
+    const e = battle.enemies[tIdx];
+    let dmg = Dice.rollDice(item.combat.dice[0], item.combat.dice[1]).total;
+    const doubled = item.combat.holy && e.undead;
+    if (doubled) dmg *= 2;
+    e.hp -= dmg;
+    let extra = '';
+    if (item.combat.distract && !e.dead) { e.distracted = true; extra = ' Il tanfo lo stordisce: svantaggio al prossimo attacco!'; }
+    log(`${item.icon || '🎯'} ${G.party[hIdx].name} lancia ${item.name} su ${e.name}: <b>${dmg} danni</b>${doubled ? ' (DOPPI sul non-morto!)' : ''}.${extra}`, 'log-hit');
+    if (typeof Sound !== 'undefined') Sound.play('hit');
+    checkEnemyDeath(e); render(); endHeroAction();
+  }
+
   function usePotion(hIdx, allyIdx, itemId) {
     const ally = G.party[allyIdx];
     const item = ITEMS[itemId];
@@ -446,6 +472,7 @@ const Combat = (() => {
     ally.down = false;
     ally.hp = Math.min(ally.maxHp, Math.max(0, ally.hp) + item.heal);
     log(`🧪 ${G.party[hIdx].name} usa ${item.name} su ${ally.name}: ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${item.heal} PV</b>!`, 'log-heal');
+    if (typeof Sound !== 'undefined') Sound.play('heal');
     render(); endHeroAction();
   }
 
@@ -537,6 +564,7 @@ const Combat = (() => {
     banner.textContent = '🏆 VITTORIA! 🏆';
     banner.classList.add('victory');
     banner.classList.remove('hidden');
+    if (typeof Sound !== 'undefined') Sound.play('victory');
     $('combat-actions').innerHTML = '';
 
     G.stats.combats++;
@@ -560,6 +588,7 @@ const Combat = (() => {
     const banner = $('combat-banner');
     banner.textContent = '💀 SCONFITTA... 💀';
     banner.classList.remove('hidden', 'victory');
+    if (typeof Sound !== 'undefined') Sound.play('defeat');
     $('combat-actions').innerHTML = '';
     const next = battle.def.defeat;
     setTimeout(() => {

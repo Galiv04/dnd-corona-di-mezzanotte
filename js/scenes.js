@@ -441,6 +441,83 @@ const Scenes = (() => {
       ctx.beginPath(); ctx.moveTo(W * 0.5, cy - 20); ctx.lineTo(W * 0.58, H * 0.15); ctx.stroke();
     },
 
+    fiume(ctx, W, H) {
+      const r = rng(113);
+      skyGradient(ctx, W, H, '#0a0d18', '#1a2a3d', 10);
+      stars(ctx, W, H, r, 40);
+      moon(ctx, W * 0.78, 55, 24, '#c8b8e8', true);
+      const g = H * 0.55;
+      // rive scure con salici
+      blocks(ctx, 0, g - 30, W, 30, '#14261c', 12, r, 0.2);
+      for (let i = 0; i < 5; i++) {
+        const x = 40 + i * (W / 4.5);
+        // salice piangente: chioma cadente
+        blocks(ctx, x - 6, g - 110, 12, 80, '#2e2115', 6, r);
+        for (let b = -3; b <= 3; b++) {
+          blocks(ctx, x + b * 14 - 4, g - 130 + Math.abs(b) * 8, 8, 70 - Math.abs(b) * 8, '#1d3a2a', 6, r, 0.3);
+        }
+      }
+      // acqua
+      blocks(ctx, 0, g, W, H - g, '#0f2438', 14, r, 0.25);
+      // riflessi lunari sull'acqua
+      ctx.fillStyle = 'rgba(200,184,232,.22)';
+      for (let i = 0; i < 12; i++) {
+        const x = W * 0.6 + r() * W * 0.3, y = g + 10 + r() * (H - g - 20);
+        ctx.fillRect(x, y, 14 + r() * 22, 3);
+      }
+      ctx.fillStyle = 'rgba(90,157,224,.15)';
+      for (let i = 0; i < 16; i++) {
+        const x = r() * W, y = g + 6 + r() * (H - g - 12);
+        ctx.fillRect(x, y, 10 + r() * 30, 2);
+      }
+      // barcone
+      const bx = W * 0.38, by = g + 26;
+      blocks(ctx, bx, by, 150, 22, '#3a2a18', 8, r, 0.12);
+      blocks(ctx, bx + 8, by - 8, 134, 10, '#4a3524', 8, r, 0.12);
+      ctx.fillStyle = '#2a1d10'; ctx.fillRect(bx + 70, by - 46, 6, 40); // palo
+      ctx.fillStyle = '#f5c542'; ctx.fillRect(bx + 64, by - 54, 18, 12); // lanterna
+      ctx.fillStyle = 'rgba(245,197,66,.18)'; ctx.fillRect(bx + 52, by - 66, 42, 36);
+      // canne di palude
+      ctx.fillStyle = '#2e4a2e';
+      for (let i = 0; i < 10; i++) {
+        const x = (i < 5 ? 10 : W - 60) + r() * 50, y = g - 4;
+        ctx.fillRect(x, y - 18 - r() * 14, 3, 22 + r() * 14);
+        ctx.fillStyle = '#5a4a2a'; ctx.fillRect(x - 1, y - 24 - r() * 10, 5, 8); ctx.fillStyle = '#2e4a2e';
+      }
+    },
+
+    cisterna(ctx, W, H) {
+      const r = rng(127);
+      blocks(ctx, 0, 0, W, H, '#1a2028', 16, r, 0.2); // pietra umida
+      blocks(ctx, 0, H - 46, W, 46, '#12181e', 14, r, 0.18);
+      // volte ad arco
+      for (const fx of [0.16, 0.5, 0.84]) {
+        blocks(ctx, W * fx - 70, H * 0.2, 26, H * 0.65, '#242e3a', 10, r, 0.15);
+        blocks(ctx, W * fx + 44, H * 0.2, 26, H * 0.65, '#242e3a', 10, r, 0.15);
+        blocks(ctx, W * fx - 70, H * 0.14, 140, 22, '#242e3a', 10, r, 0.15);
+      }
+      // canale d'acqua centrale
+      blocks(ctx, W * 0.3, H - 80, W * 0.4, 34, '#0f2438', 10, r, 0.25);
+      ctx.fillStyle = 'rgba(90,216,224,.2)';
+      for (let i = 0; i < 8; i++) ctx.fillRect(W * 0.32 + r() * W * 0.36, H - 76 + r() * 26, 12 + r() * 18, 2);
+      // muschio luminescente
+      for (let i = 0; i < 12; i++) {
+        const x = r() * W, y = H * 0.2 + r() * H * 0.5;
+        ctx.fillStyle = 'rgba(95,202,106,.5)'; ctx.fillRect(x, y, 6 + r() * 8, 4);
+      }
+      // scala di servizio che sale
+      const sx = W * 0.78;
+      for (let i = 0; i < 7; i++) {
+        blocks(ctx, sx + i * 14, H - 60 - i * 26, 54, 12, '#3a3548', 8, r, 0.12);
+      }
+      // botti dimenticate
+      blocks(ctx, W * 0.08, H - 90, 44, 44, '#4a3524', 8, r, 0.15);
+      blocks(ctx, W * 0.14, H - 74, 44, 28, '#3a2a18', 8, r, 0.15);
+      // goccioline (stalattiti)
+      ctx.fillStyle = '#4a6a7a';
+      for (let i = 0; i < 9; i++) { const x = 30 + r() * (W - 60); ctx.fillRect(x, 0, 5, 8 + r() * 14); }
+    },
+
     alba(ctx, W, H) {
       const r = rng(101);
       skyGradient(ctx, W, H, '#3a5a8a', '#f5a05a', 12);

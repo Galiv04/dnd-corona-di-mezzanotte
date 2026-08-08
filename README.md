@@ -1,6 +1,6 @@
 # 🌒 La Corona di Mezzanotte
 
-**Un'avventura fantasy interattiva in stile D&D, per 2-6 giocatori, con Dungeon Master automatico.**
+**Un'avventura fantasy interattiva in stile D&D, per 1-6 giocatori, con Dungeon Master automatico.**
 
 🎮 **Gioca subito:** https://galiv04.github.io/dnd-corona-di-mezzanotte/
 
@@ -8,7 +8,7 @@
 
 Il vampiro Lord Vesper Morn ha spento il sole. Avete tempo fino a mezzanotte per riaccenderlo.
 
-- 🎭 **6 eroi pregenerati** con storia, abilità e personalità (scegliete da 2 a 6 personaggi)
+- 🎭 **6 eroi pregenerati** con storia, abilità e personalità (scegliete da 1 a 6 personaggi)
 - 🎙 **Dungeon Master automatico**: il gioco narra, propone scelte, tira i dadi e arbitra i combattimenti
 - 🗺 **Storia ramificata**: 105 scene, 2 percorsi principali, 3 finali diversi
 - ⚔ **Combattimenti a turni** semplificati in stile D&D (d20, CA, vantaggio/svantaggio)

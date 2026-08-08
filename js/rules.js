@@ -6,8 +6,9 @@ const RULES_HOWTO = `
 Il computer fa da <b>Dungeon Master</b> (il narratore): racconta la storia, vi propone le scelte, tira i dadi e gestisce i combattimenti.
 Voi dovete solo <b>leggere ad alta voce, discutere e scegliere</b>.</p>
 
-<h3>👥 Come si gioca in gruppo (2-6 giocatori)</h3>
+<h3>👥 Come si gioca in gruppo (1-6 giocatori)</h3>
 <p>Si gioca <b>tutti insieme su un solo schermo</b> (ideale: TV o laptop al centro del tavolo).</p>
+<p><b>Da soli?</b> Due modi: controllate voi 2-3 eroi (consigliato: più tattica, più voci da fare), oppure scegliete UN solo eroe e il gioco attiva la <b>modalità Eroe Solitario</b> con bonus a vita, armatura e abilità.</p>
 <p>1. Ogni giocatore sceglie <b>un eroe</b> e scrive il proprio nome sotto.<br>
 2. A turno, un giocatore fa da <b>lettore</b>: legge la narrazione ad alta voce (con le voci dei personaggi, se avete coraggio).<br>
 3. Le <b>scelte si discutono insieme</b>: siete una compagnia, decidete come una compagnia.<br>
@@ -38,7 +39,7 @@ Se cade tutto il gruppo... il DM è clemente, ma la storia prenderà una piega m
 • Le prove fallite non rovinano la partita: la rendono più divertente.<br>
 • Parlate nei panni del personaggio: vale doppio.<br>
 • Tenete d'occhio le pozioni prima del gran finale.<br>
-• Il gioco salva da solo a ogni scena: potete chiudere e riprendere quando volete.</p>
+• Il gioco salva da solo a ogni scena: potete chiudere e riprendere quando volete. Ci sono <b>3 slot di salvataggio</b>: gruppi diversi possono avere ognuno la propria partita sullo stesso dispositivo, e alla ripresa un riepilogo vi ricorda dov'eravate.</p>
 
 <h3>⏱ Durata</h3>
 <p>Una partita completa dura <b>2-4 ore</b>. Volendo si può spezzare in due serate: il salvataggio automatico vi aspetta.</p>

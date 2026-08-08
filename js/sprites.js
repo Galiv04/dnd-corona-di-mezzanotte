@@ -412,10 +412,55 @@ const Sprites = (() => {
     ].map(r => r.padEnd(16,'.').slice(0,16)),
   };
 
+  const anguilla = {
+    palette: { c:'#3a6a7a', C:'#2a4d5a', e:'#e8d84a', t:'#8ad8e0', f:'#5a9aab' },
+    map: [
+      '................',
+      '................',
+      '....cccc........',
+      '...cccccc.......',
+      '..cceccccc......',
+      '..ccccccccc.....',
+      '..cctcccCCcc....',
+      '...ccccccCCcc...',
+      '....fcccccCCc c.'.replace(' ',''),
+      '......cccccCCc..',
+      '....ccccccccCc..',
+      '...ccCCCCcccc...',
+      '..ccCC..CCcc....',
+      '..cc......cc....',
+      '...c............',
+      '................',
+    ].map(r => r.padEnd(16,'.').slice(0,16)),
+  };
+
+  const spiritoFiume = {
+    palette: { s:'#a8d8e8', S:'#78b8d0', e:'#1a3a4a', w:'#e8f5f8', d:'#4a8aa0' },
+    map: [
+      '.....ssssss.....',
+      '....ssssssss....',
+      '...sSssssssSs...',
+      '...sseSssSess...',
+      '...ssssssssss...',
+      '...sssSwwSsss...',
+      '....ssssssss....',
+      '...ssssssssss...',
+      '..sSssssssssSs..',
+      '..ssssssssssss..',
+      '..sSssssssssSs..',
+      '...ssssssssss...',
+      '...sS.ssss.Ss...',
+      '....s..ss..s....',
+      '.....s.ss.s.....',
+      '................',
+    ].map(r => r.padEnd(16,'.').slice(0,16)),
+  };
+
   const registry = {
     torvald, lyra, fizzle, brunilde, kael, zonk,
     goblin, wolf, skeleton, ragno, bandito, fungo, gerbold, vesper,
     nonnaOrtica, pipistrello, biscotto,
+    anguilla, spirito_fiume: spiritoFiume,
   };
 
   return { drawSprite, renderToCanvas, registry };

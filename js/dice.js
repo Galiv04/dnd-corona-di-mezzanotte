@@ -71,6 +71,8 @@ const Dice = (() => {
       success = crit ? true : fumble ? false : total >= opts.dc;
     }
 
+    if (typeof Sound !== 'undefined') Sound.play('dice');
+
     // animazione: numeri casuali che rallentano
     let frame = 0;
     const frames = 18;
@@ -89,6 +91,7 @@ const Dice = (() => {
           else if (fumble) { resultEl.textContent = 'FALLIMENTO CRITICO!'; resultEl.classList.add('fail'); }
           else if (success) { resultEl.textContent = 'SUCCESSO!'; resultEl.classList.add('success'); }
           else { resultEl.textContent = 'FALLITO...'; resultEl.classList.add('fail'); }
+          if (typeof Sound !== 'undefined') Sound.play(crit ? 'crit' : success ? 'success' : 'fail');
         } else {
           detailEl.textContent = (opts.advantage ? `Vantaggio (${die} e ${die2}) → ` : opts.disadvantage ? `Svantaggio (${die} e ${die2}) → ` : '') + `${die} ${modStr} = ${total}`;
           resultEl.textContent = String(total);

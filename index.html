@@ -18,7 +18,7 @@
   <div class="title-wrap">
     <canvas id="title-canvas" width="480" height="270"></canvas>
     <h1 class="game-title">LA CORONA<br>DI MEZZANOTTE</h1>
-    <p class="game-subtitle">Un'avventura interattiva in stile D&amp;D · 2-6 giocatori · Dungeon Master automatico</p>
+    <p class="game-subtitle">Un'avventura interattiva in stile D&amp;D · 1-6 giocatori · Dungeon Master automatico</p>
     <div class="title-buttons">
       <button class="btn btn-big" id="btn-new-game">⚔ Nuova Avventura</button>
       <button class="btn btn-big btn-secondary" id="btn-continue" style="display:none">▶ Continua Partita</button>
@@ -41,7 +41,7 @@
 <div id="screen-setup" class="screen">
   <div class="panel panel-scroll">
     <h2>🎭 Formate la Compagnia</h2>
-    <p class="setup-hint">Scegliete da 2 a 6 eroi: uno per giocatore. Toccate un personaggio per leggerne la storia, poi selezionatelo. Ogni giocatore scriva il proprio nome sotto l'eroe scelto.</p>
+    <p class="setup-hint">Scegliete da 1 a 6 eroi. In gruppo: un eroe a testa. Da soli: potete controllare 2-3 eroi (consigliato) oppure UN solo eroe in <b>modalità Eroe Solitario</b> (riceverà bonus speciali). Toccate un personaggio per leggerne la storia, poi selezionatelo.</p>
     <div id="char-grid" class="char-grid"></div>
     <div class="setup-bar">
       <span id="setup-count">Eroi selezionati: 0 / 6</span>
@@ -69,6 +69,8 @@
         <button class="btn btn-small" id="btn-party">🎭 Eroi</button>
         <button class="btn btn-small" id="btn-inventory">🎒 Zaino</button>
         <button class="btn btn-small" id="btn-rules">📖 Regole</button>
+        <button class="btn btn-small" id="btn-sound">🔊</button>
+        <button class="btn btn-small" id="btn-fullscreen" title="Schermo intero">⛶</button>
         <button class="btn btn-small" id="btn-menu">☰</button>
       </div>
     </header>
@@ -118,6 +120,7 @@
   <div class="modal-box panel-scroll" id="modal-generic-content"></div>
 </div>
 
+<script src="js/sound.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/scenes.js"></script>
 <script src="js/characters.js"></script>

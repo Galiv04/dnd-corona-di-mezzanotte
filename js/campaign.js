@@ -9,6 +9,8 @@
 const ITEMS = {
   pozione_cura:       { name: 'Pozione di Cura', desc: 'Ripristina 10 PV. Usabile in combattimento.', usable: true, heal: 10 },
   pozione_cura_magg:  { name: 'Pozione di Cura Maggiore', desc: 'Ripristina 20 PV. Usabile in combattimento.', usable: true, heal: 20 },
+  bomba_puzzolente:   { name: 'Bomba Puzzolente', desc: 'Da lancio: colpisce sempre, 2d6 danni e il bersaglio resta stordito dal tanfo (svantaggio al prossimo attacco).', combat: { dice: [2, 6], distract: true }, icon: '💣' },
+  acqua_santa:        { name: 'Fiala d\'Acqua Santa', desc: 'Da lancio: colpisce sempre, 2d8 danni — DOPPI contro i non-morti. Benedetta da Pipino in persona.', combat: { dice: [2, 8], holy: true }, icon: '💧' },
   specchio_argento:   { name: 'Specchio d\'Argento', desc: 'I vampiri non si riflettono... e ODIANO che glielo si faccia notare.', usable: false },
   aglio:              { name: 'Treccia d\'Aglio', desc: 'Contro i vampiri, dicono. Di sicuro contro i compagni di viaggio.', usable: false },
   corda:              { name: 'Corda Robusta (15 m)', desc: 'Non si sa mai. Davvero, non si sa MAI.', usable: false },
@@ -86,7 +88,7 @@ La piazza esplode nel panico. Galline ovunque. Il fornaio corre in tondo con una
 Funziona. La folla si ferma, vi guarda, e si aggrappa alla vostra calma come a una zattera. Il fornaio si siede sulla sua pagnotta, esausto ma sereno.
 
 *Il villaggio si ricorderà di voi.* **(+1 Reputazione)**`,
-    sets: { reputazione: 1 },
+    rep: 1,
     choices: [{ text: 'Continua', next: 'p3' }],
   },
 
@@ -230,7 +232,9 @@ Dove andate?`,
 
 > Gedeone: "Eroi! Il sindaco paga per voi l'essenziale: una **pozione di cura per ciascuno**, offre il comune!" *(consegna le pozioni)* "Poi avrei tre pezzi speciali, a prezzo, ehm, 'd'emergenza'..."
 
-Sul bancone: una **corda robusta** (10 oro), delle **torce** (10 oro), e — Gedeone abbassa la voce — uno **specchio d'argento** (25 oro): *"Sa, i vampiri e gli specchi... vecchia storia, mai smentita."* C'è anche una **treccia d'aglio** (2 oro), ma quella la vende con un sorrisetto.`,
+Sul bancone: una **corda robusta** (10 oro), delle **torce** (10 oro), e — Gedeone abbassa la voce — uno **specchio d'argento** (25 oro): *"Sa, i vampiri e gli specchi... vecchia storia, mai smentita."* C'è anche una **treccia d'aglio** (2 oro), ma quella la vende con un sorrisetto.
+
+Dallo scaffale "ARTICOLI PER LA GUERRA CHIMICA (legalissimi)": **bombe puzzolenti** (12 oro l'una, *"invenzione mia: formaggio dei trolls stagionato in scatola"*) e **fiale d'acqua santa** (15 oro, *"benedette dal piccolo Pipino: potenti, il ragazzo ci crede DAVVERO"*).`,
     onEnterOnce: { itemEach: 'pozione_cura' },
     hub: true,
     choices: [
@@ -238,6 +242,8 @@ Sul bancone: una **corda robusta** (10 oro), delle **torce** (10 oro), e — Ged
       { text: '💰 Comprate le torce (10 oro)', requiresGold: 10, gold: -10, item: 'torce', once: true },
       { text: '💰 Comprate lo specchio d\'argento (25 oro)', requiresGold: 25, gold: -25, item: 'specchio_argento', once: true },
       { text: '💰 Comprate l\'aglio (2 oro). Non si sa mai.', requiresGold: 2, gold: -2, item: 'aglio', once: true },
+      { text: '💣 Comprate una bomba puzzolente (12 oro)', requiresGold: 12, gold: -12, item: 'bomba_puzzolente' },
+      { text: '💧 Comprate una fiala d\'acqua santa (15 oro)', requiresGold: 15, gold: -15, item: 'acqua_santa' },
       { text: '↩ Tornate in piazza', next: 'v1' },
     ],
   },
@@ -370,7 +376,8 @@ I goblin si consultano fitto fitto. Poi Gruk si volta, con una lacrimuccia:
 > Gruk: "Voi... voi CAPIRE Gruk. Assemblea vota: SCIOPERO CONTRO VESPER! Voi passare gratis. E Gruk dire segreto: stanotte al castello grande FESTA mascherata, tanti ospiti! E ponte levatoio ovest ha catena arrugginita, rotta da anni. Vesper tirchio, mai riparata!"
 
 I goblin vi scortano oltre il ponte cantando un inno di lotta stonatissimo. **(Informazioni preziose ottenute! +1 Reputazione)**`,
-    sets: { sa_ballo: true, reputazione: 1 },
+    sets: { sa_ballo: true },
+    rep: 1,
     choices: [{ text: 'Proseguite verso nord', next: 'v3' }],
   },
 
@@ -1374,6 +1381,33 @@ Vi squadra uno a uno, e per un istante — un istante solo — sotto la posa da 
       { text: '🎭 "Vespertino Morn. Abbiamo sentito la tua ballata. Merita un VERO pubblico."', requires: { flag: 'sa_passato_bardo' }, next: 'f_tenzone1' },
       { text: '👑 "Non sei tu il nemico. È quella CORONA. Ti sta divorando da duecento anni."', requires: { flag: 'sa_corona' }, next: 'f_corona1' },
       { text: '🪞 Estraete lo specchio d\'argento e glielo puntate contro', requires: { item: 'specchio_argento' }, next: 'f_specchio' },
+      { text: '🧄 Brandite la treccia d\'aglio come una reliquia sacra!', requires: { item: 'aglio' }, removeItem: 'aglio', next: 'f_aglio' },
+    ],
+  },
+
+  f_aglio: {
+    location: 'vetta',
+    caption: 'L\'arma segreta (secondo Gedeone)',
+    text: `Estraete la treccia d'aglio e la brandite con la sicurezza di chi ha pagato DUE monete d'oro per l'arma definitiva contro i vampiri.
+
+Silenzio.
+
+Vesper la fissa. Poi vi fissa. Poi la rifissa.
+
+> Vesper: "È... è AGLIO? Mi avete portato dell'AGLIO?" *(si preme le dita sulle tempie)* "L'aglio è un MITO. Una diceria. Una CALUNNIA inventata da un osteria di Valforte nel 1748 per vendere più bruschette! Io CUCINO con l'aglio! Il mio ragù era LEGGENDARIO!"
+
+Fa un mezzo passo indietro comunque.
+
+> Vesper: "...però il gesto. IL GESTO, capite? Duecento anni di rispetto del mestiere e voi mi presentate al rituale con l'ortaggio del pregiudizio. Sono OFFESO. Profondamente. Artisticamente."
+
+Ha perso completamente il filo del discorso che stava provando. Il leggio è là, abbandonato. **(Vesper è sinceramente TURBATO: -2 ai suoi tiri nel primo round di un eventuale scontro!)**
+
+*(Torvald, se presente, annota la storia del ragù. Per la locanda.)*`,
+    sets: { vesper_turbato: true },
+    choices: [
+      { text: '⚔ Approfittate dello sconcerto: ALL\'ATTACCO!', next: 'f_boss_intro' },
+      { text: '🎭 "Vespertino... la tua ballata merita un vero pubblico." (se sapete del suo passato)', requires: { flag: 'sa_passato_bardo' }, next: 'f_tenzone1' },
+      { text: '👑 "Non sei tu il nemico. È quella CORONA che ti divora." (se conoscete il segreto)', requires: { flag: 'sa_corona' }, next: 'f_corona1' },
     ],
   },
 

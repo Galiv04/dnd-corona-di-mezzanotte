@@ -4,26 +4,47 @@ let G = null; // stato di gioco globale
 
 const Engine = (() => {
 
-  const SAVE_KEY = 'corona-di-mezzanotte-save-v1';
+  const SAVE_KEY = 'corona-di-mezzanotte-save-v1'; // slot storico (migrato allo slot 1)
+  const SLOTS = 3;
+  const slotKey = n => `corona-save-slot-${n}`;
   const $ = id => document.getElementById(id);
+
+  // migrazione: il vecchio salvataggio singolo diventa lo slot 1
+  try {
+    const legacy = localStorage.getItem(SAVE_KEY);
+    if (legacy && !localStorage.getItem(slotKey(1))) {
+      localStorage.setItem(slotKey(1), legacy);
+      localStorage.removeItem(SAVE_KEY);
+    }
+  } catch (e) {}
 
   /* ---------- stato ---------- */
 
-  function newGame(selection) {
+  function newGame(selection, slot = null) {
     // selection: [{heroId, player}]
+    if (slot == null) slot = firstFreeSlot() || 1;
+    const solo = selection.length === 1;
     G = {
       party: selection.map(s => {
         const base = HEROES.find(h => h.id === s.heroId);
-        return { ...JSON.parse(JSON.stringify(base)), hp: base.maxHp, down: false, player: s.player || '' };
+        const hero = { ...JSON.parse(JSON.stringify(base)), hp: base.maxHp, down: false, player: s.player || '' };
+        if (solo) {
+          // Modalità Eroe Solitario: più resistente, più risorse
+          hero.maxHp += 10; hero.hp = hero.maxHp; hero.ac += 1;
+          for (const ab of hero.abilities) ab.uses += 1;
+        }
+        return hero;
       }),
       uses: {},
-      gold: 30,
-      inventory: [],
-      flags: {},
+      gold: solo ? 45 : 30,
+      inventory: solo ? ['pozione_cura', 'pozione_cura'] : [],
+      flags: solo ? { solo: true } : {},
       sceneId: CAMPAIGN_START,
       usedChoices: {},   // sceneId -> [testi scelti "once"]
       enteredScenes: {}, // sceneId -> true (per effetti one-shot)
       lastCombatSceneId: null,
+      history: [],       // tappe della storia (per il riepilogo alla ripresa)
+      slot,
       stats: { combats: 0, checksPassed: 0, checksFailed: 0, scenes: 0, start: Date.now() },
     };
     for (const h of G.party) {
@@ -32,32 +53,87 @@ const Engine = (() => {
     }
     saveGame();
     gotoScene(CAMPAIGN_START);
+    if (solo) {
+      const box = $('modal-generic-content');
+      box.innerHTML = `<h2>🌟 Modalità Eroe Solitario</h2>
+        <p style="margin-bottom:12px">${G.party[0].name} affronta l'avventura DA SOLO. Il destino, impressionato, concede:</p>
+        <div class="ability-box"><span class="ability-name">❤ +10 PV massimi e +1 CA</span></div>
+        <div class="ability-box"><span class="ability-name">✨ +1 uso a ogni abilità speciale</span></div>
+        <div class="ability-box"><span class="ability-name">🧪 2 Pozioni di Cura e +15 monete d'oro di partenza</span></div>
+        <p style="color:var(--text-dim);margin-top:10px">Consiglio da DM: comprate pozioni. TANTE pozioni.</p>
+        <button class="btn btn-gold" style="margin-top:12px" onclick="document.getElementById('modal-generic').classList.add('hidden')">⚔ Che l'avventura abbia inizio</button>`;
+      $('modal-generic').classList.remove('hidden');
+    }
   }
 
   function saveGame() {
     if (!G) return;
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) { /* storage pieno o disabilitato */ }
+    G.savedAt = Date.now();
+    try { localStorage.setItem(slotKey(G.slot || 1), JSON.stringify(G)); } catch (e) { /* storage pieno o disabilitato */ }
   }
 
-  function hasSave() {
-    try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; }
+  function listSaves() {
+    const out = [];
+    for (let n = 1; n <= SLOTS; n++) {
+      try {
+        const raw = localStorage.getItem(slotKey(n));
+        if (!raw) { out.push(null); continue; }
+        const g = JSON.parse(raw);
+        const scene = CAMPAIGN[g.sceneId];
+        out.push({
+          slot: n,
+          heroes: (g.party || []).map(h => h.name.split(' ')[0]).join(', '),
+          players: (g.party || []).map(h => h.player).filter(Boolean).join(', '),
+          caption: scene ? scene.caption : '—',
+          gold: g.gold,
+          savedAt: g.savedAt || null,
+          ended: !!(scene && scene.ending),
+        });
+      } catch (e) { out.push(null); }
+    }
+    return out;
   }
 
-  function loadGame() {
+  function hasSave() { return listSaves().some(Boolean); }
+
+  function firstFreeSlot() {
+    const saves = listSaves();
+    for (let n = 1; n <= SLOTS; n++) if (!saves[n - 1]) return n;
+    return null;
+  }
+
+  function loadGame(slot = null) {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
+      if (slot == null) slot = listSaves().findIndex(Boolean) + 1;
+      if (!slot) return false;
+      const raw = localStorage.getItem(slotKey(slot));
       if (!raw) return false;
       G = JSON.parse(raw);
-      // ripristina metodi/dati non serializzati: niente da fare, è tutto dati
-      const scene = CAMPAIGN[G.sceneId];
-      if (!scene) { G.sceneId = CAMPAIGN_START; }
+      G.slot = slot;
+      if (!CAMPAIGN[G.sceneId]) G.sceneId = CAMPAIGN_START;
       renderScene(CAMPAIGN[G.sceneId], true);
+      showRecap();
       return true;
     } catch (e) { return false; }
   }
 
-  function clearSave() {
-    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+  // "La storia finora": riepilogo alla ripresa della partita
+  function showRecap() {
+    if (!G || !G.history || G.history.length < 2) return;
+    const beats = G.history.slice(-6).map(c => `<div class="ability-box" style="border-left-color:var(--gold)"><div class="ability-desc">📖 ${c}</div></div>`).join('');
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>📜 La storia finora...</h2>
+      <p style="color:var(--text-dim);margin-bottom:10px">Bentornati, eroi! La compagnia (${G.party.map(h => h.name.split(' ')[0]).join(', ')}) ha ${G.gold} monete d'oro. Le ultime tappe:</p>
+      ${beats}
+      <button class="btn btn-gold" style="margin-top:12px" onclick="document.getElementById('modal-generic').classList.add('hidden')">▶ Si riparte!</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function clearSave(slot = null) {
+    try {
+      if (slot != null) localStorage.removeItem(slotKey(slot));
+      else if (G && G.slot) localStorage.removeItem(slotKey(G.slot));
+    } catch (e) {}
   }
 
   /* ---------- navigazione schermate ---------- */
@@ -100,6 +176,7 @@ const Engine = (() => {
     // effetti d'ingresso (solo alla prima visita)
     if (firstVisit) {
       if (scene.sets) Object.assign(G.flags, scene.sets);
+      if (scene.rep) G.flags.reputazione = (G.flags.reputazione || 0) + scene.rep;
       if (scene.gold) G.gold = Math.max(0, G.gold + scene.gold);
       if (scene.goldLoss) G.gold = Math.max(0, G.gold - scene.goldLoss);
       if (scene.item) G.inventory.push(scene.item);
@@ -124,6 +201,13 @@ const Engine = (() => {
     }
 
     if (scene.combat) G.lastCombatSceneId = id;
+
+    // cronologia per il riepilogo "la storia finora"
+    if (!G.history) G.history = [];
+    if (scene.caption && G.history[G.history.length - 1] !== scene.caption) {
+      G.history.push(scene.caption);
+      if (G.history.length > 12) G.history.shift();
+    }
 
     saveGame();
     renderScene(scene);
@@ -220,6 +304,7 @@ const Engine = (() => {
   }
 
   function resolveChoice(scene, c) {
+    if (typeof Sound !== 'undefined') Sound.play('click');
     if (c.once) {
       if (!G.usedChoices[G.sceneId]) G.usedChoices[G.sceneId] = [];
       G.usedChoices[G.sceneId].push(c.text);
@@ -231,6 +316,7 @@ const Engine = (() => {
       if (i >= 0) G.inventory.splice(i, 1);
     }
     if (c.sets) Object.assign(G.flags, c.sets);
+    if (c.rep) G.flags.reputazione = (G.flags.reputazione || 0) + c.rep;
     saveGame();
 
     if (c.check) {
@@ -533,7 +619,7 @@ const Engine = (() => {
           Eroi: ${G.party.map(h => h.name.split(' ')[0]).join(', ')}<br>
           Combattimenti vinti: ${G.stats.combats} · Prove superate: ${G.stats.checksPassed} · Prove fallite: ${G.stats.checksFailed} (le più divertenti)<br>
           Oro finale: ${G.gold} monete · Durata: circa ${mins} minuti<br>
-          Via scelta: ${G.flags.via === 'bosco' ? '🌲 il Bosco dei Sussurri' : G.flags.via === 'miniere' ? '⛏ le Miniere di Ferrovecchio' : '—'}
+          Via scelta: ${G.flags.via === 'bosco' ? '🌲 il Bosco dei Sussurri' : G.flags.via === 'miniere' ? '⛏ le Miniere di Ferrovecchio' : G.flags.via === 'fiume' ? '🛶 il Fiume Torbido' : '—'}${G.flags.reputazione ? `<br>Fama a Brindolo: ${'⭐'.repeat(Math.min(5, G.flags.reputazione))}` : ''}
         </div>
       </div>`;
     choicesEl.appendChild(div);
@@ -552,7 +638,7 @@ const Engine = (() => {
   }
 
   return {
-    newGame, saveGame, loadGame, hasSave, clearSave,
+    newGame, saveGame, loadGame, hasSave, clearSave, listSaves, firstFreeSlot,
     showScreen, gotoScene, currentScene, renderPartyBar,
     showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu,
     usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,
