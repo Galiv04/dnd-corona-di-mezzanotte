@@ -19,8 +19,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
 const FILES = [
-  'js/sprites.js', 'js/scenes.js', 'js/characters.js', 'js/campaign.js',
-  'js/rules.js', 'js/dice.js', 'js/combat.js', 'js/engine.js',
+  'js/sound.js', 'js/sprites.js', 'js/scenes.js', 'js/characters.js', 'js/campaign.js',
+  'js/epilogues.js', 'js/rules.js', 'js/dice.js', 'js/combat.js', 'js/engine.js',
 ];
 const SOURCES = FILES.map(f => ({ name: f, code: readFileSync(join(root, f), 'utf8') }));
 
@@ -77,6 +77,8 @@ class FakeElement {
     this.oninput = null;
     this.width = 300;
     this.height = 150;
+    this.clientWidth = 300;
+    this.clientHeight = 150;
     this._ctx = null;
     this.scrollTop = 0;
     this.scrollHeight = 0;
@@ -100,7 +102,19 @@ class FakeElement {
   set innerHTML(v) { this._innerHTML = v; this.children = []; }
   get textContent() { return this._textContent; }
   set textContent(v) { this._textContent = String(v); }
+  // Alias tollerante: alcuni punti del gioco leggono .parentElement (standard DOM) invece
+  // di .parentNode. Se non è mai stato collegato a nulla (es. i canvas, che nello stub non
+  // vengono mai "appendChild-ati" da nessuna parte), si auto-crea un contenitore fittizio:
+  // qualunque codice che faccia `el.parentElement.appendChild(x)` continua a funzionare
+  // senza lanciare eccezioni, anche per elementi introdotti da futuri cambi del gioco.
+  get parentElement() {
+    if (!this.parentNode) this.parentNode = new FakeElement('div');
+    return this.parentNode;
+  }
+  set parentElement(v) { this.parentNode = v; }
   appendChild(child) { this.children.push(child); child.parentNode = this; return child; }
+  removeChild(child) { const i = this.children.indexOf(child); if (i >= 0) this.children.splice(i, 1); return child; }
+  remove() { if (this.parentNode) this.parentNode.removeChild(this); }
   addEventListener(type, fn) { (this._listeners[type] = this._listeners[type] || []).push(fn); }
   removeEventListener() {}
   querySelector() { return null; }
@@ -208,8 +222,13 @@ function buildGame(seed) {
   };
   const consoleErrors = [];
   const timers = makeTimers();
+  // window.AudioContext/webkitAudioContext restano entrambi undefined: Sound.ac() lo
+  // rileva e ritorna null, esattamente come in un browser senza Web Audio — tutto il
+  // codice audio/musica diventa così un no-op silenzioso, senza bisogno di stub più
+  // elaborati (OscillatorNode, GainNode, ...) che non servono alla logica di gioco.
   const sandbox = {
     document: doc,
+    window: {},
     localStorage,
     console: { log() {}, warn() {}, error: (...a) => consoleErrors.push(a.map(String).join(' ')), info() {} },
     setTimeout: timers.setTimeout,
@@ -654,22 +673,117 @@ scenarios.push(scenario("l'aglio come arma segreta alla vetta", ['torvald', 'bru
   c_vetta: 'treccia d\'aglio', e_alba: 'Niente esecuzioni',
 }));
 
-/* ==================== ESECUZIONE ==================== */
+// ---- Side-quest: Berenice la capra (dall'hub v1) — copre q_capra1..q_capra_salvata ----
+// Entrambi i rami di fallimento (q_capra1_tracce_ko, q_capra2_ko) confluiscono comunque
+// in q_capra_salvata, quindi non serve pilotare i tiri: basta forzare la scelta all'hub v1.
+scenarios.push(scenario('side-quest: la capra Berenice, poi via bosco', ['brunilde', 'kael'], {
+  v1: 'Bocciolo irrompe', v2: 'LEGNATE', v3: 'Bosco dei Sussurri',
+  b1: 'tracce del sentiero', b2: "ECLISSI!", b3: 'Uscite ad affrontare i lupi per il dente',
+  c1: 'Gran Ballo', c_ballo: 'Dritti alla scala della torre', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
+  c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}, { checkBias: 'worst' })); // bias 'worst' apposta: vogliamo vedere ANCHE q_capra1_tracce_ko/q_capra2_ko
+
+scenarios.push(scenario('side-quest: la capra Berenice (tiri fortunati), poi via miniere', ['fizzle', 'brunilde'], {
+  v1: 'Bocciolo irrompe', v2: 'LEGNATE', v3: 'Miniere di Ferrovecchio',
+  m1: 'sindaco di Brindolo ci manda', m2: 'Ovviamente carrello', m3: 'Modulo 7-B',
+  c1: 'Passaggio Basso', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
+  c_vetta: 'BATTAGLIA!', e_alba: 'Vai. Sparisci',
+}, { checkBias: 'best' }));
+
+// ---- Miniere: deposito con le torce (m2_deposito, richiede l'oggetto 'torce') ----
+scenarios.push(scenario('miniere: deposito col vecchio pronto soccorso (torce comprate)', ['torvald', 'lyra'], {
+  v1: 'emporio di Gedeone', v_emporio: 'le torce', v2: 'LEGNATE', v3: 'Miniere di Ferrovecchio',
+  m1: 'sindaco di Brindolo ci manda', m2: 'vecchio deposito', m3: "Procedura d'urgenza",
+  c1: 'Scalando le mura', c_gerbold: 'Niente chiacchiere', c_scala: 'Riposo breve',
+  c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}));
+
+// ---- Ramo FIUME: percorso base con pagamento diretto del pedaggio, rifiuto della Lacrima ----
+scenarios.push(scenario('fiume: pagate il pedaggio, rifiutate la Lacrima, mura', ['torvald', 'brunilde'], {
+  v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice',
+  r1: 'Il Fiume Torbido', r1_tariffa: 'Pagate le 30 monete',
+  r3: 'ascoltare l\'acqua', r4: 'Rifiutate: certi ricordi',
+  c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
+  c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}));
+
+// ---- Ramo FIUME: dono della Lacrima di Luna (necessario per il finale via f_lacrima) ----
+scenarios.push(scenario('fiume: pescatore, dono della Lacrima di Luna', ['fizzle', 'brunilde'], {
+  v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice',
+  r1: 'La Luna, ovviamente', r1_tariffa: 'Pagate le 30 monete',
+  r4: 'cede un ricordo felice',
+  c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
+  c_vetta: 'BATTAGLIA!', f_boss_fase2_check: 'LACRIMA DI LUNA',
+}, { checkBias: 'best' }));
+
+/* ==================== ESECUZIONE (con retry adattivo per gli esiti a dado) ====================
+   Alcuni contenuti dipendono dal SUCCESSO (o dal FALLIMENTO) di un tiro di dado, che il test
+   può orientare scegliendo l'eroe con il modificatore migliore/peggiore (checkBias) ma non
+   forzare con certezza. Per garantire comunque la copertura, questi scenari vengono ripetuti
+   con semi diversi finché lo scopo non è raggiunto (o si esaurisce un numero ragionevole di
+   tentativi): ogni tentativo conta comunque come una run a sé, loggata come le altre.        */
 
 section('Simulazione di partite complete (headless)');
-console.log(`  Esecuzione di ${scenarios.length} partite simulate...\n`);
 
 const results = [];
-for (const sc of scenarios) {
+function execute(sc) {
   const r = runGame(sc);
   results.push(r);
   const endingTxt = r.ok ? (r.log.ending || '(nessun finale?!)') : 'ERRORE';
   const line = `  ${r.ok ? '✅' : '❌'} [seed ${sc.seed}] ${sc.name} — scene: ${r.log.scenes.length}, combattimenti: ${r.log.combats}, esito: ${endingTxt}`;
   console.log(line);
-  if (!r.ok) {
-    console.error(`      ↳ ${r.error.split('\n')[0]}`);
-  }
+  if (!r.ok) console.error(`      ↳ ${r.error.split('\n')[0]}`);
+  return r;
 }
+
+function executeUntil(name, heroes, choices, opts, targetScenes, maxAttempts = 10) {
+  let last = null;
+  for (let i = 0; i < maxAttempts; i++) {
+    const sc = scenario(`${name} (tentativo ${i + 1}/${maxAttempts})`, heroes, choices, { ...opts, seed: (opts.seedBase || 555000) + i * 131 });
+    last = execute(sc);
+    if (last.ok && targetScenes.every(id => last.log.scenes.includes(id))) return true;
+  }
+  console.error(`      ↳ ⚠ non raggiunto dopo ${maxAttempts} tentativi: ${targetScenes.join(', ')} (dipende da un tiro di dado — vedi copertura sotto)`);
+  return false;
+}
+
+console.log(`  Esecuzione di ${scenarios.length} partite pilotate + tentativi adattivi per gli esiti a dado...\n`);
+for (const sc of scenarios) execute(sc);
+
+// Fiume — Bertoldo commosso (prova di Carisma CD 12, tentata con Fizzle CAR+2)
+executeUntil('fiume: Bertoldo commosso (Carisma)', ['fizzle', 'brunilde'],
+  { v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice', r1: 'Il Fiume Torbido',
+    r1_tariffa: 'Parlate del suo passato', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni' },
+  { checkBias: 'best', seedBase: 610000 }, ['r1_commosso']);
+
+// Fiume — il remo fortunato ritrovato (prova di Saggezza CD 11, tentata con Brunilde SAG+4)
+executeUntil('fiume: il remo fortunato di Bertoldo (Saggezza)', ['brunilde', 'kael'],
+  { v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice', r1: 'Il Fiume Torbido',
+    r1_tariffa: 'aiutarlo a ritrovare il suo remo', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni' },
+  { checkBias: 'best', seedBase: 620000 }, ['r1_remo']);
+
+// Fiume — combattimento contro anguille e Spirito del Fiume: si forza il FALLIMENTO della
+// prova del remo (bias 'worst', eroi con Saggezza bassa) e poi si sceglie di combattere.
+executeUntil('fiume: combattimento anguille + Spirito del Fiume', ['zonk', 'torvald'],
+  { v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice', r1: 'Il Fiume Torbido',
+    r1_tariffa: 'aiutarlo a ritrovare il suo remo', r1_remo_fail: 'Affrontate anguille',
+    c_gerbold: 'Niente chiacchiere', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Vai. Sparisci' },
+  { checkBias: 'worst', seedBase: 630000 }, ['r1_anguille']);
+
+// Fiume — le Rapide del Singhiozzo fallite (prova di Destrezza di gruppo CD 12, bias 'worst')
+executeUntil('fiume: rapide fallite (tuffo non richiesto)', ['zonk', 'torvald'],
+  { v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice', r1: 'Il Fiume Torbido',
+    r1_tariffa: 'Pagate le 30 monete', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni' },
+  { checkBias: 'worst', seedBase: 640000 }, ['r2_ko']);
+
+// Finale via Lacrima di Luna: dono al Pescatore, poi alla fase 2 del boss si lascia cadere
+// la lacrima (f_lacrima) e si tenta la prova di Carisma CD 11 (bias 'best', Fizzle CAR+2)
+// per raggiungere f_lacrima_win senza dover affrontare la fase 2 del combattimento finale.
+executeUntil('finale: Lacrima di Luna fino a f_lacrima_win', ['fizzle', 'brunilde'],
+  { v1: 'Si parte!', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice', r1: 'Il Fiume Torbido',
+    r1_tariffa: 'Pagate le 30 monete', r4: 'cede un ricordo felice',
+    c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', f_boss_fase2_check: 'LACRIMA DI LUNA' },
+  { checkBias: 'best', seedBase: 650000 }, ['f_lacrima', 'f_lacrima_win']);
 
 const fatalRuns = results.filter(r => !r.ok);
 for (const r of fatalRuns) fail(`Partita "${r.scenario.name}" (seed ${r.scenario.seed}): ${r.error.split('\n')[0]}`);
@@ -700,6 +814,17 @@ coverage('Boss fight fase 1', ['f_boss_intro']);
 coverage('Boss fight fase 2', ['f_boss_fase2']);
 coverage('Sconfitta generica + RETRY_COMBAT', ['sconfitta_generica']);
 
+coverage('Ramo fiume (Molo del Vecchio Salice)', ['r1', 'r7']);
+coverage('Fiume - Bertoldo commosso', ['r1_commosso']);
+coverage('Fiume - remo fortunato ritrovato', ['r1_remo']);
+coverage('Fiume - combattimento anguille/Spirito del Fiume', ['r1_anguille']);
+coverage('Fiume - rapide del Singhiozzo fallite', ['r2_ko']);
+coverage('Fiume - pescatore: dono della Lacrima', ['r4_dono']);
+coverage('Fiume - pescatore: rifiuto', ['r4_rifiuta']);
+coverage('Side-quest: la capra Berenice', ['q_capra1', 'q_capra_salvata']);
+coverage('Miniere - deposito con le torce', ['m2_deposito']);
+coverage('Finale via Lacrima di Luna', ['f_lacrima', 'f_lacrima_win']);
+
 console.log(`  ${allEndings.size >= 3 ? '✅' : '❌'} Finali raggiunti (${allEndings.size}/3): ${[...allEndings].join(', ') || '(nessuno)'}`);
 if (allEndings.size < 3) {
   const missing = ['e_finale_giusto', 'e_finale_esilio', 'e_finale_bardo'].filter(e => !allEndings.has(e));
@@ -710,9 +835,9 @@ if (allEndings.size < 3) {
 
 console.log('\n' + '═'.repeat(60));
 if (failures === 0) {
-  console.log(`✅ TUTTE LE PARTITE SIMULATE COMPLETATE SENZA ERRORI (${scenarios.length} run, ${allScenesSeen.size} scene distinte visitate, ${allEndings.size}/3 finali)`);
+  console.log(`✅ TUTTE LE PARTITE SIMULATE COMPLETATE SENZA ERRORI (${results.length} run, ${allScenesSeen.size} scene distinte visitate, ${allEndings.size}/3 finali)`);
   process.exit(0);
 } else {
-  console.log(`❌ ${failures} PROBLEMI RILEVATI su ${scenarios.length} partite simulate`);
+  console.log(`❌ ${failures} PROBLEMI RILEVATI su ${results.length} partite simulate`);
   process.exit(1);
 }

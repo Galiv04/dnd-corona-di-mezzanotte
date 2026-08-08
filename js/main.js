@@ -83,13 +83,18 @@ const Main = (() => {
     $('btn-party').onclick = Engine.showParty;
     $('btn-inventory').onclick = Engine.showInventory;
     $('btn-rules').onclick = Engine.showRules;
-    $('btn-sound').textContent = Sound.isMuted() ? '🔇' : '🔊';
-    $('btn-sound').onclick = () => { $('btn-sound').textContent = Sound.toggleMute() ? '🔇' : '🔊'; };
-    $('btn-music').style.opacity = Sound.isMusicMuted() ? '.5' : '1';
-    $('btn-music').onclick = () => {
-      const off = Sound.toggleMusicMute();
-      $('btn-music').style.opacity = off ? '.5' : '1';
+    const syncAudioUI = () => {
+      $('btn-sound').textContent = Sound.isMuted() ? '🔇' : '🔊';
+      $('btn-music').style.opacity = Sound.isMusicMuted() ? '.5' : '1';
+      $('btn-sound-title').textContent = Sound.isMuted() ? '🔇 Effetti' : '🔊 Effetti';
+      $('btn-sound-title').style.opacity = Sound.isMuted() ? '.55' : '1';
+      $('btn-music-title').style.opacity = Sound.isMusicMuted() ? '.55' : '1';
     };
+    $('btn-sound').onclick = () => { Sound.toggleMute(); syncAudioUI(); };
+    $('btn-music').onclick = () => { Sound.toggleMusicMute(); syncAudioUI(); };
+    $('btn-sound-title').onclick = () => { Sound.toggleMute(); syncAudioUI(); };
+    $('btn-music-title').onclick = () => { Sound.toggleMusicMute(); syncAudioUI(); };
+    syncAudioUI();
     // testo grande (persistente)
     try { if (localStorage.getItem('corona-textsize') === 'large') document.documentElement.classList.add('text-large'); } catch (e) {}
     $('btn-textsize').onclick = () => {

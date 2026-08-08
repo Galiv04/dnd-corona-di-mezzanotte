@@ -221,13 +221,23 @@ const Engine = (() => {
 
   let typeTimer = null;
 
-  const MUSIC_BY_LOCATION = { taverna: 'village', villaggio: 'village', alba: 'alba', vetta: 'boss' };
+  const MUSIC_BY_LOCATION = {
+    taverna: 'village', villaggio: 'village', alba: 'alba', vetta: 'boss',
+    bosco: 'bosco', capanna: 'bosco', miniera: 'miniera',
+    fiume: 'fiume', cisterna: 'cripta', cripta: 'cripta',
+    ballo: 'ballo', castelloEsterno: 'cripta', salaTrono: 'ballo',
+  };
+
+  function musicForScene(scene) {
+    if (scene.ending) return 'alba';
+    // momenti speciali della storia
+    if (/^f_(tenzone|lacrima|corona)/.test(G.sceneId)) return 'tenzone';
+    return MUSIC_BY_LOCATION[scene.location] || 'explore';
+  }
 
   function renderScene(scene, instant = false) {
     showScreen('screen-game');
-    if (typeof Sound !== 'undefined') {
-      Sound.music(scene.ending ? 'alba' : (MUSIC_BY_LOCATION[scene.location] || 'explore'));
-    }
+    if (typeof Sound !== 'undefined') Sound.music(musicForScene(scene));
     $('hud-location').textContent = '📍 ' + (scene.caption || '');
     Scenes.paint('scene-canvas', scene.location);
     $('scene-caption').textContent = scene.caption || '';
@@ -315,7 +325,7 @@ const Engine = (() => {
   }
 
   function resolveChoice(scene, c) {
-    if (typeof Sound !== 'undefined') Sound.play('click');
+    if (typeof Sound !== 'undefined') Sound.play(c.item ? 'item' : c.gold ? 'gold' : 'click');
     if (c.once) {
       if (!G.usedChoices[G.sceneId]) G.usedChoices[G.sceneId] = [];
       G.usedChoices[G.sceneId].push(c.text);
