@@ -106,15 +106,21 @@ const Engine = (() => {
       if (scene.item2) G.inventory.push(scene.item2);
       if (scene.heal) for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + scene.heal);
       if (scene.damage) for (const h of G.party) if (!h.down) h.hp = Math.max(1, h.hp - scene.damage);
-      if (scene.fullHeal) {
-        for (const h of G.party) {
-          h.hp = h.maxHp; h.down = false;
-          for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
-        }
-      }
       if (scene.onEnterOnce && scene.onEnterOnce.itemEach) {
         for (const h of G.party) G.inventory.push(scene.onEnterOnce.itemEach);
       }
+    }
+
+    // effetti che devono valere a OGNI visita (scene di sconfitta e di riposo)
+    if (scene.fullHeal) {
+      for (const h of G.party) {
+        h.hp = h.maxHp; h.down = false;
+        for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
+      }
+      if (!firstVisit && scene.goldLoss) G.gold = Math.max(0, G.gold - scene.goldLoss);
+    }
+    if (scene.recharge) {
+      for (const h of G.party) for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
     }
 
     if (scene.combat) G.lastCombatSceneId = id;
@@ -193,7 +199,7 @@ const Engine = (() => {
       const b = document.createElement('button');
       b.className = 'choice-btn';
       b.innerHTML = `⚔ <b>INIZIA IL COMBATTIMENTO!</b> <span class="choice-tag">Preparatevi: si combatte a turni, il gioco vi guida.</span>`;
-      b.onclick = () => { G.stats.combats++; Combat.start(scene.combat, G.sceneId); };
+      b.onclick = () => Combat.start(scene.combat, G.sceneId);
       choicesEl.appendChild(b);
       return;
     }
@@ -525,7 +531,7 @@ const Engine = (() => {
         <span class="ability-name">📊 Cronaca dell'impresa</span>
         <div class="ability-desc">
           Eroi: ${G.party.map(h => h.name.split(' ')[0]).join(', ')}<br>
-          Combattimenti affrontati: ${G.stats.combats} · Prove superate: ${G.stats.checksPassed} · Prove fallite: ${G.stats.checksFailed} (le più divertenti)<br>
+          Combattimenti vinti: ${G.stats.combats} · Prove superate: ${G.stats.checksPassed} · Prove fallite: ${G.stats.checksFailed} (le più divertenti)<br>
           Oro finale: ${G.gold} monete · Durata: circa ${mins} minuti<br>
           Via scelta: ${G.flags.via === 'bosco' ? '🌲 il Bosco dei Sussurri' : G.flags.via === 'miniere' ? '⛏ le Miniere di Ferrovecchio' : '—'}
         </div>

@@ -55,7 +55,7 @@ const RULES_QUICK = `
 <div class="rules-section"><details><summary>⚔ Combattimento — il tuo turno</summary><div class="rules-body">
 <p>Nel tuo turno, UNA azione a scelta:</p>
 <p><b>⚔ Attacco</b> — d20 + bonus vs CA del nemico → se colpisci: danni dell'arma.</p>
-<p><b>✨ Abilità</b> — le mosse speciali (usi limitati per avventura, si ricaricano nelle scene di riposo).</p>
+<p><b>✨ Abilità</b> — le mosse speciali. Usi limitati: si ricaricano riposando sulla scala della torre (prima del finale) e dopo una sconfitta.</p>
 <p><b>🧪 Pozione</b> — cura te o un alleato (anche uno a terra: lo rialza!).</p>
 <p><b>🛡 Difesa</b> — +3 CA fino al tuo prossimo turno.</p>
 </div></details></div>

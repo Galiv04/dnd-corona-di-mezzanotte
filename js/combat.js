@@ -219,17 +219,12 @@ const Combat = (() => {
         () => useAbility(hIdx, ab), left <= 0);
     }
 
-    // pozioni
+    // pozioni (un bottone per ogni tipo di pozione posseduta)
     const potions = G.inventory.filter(it => ITEMS[it].usable);
-    if (potions.length) {
-      const first = potions[0];
-      mkBtn(`🧪 ${ITEMS[first].name} (x${potions.filter(p => p === first).length}) <span class="action-sub">${ITEMS[first].desc} Scegli chi la beve.</span>`,
-        () => pickAlly(a => usePotion(hIdx, a, first), true));
-      const other = potions.find(p => p !== first);
-      if (other) {
-        mkBtn(`🧪 ${ITEMS[other].name} (x${potions.filter(p => p === other).length}) <span class="action-sub">${ITEMS[other].desc}</span>`,
-          () => pickAlly(a => usePotion(hIdx, a, other), true));
-      }
+    for (const type of [...new Set(potions)]) {
+      const count = potions.filter(p => p === type).length;
+      mkBtn(`🧪 ${ITEMS[type].name} (x${count}) <span class="action-sub">${ITEMS[type].desc} Scegli chi la beve.</span>`,
+        () => pickAlly(a => usePotion(hIdx, a, type), true));
     }
 
     // difesa
@@ -240,7 +235,7 @@ const Combat = (() => {
     });
   }
 
-  function pickTarget(fn) {
+  function pickTarget(fn, noBack = false) {
     const box = $('combat-actions');
     box.innerHTML = `<div class="action-title">Scegli il bersaglio:</div>`;
     battle.enemies.forEach((e, i) => {
@@ -251,6 +246,7 @@ const Combat = (() => {
       b.onclick = () => fn(i);
       box.appendChild(b);
     });
+    if (noBack) return;
     const back = document.createElement('button');
     back.className = 'action-btn';
     back.innerHTML = '↩ Indietro';
@@ -281,12 +277,6 @@ const Combat = (() => {
     return c.idx;
   }
 
-  function heroAttackBonus(h) {
-    let bonus = heroMod(h, h.attack.stat) + 2; // competenza +2
-    if (battle.isBoss && G.flags.benedizione) bonus += 1;
-    return bonus;
-  }
-
   function firstRoundAdvantage() {
     return battle.round === 1 && battle.isBoss && (G.flags.sorpresa || G.flags.gerbold_alleato);
   }
@@ -294,7 +284,11 @@ const Combat = (() => {
   function heroAttack(hIdx, tIdx, opts = {}) {
     const h = G.party[hIdx];
     const e = battle.enemies[tIdx];
-    const mod = opts.modOverride != null ? opts.modOverride : heroAttackBonus(h);
+    // le abilità usano la LORO statistica (es. Sacra Folgore -> SAG), altrimenti quella dell'arma
+    const stat = opts.stat || h.attack.stat;
+    let mod = heroMod(h, stat) + 2;
+    if (battle.isBoss && G.flags.benedizione) mod += 1;
+    if (opts.modOverride != null) mod = opts.modOverride;
     Dice.showRoll({
       title: `${h.name}: ${opts.label || h.attack.name}<br>contro ${e.name} (CA ${e.ac})`,
       mod, dc: e.ac,
@@ -309,7 +303,9 @@ const Combat = (() => {
         if (res.success) {
           const dice = opts.dice || h.attack.dice;
           let dmgRoll = Dice.rollDice(dice[0], dice[1]);
-          let dmg = dmgRoll.total + (opts.dmgBonus != null ? opts.dmgBonus : (heroMod(h, h.attack.stat) + (h.attack.bonus || 0)));
+          // abilità: solo il modificatore della loro statistica; arma base: stat + bonus arma
+          const baseBonus = opts.stat ? heroMod(h, opts.stat) : heroMod(h, h.attack.stat) + (h.attack.bonus || 0);
+          let dmg = dmgRoll.total + (opts.dmgBonus != null ? opts.dmgBonus : baseBonus);
           if (res.crit) { const extra = Dice.rollDice(dice[0], dice[1]); dmg += extra.total; }
           if (h.rageRounds > 0) dmg += 3;
           if (opts.holy && e.undead) dmg *= 2;
@@ -338,7 +334,7 @@ const Combat = (() => {
         break;
 
       case 'bighit':
-        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name }); });
+        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, stat: ab.stat }); });
         break;
 
       case 'autohit': {
@@ -368,7 +364,7 @@ const Combat = (() => {
       }
 
       case 'sneak':
-        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, advantage: true }); });
+        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, stat: ab.stat, advantage: true }); });
         break;
 
       case 'smoke':
@@ -392,15 +388,15 @@ const Combat = (() => {
         break;
 
       case 'holy':
-        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, holy: true }); });
+        pickTarget(t => { spend(); heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, stat: ab.stat, holy: true }); });
         break;
 
       case 'double':
         pickTarget(t1 => {
           spend();
-          heroAttack(hIdx, t1, { dice: ab.dice, label: ab.name + ' (1ª freccia)', after: () => {
+          heroAttack(hIdx, t1, { dice: ab.dice, label: ab.name + ' (1ª freccia)', stat: ab.stat, after: () => {
             if (!enemiesAlive()) return victory();
-            pickTarget(t2 => heroAttack(hIdx, t2, { dice: ab.dice, label: ab.name + ' (2ª freccia)' }));
+            pickTarget(t2 => heroAttack(hIdx, t2, { dice: ab.dice, label: ab.name + ' (2ª freccia)', stat: ab.stat }), true);
           }});
         });
         break;
@@ -426,7 +422,7 @@ const Combat = (() => {
       case 'stun':
         pickTarget(t => {
           spend();
-          heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, after: res => {
+          heroAttack(hIdx, t, { dice: ab.dice, label: ab.name, stat: ab.stat, after: res => {
             if (res.success) {
               const e = battle.enemies[t];
               if (!e.dead) { e.stunned = true; log(`💫 ${e.name} è STORDITO: salterà il prossimo turno!`, 'log-crit'); }
@@ -543,6 +539,7 @@ const Combat = (() => {
     banner.classList.remove('hidden');
     $('combat-actions').innerHTML = '';
 
+    G.stats.combats++;
     // gli eroi a terra si rialzano con 1 PV
     for (const h of G.party) if (h.down) { h.down = false; h.hp = 1; }
 

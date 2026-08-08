@@ -257,8 +257,11 @@ Vi fissa con occhi lucidissimi.
 
 > Mirtilla: "I mostri, ragazzi miei, non nascono mostri. Ricordatevelo, lassù. E se proprio dovete combatterlo... *un artista ferito vuole una cosa sola: l'applauso che non ha mai avuto.*"
 
-**(Avete scoperto il passato segreto di Vesper Morn!)**`,
+Fruga in un baule e vi mette in mano un foglio ingiallito: lo **spartito originale** della *Ballata per un Re Sordo*. "Lo conservavo io. Non chiedete come. Ero giovane, lui era... be', un disastro affascinante."
+
+**(Avete scoperto il passato segreto di Vesper Morn — e avete il suo spartito!)**`,
     sets: { sa_passato_bardo: true },
+    item: 'spartito',
     choices: [
       { text: 'La ringraziate e le baciate la mano. Tornate in piazza', next: 'v1' },
     ],
@@ -581,7 +584,6 @@ Il gatto volta pagina, interessato a come andrà a finire.`,
     choices: [
       { text: '🎭 Tentate di farla ridere (scegliete la vostra gag)', next: 'b3_gag' },
       { text: '🐺 Uscite ad affrontare i lupi per il dente', next: 'b3_lupi' },
-      { text: '🦷 Le date il dente di lupo che avete già', requires: { item: 'dente_lupo' }, removeItem: 'dente_lupo', next: 'b4' },
     ],
   },
 
@@ -822,9 +824,25 @@ Arrivate a una biforcazione. A sinistra: un tunnel a piedi, lungo ma tranquillo.
 
 > Gastone: "A piedi son due ore. Col carrello, dieci minuti. Il carrello però non lo usiamo dal 1847 per via dell'incidente che chiamiamo 'l'Incidente'."`,
     choices: [
+      { text: '🔦 Prima: accendete le torce e frugate nel vecchio deposito accanto ai binari', requires: { item: 'torce' }, once: true, next: 'm2_deposito' },
       { text: '🛒 CARRELLO. Ovviamente carrello.', tag: 'Prova di Destrezza — CD 12 (il frenatore)', check: { stat: 'DES', dc: 12, success: 'm2_carrello_ok', fail: 'm2_carrello_ko' } },
       { text: '🚶 A piedi. Due ore di cammino non hanno mai ucciso nessuno.', next: 'm2_piedi' },
     ],
+  },
+
+  m2_deposito: {
+    location: 'miniera',
+    caption: 'Il vecchio deposito — luce nelle tenebre',
+    text: `Le torce di Gedeone si accendono al primo colpo (ottimo acquisto!) e il deposito smette di essere un buco nero: è una stanzetta piena di casse del 1847, ragnatele monumentali e — sotto un telo ammuffito — la vecchia cassetta di pronto soccorso dei minatori.
+
+Dentro, miracolosamente intatta: una **Pozione di Cura Maggiore** ("olio di grotta, gradazione: medica") e un borsellino con **10 monete d'oro** dimenticato da qualche capocantiere distratto.
+
+> Gastone: "Il deposito! Certo! È che senza luce non ci entro mai, ci vive un'eco che fa i versacci."
+
+L'eco, per la cronaca, vi fa un versaccio di saluto. Educata, comunque.`,
+    item: 'pozione_cura_magg',
+    gold: 10,
+    choices: [{ text: '↩ Tornate ai binari', next: 'm2' }],
   },
 
   m2_carrello_ok: {
@@ -1312,12 +1330,13 @@ Decisione tattica, eroi: riposare qui costa tempo prezioso, ma arrivare stanchi 
   c_scala_riposo: {
     location: 'cripta',
     caption: 'Il pianerottolo — riposo del guerriero',
-    text: `Dieci minuti di bende, sorsi di pozione, uno spuntino a base delle provviste di Torvald (o di chi per lui) e qualche profondo respiro. **(+8 PV a tutti, fino al massimo!)**
+    text: `Dieci minuti di bende, sorsi di pozione, uno spuntino a base delle provviste di Torvald (o di chi per lui) e qualche profondo respiro. **(+8 PV a tutti e TUTTE le abilità speciali ricaricate!)**
 
 Quando ripartite siete quasi nuovi. Ma dall'alto, la voce di Vesper è cambiata: non prova più il discorso. Sta *CANTANDO*. E la torre intera vibra di magia.
 
 Il rituale è INIZIATO. Salite gli ultimi gradini quattro a quattro...`,
     heal: 8,
+    recharge: true,
     sets: { rituale_iniziato: true },
     choices: [{ text: 'Spalancate la porta della vetta!', next: 'c_vetta' }],
   },
@@ -1439,6 +1458,7 @@ La vanità di duecento anni fa il suo lavoro: gli occhi di Vesper si ACCENDONO.
 
 Lo scheletro del mantice corre a prendere un liuto polveroso. La sfida è: colpirlo al cuore (artistico). Chi apre per voi?`,
     choices: [
+      { text: '🎼 Gli porgete lo SPARTITO ORIGINALE, conservato da Mirtilla per duecento anni', requires: { item: 'spartito' }, next: 'f_tenzone2' },
       { text: '🎵 Aprite con una canzone VOSTRA: sincera, stonata, vera', tag: 'Prova di Carisma — CD 12', check: { stat: 'CAR', dc: 12, success: 'f_tenzone2', fail: 'f_tenzone_fail1' } },
       { text: '🧠 Aprite analizzando la SUA ballata: "la terza strofa era avanti di duecento anni"', tag: 'Prova di Intelligenza — CD 12', check: { stat: 'INT', dc: 12, success: 'f_tenzone2', fail: 'f_tenzone_fail1' } },
     ],
@@ -1781,6 +1801,6 @@ const WORLD_MAP = [
   { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura'] },
   { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
-  { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
+  { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
   { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];

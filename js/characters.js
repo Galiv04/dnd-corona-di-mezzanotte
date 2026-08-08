@@ -19,7 +19,7 @@ const HEROES = [
     attack: { name: 'Martello da guerra', stat: 'FOR', dice: [1, 10], bonus: 0, desc: '1d10+3 danni' },
     abilities: [
       { id: 'urlo', name: 'Urlo del Cuoco', uses: 2, type: 'taunt',
-        desc: 'Urla una ricetta terrificante: per 1 turno tutti i nemici attaccano solo Torvald, e lui subisce metà danni.' },
+        desc: 'Urla una ricetta terrificante: per un giro intero tutti i nemici attaccano solo Torvald, e lui subisce metà danni.' },
       { id: 'colpo_fornello', name: 'Colpo del Fornello', uses: 3, type: 'bighit', dice: [2, 10], stat: 'FOR',
         desc: 'Un colpo devastante a due mani: 2d10+3 danni a un nemico.' },
     ],
@@ -61,7 +61,7 @@ const HEROES = [
       { id: 'attacco_furtivo', name: 'Attacco Furtivo', uses: 3, type: 'sneak', dice: [3, 6], stat: 'DES',
         desc: 'Colpisce dove fa più male, con vantaggio (tira 2 dadi, tieni il migliore): 3d6+4 danni.' },
       { id: 'fumogeno', name: 'Bomba Fumogena', uses: 2, type: 'smoke',
-        desc: 'PUFF! Per 1 turno tutti i nemici hanno svantaggio ad attaccare (tirano 2 dadi, tengono il peggiore).' },
+        desc: 'PUFF! Per un giro intero tutti i nemici hanno svantaggio ad attaccare (tirano 2 dadi, tengono il peggiore).' },
     ],
     passive: 'Fortuna Sfacciata: una volta per combattimento, se tira 1 sul d20, può ritirare.',
     backstory: `Fizzle è nato in una famiglia di rispettabilissimi contadini halfling, tutti convinti che lui lavori "nel commercio". Tecnicamente è vero: commercia in oggetti che i legittimi proprietari non sapevano di voler vendere. Ha un codice ferreo: mai rubare ai poveri, mai rubare agli amici, e restituire sempre (il 60% circa) del maltolto a chi ne ha bisogno. Nelle sue tasche si trovano: tre chiavi misteriose, un dado truccato, mezzo panino e una lettera d'amore mai consegnata. Non chiedetegli della lettera.`,
