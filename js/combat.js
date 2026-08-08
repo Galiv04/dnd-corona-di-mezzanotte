@@ -58,9 +58,9 @@ const Combat = (() => {
       for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + 3);
       openLines.push(`✨ <b>Benedizione dell'Alba</b> di Brunilde: +3 PV a tutto il gruppo!`);
     }
-    if (G.flags.stufato_bonus) {
+    if (G.flags.stufato_bonus && !G.flags.stufato_consumato) {
       for (const h of G.party) h.hp = Math.min(h.maxHp, h.hp + 2);
-      delete G.flags.stufato_bonus;
+      G.flags.stufato_consumato = true;
       openLines.push(`🍲 Lo stufato di Bocciolo fa effetto: +2 PV a tutti!`);
     }
 

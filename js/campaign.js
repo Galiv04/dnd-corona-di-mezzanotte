@@ -22,6 +22,7 @@ const ITEMS = {
   maschere:           { name: 'Maschere da Ballo', desc: 'Sei maschere eleganti "prese in prestito" per il Gran Ballo.', usable: false },
   chiave_torre:       { name: 'Chiave della Torre', desc: 'Dono di Gerbold. Apre la scala privata di Lord Morn.', usable: false },
   spartito:           { name: 'Spartito Ingiallito', desc: '"Ballata per un Re Sordo" — di Vespertino Morn. La canzone che rovinò tutto.', usable: false },
+  provviste:          { name: 'Provviste di Bocciolo', desc: 'Pane di segale, formaggio stagionato e un sugo di famiglia dall\'ingrediente segreto. Rende i riposi più efficaci (+2 PV extra).', usable: false },
 };
 
 const CAMPAIGN = {
@@ -221,6 +222,7 @@ Dove andate?`,
       { text: '🧪 L\'emporio di Gedeone — pozioni e attrezzatura', next: 'v_emporio', once: true },
       { text: '👵 La vecchia Mirtilla — dicono sappia TUTTO di tutti', next: 'v_mirtilla', once: true },
       { text: '⛪ Il tempietto del Sole — una benedizione non guasta', next: 'v_tempio', once: true },
+      { text: '🐐 Bocciolo irrompe in piazza: "BERENICE È SPARITA! DI NUOVO!"', next: 'q_capra1', once: true },
       { text: '🐴 Si parte! Verso nord, verso il Castello Crepuscolo!', next: 'v2' },
     ],
   },
@@ -288,6 +290,98 @@ Sorprendentemente... *funziona*. Una tenue luce dorata vi avvolge. **(Benedizion
     sets: { benedizione: true },
     choices: [
       { text: '"Grazie, Pipino. Sei un grande." Tornate in piazza', next: 'v1' },
+    ],
+  },
+
+  /* ---------- side-quest: Berenice, la capra sparita ---------- */
+
+  q_capra1: {
+    location: 'taverna',
+    caption: 'Taverna "Il Gallo Storto" — un\'emergenza di capra',
+    text: `Siete ancora tra un ultimo boccale e l'altro, prima della partenza verso nord, quando la porta della taverna sbatte contro il muro con un TONFO che fa sobbalzare perfino gli avventori più distratti.
+
+È Bocciolo. Grembiule storto, occhi sgranati, fiato corto come dopo una maratona in salita.
+
+> Bocciolo: "BERENICE! È SPARITA! DI NUOVO! Proprio ORA, con questo buio che non si vede il naso davanti alla faccia!"
+
+Vi guardate. *Ancora* la capra. Berenice è di famiglia — era della nonna di Bocciolo — e da allora fa anche da sveglia ufficiale del quartiere, belando puntualissima ogni alba. Peccato che l'alba, al momento, sia sospesa a tempo indeterminato.
+
+> Bocciolo: "Senza il suo belato nessuno si sveglierà MAI PIÙ! O peggio, si sveglieranno tutti insieme quando deciderò io di suonare la campana a mano — ed è un potere che NON voglio avere, sui miei vicini!"
+
+Vi supplica con gli occhi da cane bastonato. Avete ancora un po' di tempo prima di partire verso nord. Un po', non tanto.`,
+    choices: [
+      { text: '🔦 Cercate le tracce di Berenice nel buio', tag: 'Prova di Saggezza — CD 10', check: { stat: 'SAG', dc: 10, success: 'q_capra2', fail: 'q_capra1_tracce_ko' } },
+    ],
+  },
+
+  q_capra1_tracce_ko: {
+    location: 'villaggio',
+    caption: 'Piazza di Brindolo — tracce (quasi) perse',
+    text: `Vi accovacciate, esaminate il terreno con aria da esperti tracciatori... e seguite con grande sicurezza un sentiero di impronte che si rivela, dieci minuti dopo, quello del maiale del vicino. Il maiale vi fissa, visibilmente offeso di essere scambiato per una capra.
+
+Sul punto di arrendervi, un dettaglio vi salva: un batuffolo di lana bianca impigliato in una grondaia, e un inconfondibile odore di capra proveniente da... sopra le vostre teste. LETTERALMENTE sopra le vostre teste.
+
+Alzate lo sguardo verso il tempietto del Sole.`,
+    choices: [
+      { text: 'Alzate lo sguardo...', next: 'q_capra2' },
+    ],
+  },
+
+  q_capra2: {
+    location: 'villaggio',
+    caption: 'Il tetto del tempietto — un déjà-vu',
+    text: `Là, in equilibrio perfetto sul colmo del tetto del tempietto del Sole, tra le tegole e il mosaico dorato ora imbronciato, c'è **Berenice**: la capra di Bocciolo, sagoma nera contro l'anello rosso dell'eclissi, che fissa il cielo spento con aria di sfida assoluta. Come se il sole l'avesse offesa personalmente.
+
+Non parla — è una capra — ma le OPINIONI, quelle, le ha eccome: vi guarda uno a uno, vi valuta, e sembra concludere che nessuno di voi è degno di un salvataggio dignitoso.
+
+> Bocciolo: *(da terra, mani nei capelli)* "È la TERZA volta che succede, quest'anno! Come diavolo ci arriva, lassù?! Non ci sono scale! Non ci sono appigli! Quella capra ha stretto un patto con qualcosa di innominabile, ne sono certo!"
+
+Pipino il chierico, capitato lì per caso, si fa il segno del sole e se ne va in fretta, borbottando qualcosa sui "misteri che il manuale non copre".
+
+Due strade, per farla scendere.`,
+    choices: [
+      { text: '🧗 Arrampicatevi fin lassù', tag: 'Prova di Destrezza — CD 11', check: { stat: 'DES', dc: 11, success: 'q_capra_salvata', fail: 'q_capra2_ko' } },
+      { text: '🥕 Attiratela con del cibo (con astuzia: cosa mangerebbe MAI una capra apocalittica?)', tag: 'Prova di Intelligenza — CD 10', check: { stat: 'INT', dc: 10, success: 'q_capra_salvata', fail: 'q_capra2_ko' } },
+      { text: '🗣 Attiratela con del cibo (con fascino: parlatele come si parla a una dama)', tag: 'Prova di Carisma — CD 10', check: { stat: 'CAR', dc: 10, success: 'q_capra_salvata', fail: 'q_capra2_ko' } },
+    ],
+  },
+
+  q_capra2_ko: {
+    location: 'villaggio',
+    caption: 'Il tetto del tempietto — tentativo maldestro',
+    text: `Che sia l'appiglio che si sbriciola sotto una mano di troppo, o l'offerta di cibo che Berenice giudica personalmente insultante con un solo sguardo laterale, il risultato è lo stesso: qualcuno finisce seduto per terra con la schiena a pezzi. **(-2 PV)**
+
+Berenice, dall'alto, osserva l'intera scena senza muovere un muscolo. Poi sbatte le palpebre, lentamente, con un disprezzo che nessuna creatura sprovvista di sopracciglia dovrebbe essere in grado di esprimere.
+
+> Bocciolo: "Vi sta GIUDICANDO. Lo fa sempre. È il suo momento preferito della giornata."
+
+Va bene. Riprovate, stavolta con più metodo — e con QUALSIASI cosa aveste in tasca: una capra apocalittica, si scopre, mangia letteralmente TUTTO. Un torsolo di mela, la lista della spesa di qualcuno, un bottone smarrito. Basta insistere, e soprattutto farlo insieme.`,
+    damage: 2,
+    choices: [
+      { text: 'Riprovate, tutti insieme stavolta', next: 'q_capra_salvata' },
+    ],
+  },
+
+  q_capra_salvata: {
+    location: 'taverna',
+    caption: 'Taverna "Il Gallo Storto" — capra recuperata',
+    text: `Berenice si lascia infine convincere a scendere — con la dignità intatta e l'aria di chi vi sta facendo un favore enorme — e trotterella verso Bocciolo come se niente fosse. Lui la stringe in un abbraccio che lei sopporta con pazienza quasi regale.
+
+> Bocciolo: *(con le lacrime agli occhi)* "L'avete ritrovata. DI NUOVO. Non so nemmeno come ringraziarvi... anzi, sì, lo so."
+
+Sparisce in cucina e torna con una **pozione di cura** e un sacco pesante, che vi consegna con solennità quasi religiosa.
+
+> Bocciolo: "Le **Provviste di Bocciolo**. Ricetta di famiglia, la stessa che tengo sotto il bancone per le emergenze VERE. Non chiedetemi cosa c'è dentro. Mangiatele e basta, quando ne avrete bisogno."
+
+Berenice vi osserva un'ultima volta dalla soglia, mastica qualcosa che probabilmente non dovrebbe mangiare, e vi concede — a modo suo — un cenno che potrebbe essere approvazione. O disprezzo attenuato. Con lei è sempre difficile dirlo.
+
+**(Berenice è salva. Di nuovo. Per ora. +1 Reputazione!)**`,
+    item: 'pozione_cura',
+    item2: 'provviste',
+    sets: { capra_salvata: true },
+    rep: 1,
+    choices: [
+      { text: 'Tornate ai preparativi', next: 'v1' },
     ],
   },
 
@@ -411,8 +505,8 @@ Nelle profondità si nasconde il **passaggio segreto** dei nani, dritto alle can
 
 Sopra di voi, l'anello rosso dell'eclissi si sta stringendo. Mezzanotte si avvicina: **c'è tempo per una sola strada.** Discutetene: è una delle decisioni più importanti dell'avventura.`,
     choices: [
-      { text: '🌲 Verso il Bosco dei Sussurri, dalla strega Nonna Ortica', next: 'b1', sets: { via: 'bosco' } },
-      { text: '⛏ Verso le Miniere di Ferrovecchio, in cerca del passaggio', next: 'm1', sets: { via: 'miniere' } },
+      { text: '🌲 Verso il Bosco dei Sussurri, dalla strega Nonna Ortica', next: 'b1', sets: { via: 'bosco', via_bosco: true } },
+      { text: '⛏ Verso le Miniere di Ferrovecchio, in cerca del passaggio', next: 'm1', sets: { via: 'miniere', via_miniere: true } },
     ],
   },
 
@@ -619,6 +713,7 @@ Poi il labbro di Ortica *trema*. Le spalle sussultano. Il naso con la verruca fa
 La risata di Nonna Ortica fa tremare i barattoli, spaventa il gatto (che perde il segno del libro, e vi maledirà per sempre) e fa fiorire di colpo tutte le erbe secche appese al soffitto.
 
 > Ortica: *(asciugandosi le lacrime)* "Duecento... duecento ANNI... oh, che meraviglia. Un patto è un patto, colombelle. LA POZIONE!"`,
+    sets: { fatto_ridere_ortica: true },
     choices: [{ text: 'Continua', next: 'b4' }],
   },
 
@@ -1469,7 +1564,7 @@ Solleva la corona sopra la testa — e per un attimo gelido temete il peggio —
 **La Corona di Mezzanotte si spezza con un urlo che sentono fino a Brindolo.** La gemma esplode in mille schegge che si dissolvono in fumo. Il filo rosso nel cielo si spezza, l'anello si apre...
 
 *(continua)*`,
-    sets: { finale: 'redenzione' },
+    sets: { finale: 'redenzione', finale_redenzione: true },
     choices: [{ text: 'Guardate il cielo', next: 'e_alba_redenzione' }],
   },
 
@@ -1532,7 +1627,7 @@ Vesper resta immobile, gli occhi rossi sgranati sotto l'eclissi. Poi qualcosa gl
 Afferra la Corona di Mezzanotte e la FRANTUMA sull'altare come un liuto scordato.
 
 *(continua)*`,
-    sets: { finale: 'redenzione' },
+    sets: { finale: 'redenzione', finale_redenzione: true },
     choices: [{ text: 'Guardate il cielo', next: 'e_alba_redenzione' }],
   },
 
@@ -1672,7 +1767,7 @@ Non ve lo fate ripetere. La Corona di Mezzanotte incontra l'ossidiana alla massi
 L'urlo si sente fino a Brindolo. Poi: silenzio. E nel cielo, il filo rosso dell'eclissi... si spezza.
 
 *(continua)*`,
-    sets: { finale: 'corona_distrutta' },
+    sets: { finale: 'corona_distrutta', finale_corona_distrutta: true },
     choices: [{ text: 'Guardate il cielo', next: 'e_alba_redenzione' }],
   },
 
@@ -1692,7 +1787,7 @@ E con l'ultimo gesto — il migliore dei suoi duecento anni — la afferra e la 
 L'urlo della corona si sente fino a Brindolo. La gemma esplode in fumo rosso che il vento dell'eclissi spazza via. E nel cielo, il filo scarlatto... si spezza.
 
 *(continua)*`,
-    sets: { finale: 'vittoria' },
+    sets: { finale: 'vittoria', finale_vittoria: true },
     choices: [{ text: 'Guardate il cielo', next: 'e_alba' }],
   },
 
@@ -1831,10 +1926,10 @@ const CAMPAIGN_START = 'p1';
 
 /* Mappa del mondo: luoghi e coordinate (per il canvas della mappa) */
 const WORLD_MAP = [
-  { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio'] },
+  { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio','q_capra1','q_capra1_tracce_ko','q_capra2','q_capra2_ko','q_capra_salvata'] },
   { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura'] },
   { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
-  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
+  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];

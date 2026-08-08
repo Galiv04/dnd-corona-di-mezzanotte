@@ -181,7 +181,11 @@ const Engine = (() => {
       if (scene.goldLoss) G.gold = Math.max(0, G.gold - scene.goldLoss);
       if (scene.item) G.inventory.push(scene.item);
       if (scene.item2) G.inventory.push(scene.item2);
-      if (scene.heal) for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + scene.heal);
+      if (scene.heal) {
+        // le Provviste di Bocciolo rendono i riposi più nutrienti
+        const bonus = (scene.recharge && G.inventory.includes('provviste')) ? 2 : 0;
+        for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + scene.heal + bonus);
+      }
       if (scene.damage) for (const h of G.party) if (!h.down) h.hp = Math.max(1, h.hp - scene.damage);
       if (scene.onEnterOnce && scene.onEnterOnce.itemEach) {
         for (const h of G.party) G.inventory.push(scene.onEnterOnce.itemEach);
@@ -611,6 +615,31 @@ const Engine = (() => {
   function renderEnding(scene) {
     const choicesEl = $('choices');
     const mins = Math.round((Date.now() - G.stats.start) / 60000);
+
+    // epiloghi personali degli eroi
+    const endingType = G.sceneId === 'e_finale_bardo' ? 'redenzione' : G.sceneId === 'e_finale_esilio' ? 'esilio' : 'vittoria';
+    if (typeof HERO_EPILOGUES !== 'undefined') {
+      const epi = document.createElement('div');
+      epi.innerHTML = `<h3 style="font-family:var(--font-pixel);font-size:14px;color:var(--blue);margin:14px 0 8px">🌟 E i nostri eroi?</h3>` +
+        G.party.map(h => {
+          const text = HERO_EPILOGUES[h.id] && HERO_EPILOGUES[h.id][endingType];
+          return text ? `<div class="ability-box"><span class="ability-name">${h.name}${h.player ? ' (' + h.player + ')' : ''}</span><div class="ability-desc">${text}</div></div>` : '';
+        }).join('');
+      choicesEl.appendChild(epi);
+    }
+
+    // imprese sbloccate
+    if (typeof IMPRESE !== 'undefined') {
+      const unlocked = IMPRESE.filter(i => G.flags[i.flag]);
+      if (unlocked.length) {
+        const ach = document.createElement('div');
+        ach.innerHTML = `<h3 style="font-family:var(--font-pixel);font-size:14px;color:var(--gold);margin:14px 0 8px">🏆 Imprese sbloccate (${unlocked.length}/${IMPRESE.length})</h3>` +
+          unlocked.map(i => `<div class="ability-box" style="border-left-color:var(--gold)"><span class="ability-name">${i.icon} ${i.title}</span><div class="ability-desc">${i.desc}</div></div>`).join('') +
+          `<p style="color:var(--text-dim);font-size:18px;margin:6px 0 10px">Le altre ${IMPRESE.length - unlocked.length} imprese vi aspettano in una nuova partita...</p>`;
+        choicesEl.appendChild(ach);
+      }
+    }
+
     const div = document.createElement('div');
     div.innerHTML = `
       <div class="ability-box" style="border-left-color:var(--gold)">
