@@ -109,9 +109,9 @@ const Combat = (() => {
     const heroes = G.party;
     const hScale = 4, hSize = 16 * hScale;
     heroes.forEach((h, i) => {
-      const cols = Math.ceil(heroes.length / 2);
+      const cols = Math.min(3, heroes.length);
       const col = i % cols, row = Math.floor(i / cols);
-      const x = 30 + col * (hSize + 18), y = H - 20 - hSize - row * (hSize * 0.55);
+      const x = 30 + col * (hSize + 16), y = H - 20 - hSize - row * (hSize + 14);
       const def = Sprites.registry[h.sprite];
       ctx.globalAlpha = h.down ? 0.35 : 1;
       Sprites.drawSprite(ctx, def.map, def.palette, x, y, hScale);
