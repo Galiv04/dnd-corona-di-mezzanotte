@@ -154,17 +154,23 @@ const Scenes = (() => {
     blocks(ctx, x - lw * 0.2, leafBottom - lw * 0.98, lw * 0.4, lw * 0.24, leaf, 8, rand, 0.28);
   }
 
-  // Salice piangente: chioma larga + rami che ricadono
+  // Salice piangente: chioma tondeggiante + rami che ricadono da sotto
   function willow(ctx, x, groundY, size, leaf, trunk, rand) {
     const tw = Math.max(8, Math.round(size / 7) * 2);
-    blocks(ctx, x - tw / 2, groundY - size, tw, size, trunk, 6, rand);
-    const lw = size * 1.3;
-    blocks(ctx, x - lw / 2, groundY - size - lw * 0.28, lw, lw * 0.42, leaf, 8, rand, 0.26);
-    // rami cadenti, più corti ai lati
+    const topY = groundY - size;
+    blocks(ctx, x - tw / 2, topY, tw, size, trunk, 6, rand);
+    blocks(ctx, x - tw, groundY - 8, tw * 2, 8, trunk, 6, rand, 0.3);
+    const lw = size * 1.25;
+    const crown = topY + size * 0.16;               // base della chioma
+    // chioma a tre fasce, la più larga al centro
+    blocks(ctx, x - lw * 0.36, crown - lw * 0.46, lw * 0.72, lw * 0.16, leaf, 8, rand, 0.24);
+    blocks(ctx, x - lw / 2, crown - lw * 0.32, lw, lw * 0.2, leaf, 8, rand, 0.24);
+    blocks(ctx, x - lw * 0.44, crown - lw * 0.14, lw * 0.88, lw * 0.16, leaf, 8, rand, 0.24);
+    // rami che ricadono da SOTTO la chioma, più lunghi al centro
     for (let i = -4; i <= 4; i++) {
-      const bx = x + i * (lw / 10);
-      const len = size * (0.5 - Math.abs(i) * 0.05) + rand() * 10;
-      blocks(ctx, bx - 3, groundY - size + lw * 0.1, 6, len, leaf, 6, rand, 0.34);
+      const bx = x + i * (lw / 9.5);
+      const len = size * (0.42 - Math.abs(i) * 0.045) + rand() * 8;
+      blocks(ctx, bx - 3, crown + lw * 0.02, 6, Math.max(10, len), leaf, 6, rand, 0.34);
     }
   }
 
@@ -611,12 +617,12 @@ const Scenes = (() => {
       blocks(ctx, W * 0.05, g - 240, 70, 222, '#332a40', 10, r, 0.15);
       blocks(ctx, W * 0.87, g - 240, 70, 222, '#332a40', 10, r, 0.15);
       // mastio centrale, più alto e affusolato
-      blocks(ctx, W * 0.43, g - 320, 130, 170, '#3d3350', 10, r, 0.15);
-      blocks(ctx, W * 0.415, g - 336, 160, 18, '#4a3f6b', 10, r, 0.12);
+      blocks(ctx, W * 0.43, g - 286, 130, 136, '#3d3350', 10, r, 0.15);
+      blocks(ctx, W * 0.415, g - 300, 160, 18, '#4a3f6b', 10, r, 0.12);
       const spike = (x, w, y) => { for (let i = 0; i < 6; i++) blocks(ctx, x + i * (w / 12), y - i * 11, w - i * (w / 6), 11, '#5a2035', 8, r, 0.15); };
-      spike(W * 0.05, 70, g - 240); spike(W * 0.87, 70, g - 240); spike(W * 0.43, 130, g - 336);
+      spike(W * 0.05, 70, g - 240); spike(W * 0.87, 70, g - 240); spike(W * 0.43, 130, g - 300);
       ctx.fillStyle = '#e84a5a';
-      ctx.fillRect(W * 0.46, g - 296, 11, 16); ctx.fillRect(W * 0.53, g - 262, 11, 16);
+      ctx.fillRect(W * 0.46, g - 262, 11, 16); ctx.fillRect(W * 0.53, g - 232, 11, 16);
       ctx.fillRect(W * 0.08 + 24, g - 210, 8, 12); ctx.fillRect(W * 0.9, g - 210, 8, 12);
       // fossato e ponte levatoio con catene
       blocks(ctx, 0, g, W, H - g, '#1d1830', 12, r, 0.2);
