@@ -47,7 +47,99 @@ const Main = (() => {
 
   function refreshTitle() {
     $('btn-continue').style.display = Engine.hasSave() ? '' : 'none';
+    $('btn-profile').textContent = '👤 ' + Engine.currentProfile();
     Sound.music('title');
+  }
+
+  /* ---------- gestione utenti e codici di salvataggio ---------- */
+
+  function showProfiles() {
+    const box = $('modal-generic-content');
+    const current = Engine.currentProfile();
+    let html = `<h2>👤 Utenti di questo dispositivo</h2>
+      <p style="color:var(--text-dim);margin-bottom:12px">Ogni utente ha i suoi 3 slot di salvataggio. I salvataggi restano su QUESTO browser: per portarli altrove usate i <b>codici di salvataggio</b> qui sotto.</p>`;
+    for (const p of Engine.listProfiles()) {
+      const saves = Engine.listSaves(p).filter(Boolean);
+      html += `<div class="ability-box" style="border-left-color:${p === current ? 'var(--gold)' : 'var(--border)'}">
+        <span class="ability-name">${p === current ? '⭐ ' : ''}${p}</span>
+        <div class="ability-desc">${saves.length ? saves.map(s => `Slot ${s.slot}: ${s.heroes} — ${s.caption}`).join('<br>') : 'Nessuna partita salvata.'}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          ${p !== current ? `<button class="btn btn-small btn-gold" onclick="Main.useProfile('${p.replace(/'/g, "\\'")}')">✔ Usa</button>` : ''}
+          <button class="btn btn-small" onclick="Main.renameProfileUI('${p.replace(/'/g, "\\'")}')">✏ Rinomina</button>
+          <button class="btn btn-small" onclick="Main.showCodes('${p.replace(/'/g, "\\'")}')">📤 Codici</button>
+          ${Engine.listProfiles().length > 1 ? `<button class="btn btn-small btn-danger" onclick="Main.deleteProfileUI('${p.replace(/'/g, "\\'")}')">🗑</button>` : ''}
+        </div>
+      </div>`;
+    }
+    html += `<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <input class="player-name-input" id="new-profile-name" placeholder="Nome nuovo utente..." maxlength="20" style="flex:1;min-width:180px;margin:0">
+        <button class="btn btn-small btn-gold" id="btn-add-profile">➕ Crea utente</button>
+      </div>
+      <button class="btn" style="margin-top:12px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
+    box.innerHTML = html;
+    $('btn-add-profile').onclick = () => {
+      const name = $('new-profile-name').value.trim();
+      if (!name) return;
+      Engine.setCurrentProfile(name);
+      refreshTitle();
+      showProfiles();
+    };
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function useProfile(p) { Engine.setCurrentProfile(p); refreshTitle(); showProfiles(); }
+
+  function renameProfileUI(p) {
+    const nuovo = prompt(`Nuovo nome per "${p}":`, p);
+    if (nuovo && nuovo.trim() && nuovo.trim() !== p) {
+      if (!Engine.renameProfile(p, nuovo.trim())) alert('Nome già in uso.');
+      refreshTitle();
+    }
+    showProfiles();
+  }
+
+  function deleteProfileUI(p) {
+    if (confirm(`Eliminare l'utente "${p}" e TUTTI i suoi salvataggi? Non si torna indietro.`)) {
+      Engine.deleteProfile(p);
+      refreshTitle();
+    }
+    showProfiles();
+  }
+
+  function showCodes(p) {
+    const box = $('modal-generic-content');
+    const saves = Engine.listSaves(p);
+    let html = `<h2>📤 Codici di salvataggio — ${p}</h2>
+      <p style="color:var(--text-dim);margin-bottom:10px">Copiate un codice e incollatelo su un altro browser o computer (stesso sito → 👤 → 📥 Importa) per trasferire la partita.</p>`;
+    saves.forEach((s, i) => {
+      const n = i + 1;
+      if (!s) { html += `<div class="ability-box"><span class="ability-name">Slot ${n}</span><div class="ability-desc">vuoto</div></div>`; return; }
+      const code = Engine.exportCode(n, p) || '';
+      html += `<div class="ability-box"><span class="ability-name">Slot ${n} — ${s.heroes}</span>
+        <div class="ability-desc">${s.caption}</div>
+        <textarea readonly onclick="this.select()" style="width:100%;height:64px;margin-top:6px;background:#111;color:var(--green);border:2px solid var(--border);font-size:12px;font-family:monospace">${code}</textarea>
+        <button class="btn btn-small" style="margin-top:4px" onclick="navigator.clipboard && navigator.clipboard.writeText(this.previousElementSibling.value).then(()=>this.textContent='✔ Copiato!')">📋 Copia</button>
+      </div>`;
+    });
+    html += `<h3 style="font-family:var(--font-pixel);font-size:13px;color:var(--blue);margin:14px 0 6px">📥 Importa un codice</h3>
+      <textarea id="import-code" placeholder="Incollate qui il codice..." style="width:100%;height:64px;background:#111;color:var(--text);border:2px solid var(--border);font-size:12px;font-family:monospace"></textarea>
+      <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+        <span style="color:var(--text-dim)">nello slot:</span>
+        ${[1, 2, 3].map(n => `<button class="btn btn-small" onclick="Main.doImport('${p.replace(/'/g, "\\'")}', ${n})">Slot ${n}</button>`).join('')}
+        <span id="import-result" style="color:var(--green)"></span>
+      </div>
+      <button class="btn" style="margin-top:12px" onclick="Main.showProfiles()">↩ Utenti</button>`;
+    box.innerHTML = html;
+    $('modal-generic').classList.remove('hidden');
+  }
+
+  function doImport(p, slot) {
+    const code = $('import-code').value;
+    if (!code.trim()) return;
+    const err = Engine.importCode(code, slot, p);
+    $('import-result').textContent = err ? '❌ ' + err : `✔ Importato nello Slot ${slot}!`;
+    $('import-result').style.color = err ? 'var(--red)' : 'var(--green)';
+    if (!err) { refreshTitle(); setTimeout(() => showCodes(p), 900); }
   }
 
   function init() {
@@ -77,6 +169,7 @@ const Main = (() => {
     $('btn-start-adventure').onclick = startAdventure;
     $('btn-diff-normale').onclick = () => setDifficulty('normale');
     $('btn-diff-facile').onclick = () => setDifficulty('facile');
+    $('btn-profile').onclick = showProfiles;
 
     // header di gioco
     $('btn-map').onclick = Engine.showMap;
@@ -233,7 +326,7 @@ const Main = (() => {
     pendingSlot = null;
   }
 
-  return { init, refreshTitle };
+  return { init, refreshTitle, showProfiles, useProfile, renameProfileUI, deleteProfileUI, showCodes, doImport };
 })();
 
 document.addEventListener('DOMContentLoaded', Main.init);

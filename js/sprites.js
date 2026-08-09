@@ -456,11 +456,64 @@ const Sprites = (() => {
     ].map(r => r.padEnd(16,'.').slice(0,16)),
   };
 
+  // Berenice, la capra apocalittica
+  const capra = {
+    palette: { w:'#e8e4d8', W:'#c8c2b0', e:'#e8a020', h:'#8a8070', p:'#c8a0a8', n:'#2a2a22' },
+    map: [
+      '................',
+      '..h..........h..',
+      '..hh...ww...hh..',
+      '...hwwwwwwwwh...',
+      '...wwewwwwew w..'.replace(' ',''),
+      '...wwwwwwwwww...',
+      '....wwwppww w...'.replace(' ',''),
+      '.....Wwwww W....'.replace(' ',''),
+      '...WWwwwwwwWW...',
+      '..WwwwwwwwwwwW..',
+      '..Wwwwwwwwwww W.'.replace(' ',''),
+      '..WwwwwwwwwwwW..',
+      '...Www....wwW...',
+      '...ww......ww...',
+      '...nn......nn...',
+      '................',
+    ].map(r => r.padEnd(16,'.').slice(0,16)),
+  };
+
+  // Bertoldo, il traghettatore fantasma (cappello a tesa larga)
+  const bertoldo = {
+    palette: { s:'#a8d8e8', S:'#78b8d0', h:'#4a3a28', H:'#5d4a35', e:'#1a3a4a', w:'#e8f5f8', g:'#6a8a98' },
+    map: [
+      '....hhhhhhhh....',
+      '...hhhhhhhhhh...',
+      '.hhHHHHHHHHHHhh.',
+      '.hhhhhhhhhhhhhh.',
+      '....ssssssss....',
+      '...sswsessws s..'.replace(' ',''),
+      '...ssssssssss...',
+      '...sssSggSsss...',
+      '....ssssssss....',
+      '...gssssssssg...',
+      '..gsSssssssSsg..',
+      '..gssssssssssg..',
+      '...sSssssssSs...',
+      '....ssssssss....',
+      '.....s.ss.s.....',
+      '................',
+    ].map(r => r.padEnd(16,'.').slice(0,16)),
+  };
+
+  // Gastone Piccone, nano custode (variante cromatica del guerriero nano)
+  const gastone = {
+    palette: { s:'#e8b88a', b:'#9a9a8a', B:'#6e6e5d', m:'#5d4a35', M:'#6e5a42', d:'#4a4a3a', a:'#3a3a2e', g:'#c8c8b8', e:'#2a2a35', w:'#fff' },
+    map: torvald.map,
+  };
+
   const registry = {
     torvald, lyra, fizzle, brunilde, kael, zonk,
     goblin, wolf, skeleton, ragno, bandito, fungo, gerbold, vesper,
     nonnaOrtica, pipistrello, biscotto,
     anguilla, spirito_fiume: spiritoFiume,
+    capra, bertoldo, gastone,
   };
 
   return { drawSprite, renderToCanvas, registry };

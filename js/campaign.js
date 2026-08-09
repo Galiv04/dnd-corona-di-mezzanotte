@@ -389,6 +389,7 @@ Alzate lo sguardo verso il tempietto del Sole.`,
 
   q_capra2: {
     location: 'villaggio',
+    npc: ['capra'],
     caption: 'Il tetto del tempietto — un déjà-vu',
     text: `Là, in equilibrio perfetto sul colmo del tetto del tempietto del Sole, tra le tegole e il mosaico dorato ora imbronciato, c'è **Berenice**: la capra di Bocciolo, sagoma nera contro l'anello rosso dell'eclissi, che fissa il cielo spento con aria di sfida assoluta. Come se il sole l'avesse offesa personalmente.
 
@@ -408,6 +409,7 @@ Due strade, per farla scendere.`,
 
   q_capra2_ko: {
     location: 'villaggio',
+    npc: ['capra'],
     caption: 'Il tetto del tempietto — tentativo maldestro',
     text: `Che sia l'appiglio che si sbriciola sotto una mano di troppo, o l'offerta di cibo che Berenice giudica personalmente insultante con un solo sguardo laterale, il risultato è lo stesso: qualcuno finisce seduto per terra con la schiena a pezzi. **(-2 PV)**
 
@@ -424,6 +426,7 @@ Va bene. Riprovate, stavolta con più metodo — e con QUALSIASI cosa aveste in 
 
   q_capra_salvata: {
     location: 'taverna',
+    npc: ['capra'],
     caption: 'Taverna "Il Gallo Storto" — capra recuperata',
     text: `Berenice si lascia infine convincere a scendere — con la dignità intatta e l'aria di chi vi sta facendo un favore enorme — e trotterella verso Bocciolo come se niente fosse. Lui la stringe in un abbraccio che lei sopporta con pazienza quasi regale.
 
@@ -449,6 +452,7 @@ Berenice vi osserva un'ultima volta dalla soglia, mastica qualcosa che probabilm
 
   v2: {
     location: 'strada',
+    npc: ['goblin','goblin'],
     caption: 'La Strada del Nord — ore 15:00, buio pesto',
     text: `Lasciate Brindolo tra gli applausi (e qualche singhiozzo) dei paesani. La strada del nord si inoltra tra colline e boschi, sotto un cielo nero trapunto di stelle confuse — anche loro convinte che sia notte.
 
@@ -468,6 +472,7 @@ I tre goblin incrociano le braccia. Uno di loro sbadiglia vistosamente.`,
 
   v2_guide: {
     location: 'strada',
+    npc: ['goblin','goblin'],
     caption: 'La Carovana del Sindacato',
     text: `Gruk conta le monete due volte, le morde una a una ("procedura standard"), poi si volta verso l'assemblea:
 
@@ -490,6 +495,7 @@ Vi lasciano al Bivio della Civetta con una stretta di zampa ciascuno e un volant
 
   v2_fight: {
     location: 'strada',
+    npc: ['goblin'],
     caption: 'Il Ponticello — IMBOSCATA!',
     text: `> Gruk: "SCIOPERO SELVAGGIO!"
 
@@ -506,6 +512,7 @@ I goblin estraggono mazze chiodate decorate con adesivi rivendicativi. Si combat
 
   v2_fight_insulted: {
     location: 'strada',
+    npc: ['goblin'],
     caption: 'Il Ponticello — trattativa fallita',
     text: `> Gruk: *(offeso)* "Tu... tu parlare come PADRONE! ASSEMBLEA STRAORDINARIA! Ordine del giorno: BOTTE!"
 
@@ -520,6 +527,7 @@ La diplomazia è fallita. I goblin caricano!`,
 
   v2_vittoria: {
     location: 'strada',
+    npc: ['goblin'],
     caption: 'Il Ponticello — dopo la battaglia',
     text: `I goblin giacciono a terra emettendo lamenti sindacalmente coordinati. Gruk, con un occhio nero, alza una zampa:
 
@@ -533,6 +541,7 @@ Interessante: perfino i suoi goblin lo detestano.`,
 
   v2_paga: {
     location: 'strada',
+    npc: ['goblin','goblin'],
     caption: 'Il Ponticello',
     text: `Contate le 20 monete nella zampa tesa di Gruk, che le esamina professionalmente e vi rilascia perfino una **ricevuta** (scritta su una foglia).
 
@@ -545,6 +554,7 @@ I goblin vi salutano col pugno alzato. **(Informazione preziosa sul Gran Ballo!)
 
   v2_sindacato: {
     location: 'strada',
+    npc: ['goblin','goblin'],
     caption: 'Il Ponticello — assemblea straordinaria',
     text: `Parlate col cuore in mano: gli straordinari non pagati, i turni di notte eterni, un datore di lavoro che LETTERALMENTE ha spento il sole senza consultare i dipendenti...
 
@@ -742,6 +752,7 @@ Il fungo è così indignato che — *POFF* — rilascia una nuvola di spore urti
 
   b3_arrivo: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'La Capanna di Nonna Ortica — ore 20:00',
     text: `La capanna di Nonna Ortica è esattamente come una capanna di strega dovrebbe essere: storta, coperta di muschio, con fumo VERDE che esce dal camino e un calderone che borbotta da solo in giardino.
 
@@ -759,6 +770,7 @@ Rientra in casa lasciando la porta aperta. Dal fondo:
 
   b3: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'Dentro la capanna — tra barattoli che occhieggiano',
     text: `L'interno è un caos organizzato: barattoli etichettati ("RISATE DI BAMBINO", "MARTEDÌ ESSICCATI", "NON APRIRE — SUL SERIO"), un gatto che vi fissa e POI SI METTE A LEGGERE UN LIBRO, ed erbe appese a testa in giù.
 
@@ -777,6 +789,7 @@ Il gatto volta pagina, interessato a come andrà a finire.`,
 
   b3_gag: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'Operazione: Far Ridere la Strega',
     text: `Duecento anni senza ridere. La posta è alta, il pubblico difficilissimo. Vi consultate in un angolo, da veri professionisti della commedia.
 
@@ -790,6 +803,7 @@ Il gatto volta pagina, interessato a come andrà a finire.`,
 
   b3_riso_ok: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'MISSIONE COMPIUTA',
     text: `Silenzio.
 
@@ -806,6 +820,7 @@ La risata di Nonna Ortica fa tremare i barattoli, spaventa il gatto (che perde i
 
   b3_riso_meh: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'Pubblico difficile',
     text: `...il finale della gag muore nel silenzio. Ortica vi fissa, impassibile come una roccia con la verruca.
 
@@ -846,6 +861,7 @@ Ortica esce, lo esamina controluce come un gioielliere e annuisce.
 
   b4: {
     location: 'capanna',
+    npc: ['nonnaOrtica'],
     caption: 'La Pozione del Crepuscolo',
     text: `Mezz'ora di vapori violacei, tre bestemmie in linguaggio arcano e un "NON TOCCARE QUELLO" dopo, Nonna Ortica vi consegna una fiala che sembra contenere un pezzetto di cielo notturno, stelle comprese.
 
@@ -903,6 +919,7 @@ L'occhio si stringe nello spioncino:
 
   m1_apre_test: {
     location: 'strada',
+    npc: ['gastone'],
     caption: 'Le porte si aprono',
     text: `Silenzio. Poi rumore di TRE catenacci, DUE lucchetti e una sbarra.
 
@@ -914,6 +931,7 @@ Vi trascina dentro e richiude tutto a velocità impressionante.`,
 
   m1_apre_test2: {
     location: 'strada',
+    npc: ['gastone'],
     caption: 'Le porte si aprono',
     text: `Lo spioncino resta immobile tre secondi. Poi:
 
@@ -987,6 +1005,7 @@ Gastone, il nano custode, è così impressionato dalla manovra che si dimentica 
 
   m1_apre: {
     location: 'strada',
+    npc: ['gastone'],
     caption: 'Le porte di Ferrovecchio',
     text: `Parlate con il tono giusto: fermo, onesto, con la giusta dose di "siamo tutti nella stessa barca buia".
 
@@ -1004,6 +1023,7 @@ Non ha l'aria di scherzare, sull'ultima parte.`,
 
   m2: {
     location: 'miniera',
+    npc: ['gastone'],
     caption: 'Miniere di Ferrovecchio — Sala del Carrello',
     text: `Gastone vi guida per gallerie sostenute da travi antiche, tra vene di cristallo azzurro che pulsano piano nel buio.
 
@@ -1021,6 +1041,7 @@ Arrivate a una biforcazione. A sinistra: un tunnel a piedi, lungo ma tranquillo.
 
   m2_deposito: {
     location: 'miniera',
+    npc: ['gastone'],
     caption: 'Il vecchio deposito — luce nelle tenebre',
     text: `Le torce di Gedeone si accendono al primo colpo (ottimo acquisto!) e il deposito smette di essere un buco nero: è una stanzetta piena di casse del 1847, ragnatele monumentali e — sotto un telo ammuffito — la vecchia cassetta di pronto soccorso dei minatori.
 
@@ -1081,6 +1102,7 @@ Il freno viene azionato col tempismo di un applauso fuori tempo. Il carrello dec
 
   m3: {
     location: 'miniera',
+    npc: ['skeleton','skeleton'],
     caption: 'UFFICIO RECLAMI DEL SOTTOSUOLO — "Prendere il numero"',
     text: `In fondo alla miniera, dove dovrebbe esserci il passaggio segreto, trovate... una SCRIVANIA. Anzi tre, in fila, sotto un'insegna scolpita nella roccia:
 
@@ -1101,6 +1123,7 @@ La "procedura d'urgenza", capite dal gesto, prevede legnate.`,
 
   m3_modulo_ok: {
     location: 'miniera',
+    npc: ['skeleton'],
     caption: 'Trionfo burocratico',
     text: `Chi di voi ha la penna più ferma affronta il Modulo 7-B: quarantadue campi, sette firme, una marca da bollo che fabbricate al volo con cera di candela e la faccia di Zonk come sigillo.
 
@@ -1120,6 +1143,7 @@ Vi consegna una **Gemma Nanica** scintillante. I tre scheletri vi fanno la ola c
 
   m3_modulo_ko: {
     location: 'miniera',
+    npc: ['skeleton','skeleton'],
     caption: 'Respinto con disonore',
     text: `Quarantadue campi, sette firme... e alla casella 38 ("motivo del transito") qualcuno scrive *"per menare un vampiro"*.
 
@@ -1167,6 +1191,7 @@ La porta sul retro dell'ufficio si apre su una galleria che sale, sale, sale...`
 
   m4: {
     location: 'miniera',
+    npc: ['gastone'],
     caption: 'Il Passaggio Basso — capolavoro nanico',
     text: `La galleria termina davanti a una porta circolare di pietra, decorata con rune naniche e — molto meno solennemente — un tappetino che dice *"BENTORNATO (pulirsi i piedi)"*.
 
@@ -1230,6 +1255,7 @@ Un ultimo ramo vi indica la strada, quasi con affetto, prima di tornare a spette
 
   r1_tariffa: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Bertoldo, il Traghettatore',
     text: `Il cappello sul sedile si solleva da solo — o quasi: sotto c'è una figura semitrasparente in giubba da barcaiolo d'altri tempi, i contorni che ondeggiano come visti attraverso l'acqua. **Bertoldo** vi squadra con un'espressione permanentemente scontenta.
 
@@ -1247,6 +1273,7 @@ Vi accorgete che Bertoldo non tocca MAI l'acqua: resta fermo un palmo sopra la s
 
   r1_commosso: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Il peso di centocinquant\'anni',
     text: `Qualcuno del gruppo si siede sul bordo del molo — non troppo vicino all'acqua, per rispetto — e chiede, piano: "Com'è successo, Bertoldo?"
 
@@ -1269,6 +1296,7 @@ Per la prima volta, l'espressione scontrosa si incrina in qualcosa di più tener
 
   r1_offeso: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Un discorso che non ha smosso nulla',
     text: `Il discorso commovente parte bene e poi... si perde per strada. Qualcuno inciampa in un "capiamo il tuo dolore" seguito da un impacciato "...il fiume, eh, brutta bestia", che suona più come una recensione del meteo che come empatia vera.
 
@@ -1287,6 +1315,7 @@ Con qualche spallata coordinata (e un contributo non richiesto di chi tratta la 
 
   r1_remo: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Il remo tra le canne',
     text: `Qualcuno con occhio allenato nota, tra le canne sulla riva, un bagliore d'oro vecchio: un remo consumato, l'impugnatura intagliata a forma di pesce sorridente (o forse è solo storto). Recuperarlo richiede scivolare a piedi nudi nel fango, disturbare una famiglia di rane profondamente indignate, e sopportare per tutto il tempo lo sguardo giudicante di un airone che non smette MAI di fissarvi.
 
@@ -1407,6 +1436,7 @@ Vi guardate. Se il castello piange da duecento anni — da quando Vespertino Mor
 
   r4: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Il Pescatore di Ricordi',
     text: `Oltre l'ansa dei salici, seduto su una zattera immobile in mezzo alla corrente — come se la corrente, per lui, avesse deciso di fermarsi — c'è un uomo con una lenza gettata in acqua. Non ha ami. Non ha esca. Il filo scende dritto nel buio e non tocca mai il fondo.
 
@@ -1427,6 +1457,7 @@ Il gruppo si guarda. È una decisione da prendere insieme: chi, se qualcuno, è 
 
   r4_dono: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Il prezzo pagato',
     text: `Uno di voi — non serve dire chi, lo sapete già, e non ne parlerete più — chiude gli occhi e lascia andare qualcosa: una risata d'infanzia, un abbraccio, un pomeriggio qualunque che era, semplicemente, perfetto. Il Pescatore allunga due dita e lo raccoglie dall'aria come si raccoglie una goccia di pioggia.
 
@@ -1444,6 +1475,7 @@ Il Pescatore china il capo, rilancia la lenza nel nulla, e quando vi voltate a g
 
   r4_rifiuta: {
     location: 'fiume',
+    npc: ['bertoldo'],
     caption: 'Il ricordo che resta vostro',
     text: `Vi guardate, e la risposta arriva senza bisogno di parole: no. Non stanotte, non per questo. I ricordi felici, con tutto quello che sta succedendo al mondo, sono merce troppo rara per venderla anche alla causa più giusta.
 
@@ -1492,6 +1524,7 @@ Bisogna riprendere la rincorsa: i remi doloranti, i muscoli che protestano forma
 
   r6: {
     location: 'cisterna',
+    npc: ['bertoldo'],
     caption: 'La Grotta della Cisterna',
     text: `Oltre la cascata, il fiume si acquieta in una grotta enorme, illuminata da cristalli azzurri incastonati nella roccia — cugini, probabilmente, di quelli visti nelle Miniere di Ferrovecchio, anche se nessuno qui potrà mai confermarlo con certezza. L'acqua scorre placida verso un arco di pietra scavato a mano: umano, non naturale.
 
@@ -1505,6 +1538,7 @@ Bertoldo lega il barcone a un anello di ferro arrugginito, con la cura meticolos
 
   r7: {
     location: 'cisterna',
+    npc: ['bertoldo'],
     caption: 'Il Congedo di Bertoldo',
     text: `Salite dal barcone sulla banchina di pietra, e per un istante nessuno dice niente: Bertoldo, il fiume, la cascata alle spalle — sembra già tutto un ricordo, anche se è successo dieci minuti fa.
 
@@ -1623,6 +1657,7 @@ Vi infilate le maschere ed entrate, un po' ammaccati ma DENTRO.`,
 
   c_ballo: {
     location: 'ballo',
+    npc: ['vesper'],
     caption: 'Il Gran Ballo dell\'Eclissi',
     text: `Il salone delle feste è uno spettacolo: lampadari con candele viola, tavoli che gemono sotto banchetti sontuosi (per chi mangia) e calici di un liquido rosso vivo (per chi... non chiedete), e decine di ospiti mascherati che danzano un valzer lentissimo e ipnotico.
 
@@ -1693,6 +1728,7 @@ Ok. Poteva andare peggio. Al buffet si origlia benissimo, tra l'altro.`,
 
   c_cantine: {
     location: 'cripta',
+    npc: ['gerbold'],
     caption: 'Le Cantine del Castello — via del Passaggio Basso',
     text: `La Chiave del Passaggio Basso gira con uno scatto sordo, e la porta circolare dei nani ruota su cardini che qualcuno — benedetti nani — ha unto DUECENTO anni fa e ancora funzionano.
 
@@ -1769,6 +1805,7 @@ In una cripta attigua, uno scheletro in livrea da maggiordomo sta lucidando cucc
 
   c_gerbold: {
     location: 'cripta',
+    npc: ['gerbold'],
     caption: 'Gerbold — Maggiordomo, 200 anni di onorato servizio',
     text: `**Gerbold** posa il cucchiaino 4.712 con precisione millimetrica e si volta. È uno scheletro alto e curvo, con una livrea stirata alla perfezione e un'aura di stanchezza COSMICA.
 
@@ -1788,6 +1825,7 @@ Le sue orbite vuote vi fissano. C'è una domanda lì dentro, da qualche parte.`,
 
   c_gerbold_alleato: {
     location: 'cripta',
+    npc: ['gerbold'],
     caption: 'La ribellione del maggiordomo',
     text: `Gerbold resta immobile così a lungo che temete si sia spento. Poi, con gesto lentissimo e cerimoniale... si toglie i guanti bianchi. Li piega. Li posa sull'argenteria.
 
@@ -1886,6 +1924,7 @@ Non vi aspetta. **(Sorpresa! Se si combatte, tutto il gruppo avrà VANTAGGIO al 
 
   c_vetta: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Vetta della Torre — mezzanotte meno cinque',
     text: `La porta si spalanca su un cielo IMMENSO.
 
@@ -1909,6 +1948,7 @@ Vi squadra uno a uno, e per un istante — un istante solo — sotto la posa da 
 
   f_aglio: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'L\'arma segreta (secondo Gedeone)',
     text: `Estraete la treccia d'aglio e la brandite con la sicurezza di chi ha pagato DUE monete d'oro per l'arma definitiva contro i vampiri.
 
@@ -1937,6 +1977,7 @@ Ha perso completamente il filo del discorso che stava provando. Il leggio è là
 
   f_specchio: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'Lo specchio della verità',
     text: `Lo specchio d'argento scintilla alla luce dell'eclissi. Vesper lo guarda... e nello specchio non c'è NESSUNO. Solo un mantello che fluttua vuoto e un leggio.
 
@@ -1957,6 +1998,7 @@ Silenzio. Gerbold, ovunque sia, non risponde. Vesper vacilla, sinceramente scoss
 
   f_corona1: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La verità sulla Corona',
     text: `Alla parola "corona", qualcosa cambia. La gemma rossa sull'altare *sibila* — un suono acido, offeso. E Vesper... Vesper si tocca la tempia, come per un mal di testa vecchio duecento anni.
 
@@ -1977,6 +2019,7 @@ Afferra la corona. Ma le sue mani TREMANO: il dubbio è piantato. È il momento:
 
   f_corona_win: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La scelta di Vespertino',
     text: `Le parole colpiscono più forte di qualsiasi maglio.
 
@@ -1999,6 +2042,7 @@ Solleva la corona sopra la testa — e per un attimo gelido temete il peggio —
 
   f_tenzone1: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Tenzone — round 1',
     text: `**"Abbiamo sentito la tua ballata."**
 
@@ -2022,6 +2066,7 @@ Lo scheletro del mantice corre a prendere un liuto polveroso. La sfida è: colpi
 
   f_tenzone2: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Tenzone — round 2',
     text: `Colpito. COLPITO! Vesper stringe il liuto al petto come uno scudo.
 
@@ -2038,6 +2083,7 @@ Adesso tocca al colpo di grazia. Il vampiro è a UN passo dal crollo: gli manca 
 
   f_tenzone_win: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'L\'applauso',
     text: `E allora Vespertino Morn canta.
 
@@ -2060,6 +2106,7 @@ Afferra la Corona di Mezzanotte e la FRANTUMA sull'altare come un liuto scordato
 
   f_tenzone_fail1: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Tenzone — fischio a metà',
     text: `L'apertura... non decolla. La rima zoppa, l'accordo sbagliato — e Vesper se ne ACCORGE, perché è vanitoso ma non sordo.
 
@@ -2076,6 +2123,7 @@ Il mantello torna a spiegarsi in modalità tempesta. La corona sull'altare RIDE 
 
   f_tenzone_fail2: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Tenzone — l\'applauso mancato',
     text: `L'applauso parte... male. Fuori tempo. Qualcuno esita un secondo di troppo, e in quell'ESITAZIONE Vesper — che da duecento anni non aspetta altro — legge tutto.
 
@@ -2131,6 +2179,7 @@ Due **pipistrelli colossali** calano dalle guglie. La battaglia è inevitabile �
 
   f_boss_fase2_check: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La battaglia — INTERMEZZO',
     text: `Vesper cade su un ginocchio, il mantello finalmente AFFLOSCIATO. I pipistrelli sono fuggiti. Avete... vinto?
 
@@ -2150,6 +2199,7 @@ Il mondo diventa viola. La gemma rossa DIVAMPA. L'ombra della torre si allunga f
 
   f_lacrima: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Lacrima di Luna',
     text: `La Lacrima di Luna tocca la pietra della torre e **non si rompe: si apre.**
 
@@ -2171,6 +2221,7 @@ La gemma rossa STRIDE, furiosa, cercando di richiudere la breccia. Ma la corona 
 
   f_lacrima_win: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La scelta della taverna',
     text: `Vesper Morn — Vespertino, ormai, il volto sotto la corona più giovane a ogni respiro — chiude gli occhi dentro il ricordo che gli avete regalato.
 
@@ -2222,6 +2273,7 @@ Non resta che la maniera classica: LEGNATE.`,
 
   f_corona_strappata: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'LA CORONA STRAPPATA',
     text: `Un balzo. Un ingaggio. Una piroetta che nessuno di voi saprà mai ripetere.
 
@@ -2244,6 +2296,7 @@ La corona, però, non ha finito. Tra le vostre dita, la gemma rossa smette di ur
 
   f_tentazione_ok: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La Tentazione — respinta',
     text: `Per un lungo istante, la mano che regge la corona... si alza. Verso una fronte. La vostra.
 
@@ -2262,6 +2315,7 @@ La corona STRILLA di frustrazione — un suono che scheggia due merli della torr
 
   f_tentazione_ko: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'Il Regno dei Quattro Secondi',
     text: `La corona tocca la fronte di uno di voi.
 
@@ -2285,6 +2339,7 @@ Per la cronaca di Lumelia, il regno che ne segue dura **quattro secondi esatti**
 
   f_corona_distrutta: {
     location: 'vetta',
+    npc: ['vesper'],
     caption: 'La fine della Corona di Mezzanotte',
     text: `La Corona di Mezzanotte incontra l'ossidiana alla massima velocità consentita dalla fisica.
 
@@ -2362,6 +2417,7 @@ Vi rialzate, scrollate la polvere e vi rimettete in cammino: Lumelia conta su di
 
   e_alba: {
     location: 'alba',
+    npc: ['vesper'],
     caption: 'L\'ALBA — per la prima volta da... ieri',
     text: `Il disco nero si sgretola come cenere soffiata via. E il sole — IL SOLE! — esplode di nuovo nel cielo di Lumelia, caldo e abbagliante e meravigliosamente NORMALE.
 
@@ -2378,6 +2434,7 @@ Vesper Morn giace tra i frammenti della corona. Sconfitto, spettinato, il mantel
 
   e_alba_redenzione: {
     location: 'alba',
+    npc: ['vesper'],
     caption: 'L\'ALBA — per la prima volta da... ieri',
     text: `Il disco nero si sgretola come cenere soffiata via. E il sole — IL SOLE! — esplode di nuovo nel cielo di Lumelia, caldo e abbagliante e meravigliosamente NORMALE.
 

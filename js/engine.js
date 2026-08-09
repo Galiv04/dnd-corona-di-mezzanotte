@@ -4,18 +4,55 @@ let G = null; // stato di gioco globale
 
 const Engine = (() => {
 
-  const SAVE_KEY = 'corona-di-mezzanotte-save-v1'; // slot storico (migrato allo slot 1)
   const SLOTS = 3;
-  const slotKey = n => `corona-save-slot-${n}`;
   const $ = id => document.getElementById(id);
 
-  // migrazione: il vecchio salvataggio singolo diventa lo slot 1
+  /* ---------- profili utente (ognuno ha i suoi 3 slot) ---------- */
+
+  const PROFILES_KEY = 'corona-profiles';
+  const CURRENT_PROFILE_KEY = 'corona-current-profile';
+  const DEFAULT_PROFILE = 'Compagnia di Brindolo';
+
+  function listProfiles() {
+    try {
+      const raw = localStorage.getItem(PROFILES_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      return list.length ? list : [DEFAULT_PROFILE];
+    } catch (e) { return [DEFAULT_PROFILE]; }
+  }
+
+  function saveProfiles(list) {
+    try { localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  function currentProfile() {
+    try { return localStorage.getItem(CURRENT_PROFILE_KEY) || DEFAULT_PROFILE; } catch (e) { return DEFAULT_PROFILE; }
+  }
+
+  function setCurrentProfile(name) {
+    try { localStorage.setItem(CURRENT_PROFILE_KEY, name); } catch (e) {}
+    const list = listProfiles();
+    if (!list.includes(name)) { list.push(name); saveProfiles(list); }
+  }
+
+  const slotKey = (n, profile = null) => `corona-save-${encodeURIComponent(profile || currentProfile())}-slot-${n}`;
+
+  // migrazione dai vecchi formati (salvataggio singolo e slot senza profilo)
   try {
-    const legacy = localStorage.getItem(SAVE_KEY);
-    if (legacy && !localStorage.getItem(slotKey(1))) {
-      localStorage.setItem(slotKey(1), legacy);
-      localStorage.removeItem(SAVE_KEY);
+    const legacy = localStorage.getItem('corona-di-mezzanotte-save-v1');
+    if (legacy && !localStorage.getItem(`corona-save-slot-1`)) {
+      localStorage.setItem('corona-save-slot-1', legacy);
+      localStorage.removeItem('corona-di-mezzanotte-save-v1');
     }
+    for (let n = 1; n <= SLOTS; n++) {
+      const old = localStorage.getItem(`corona-save-slot-${n}`);
+      if (old && !localStorage.getItem(slotKey(n, DEFAULT_PROFILE))) {
+        localStorage.setItem(slotKey(n, DEFAULT_PROFILE), old);
+        localStorage.removeItem(`corona-save-slot-${n}`);
+      }
+    }
+    if (!localStorage.getItem(PROFILES_KEY)) saveProfiles([DEFAULT_PROFILE]);
+    if (!localStorage.getItem(CURRENT_PROFILE_KEY)) setCurrentProfile(DEFAULT_PROFILE);
   } catch (e) {}
 
   /* ---------- stato ---------- */
@@ -74,11 +111,11 @@ const Engine = (() => {
     try { localStorage.setItem(slotKey(G.slot || 1), JSON.stringify(G)); } catch (e) { /* storage pieno o disabilitato */ }
   }
 
-  function listSaves() {
+  function listSaves(profile = null) {
     const out = [];
     for (let n = 1; n <= SLOTS; n++) {
       try {
-        const raw = localStorage.getItem(slotKey(n));
+        const raw = localStorage.getItem(slotKey(n, profile));
         if (!raw) { out.push(null); continue; }
         const g = JSON.parse(raw);
         const scene = CAMPAIGN[g.sceneId];
@@ -131,11 +168,52 @@ const Engine = (() => {
     $('modal-generic').classList.remove('hidden');
   }
 
-  function clearSave(slot = null) {
+  function clearSave(slot = null, profile = null) {
     try {
-      if (slot != null) localStorage.removeItem(slotKey(slot));
+      if (slot != null) localStorage.removeItem(slotKey(slot, profile));
       else if (G && G.slot) localStorage.removeItem(slotKey(G.slot));
     } catch (e) {}
+  }
+
+  /* ---------- codici di salvataggio (trasferimento tra dispositivi) ---------- */
+
+  function exportCode(slot, profile = null) {
+    try {
+      const raw = localStorage.getItem(slotKey(slot, profile));
+      if (!raw) return null;
+      return btoa(unescape(encodeURIComponent(raw)));
+    } catch (e) { return null; }
+  }
+
+  function importCode(code, slot, profile = null) {
+    try {
+      const raw = decodeURIComponent(escape(atob(code.trim())));
+      const g = JSON.parse(raw);
+      if (!g.party || !g.party.length || !g.sceneId) return 'Codice non valido: manca la compagnia o la scena.';
+      if (!CAMPAIGN[g.sceneId]) g.sceneId = CAMPAIGN_START;
+      localStorage.setItem(slotKey(slot, profile), JSON.stringify(g));
+      return null; // nessun errore
+    } catch (e) { return 'Codice non riconosciuto: controllate di averlo copiato per intero.'; }
+  }
+
+  function deleteProfile(name) {
+    for (let n = 1; n <= SLOTS; n++) clearSave(n, name);
+    const list = listProfiles().filter(p => p !== name);
+    saveProfiles(list.length ? list : [DEFAULT_PROFILE]);
+    if (currentProfile() === name) setCurrentProfile(list[0] || DEFAULT_PROFILE);
+  }
+
+  function renameProfile(oldName, newName) {
+    if (!newName || listProfiles().includes(newName)) return false;
+    for (let n = 1; n <= SLOTS; n++) {
+      try {
+        const raw = localStorage.getItem(slotKey(n, oldName));
+        if (raw) { localStorage.setItem(slotKey(n, newName), raw); localStorage.removeItem(slotKey(n, oldName)); }
+      } catch (e) {}
+    }
+    saveProfiles(listProfiles().map(p => p === oldName ? newName : p));
+    if (currentProfile() === oldName) setCurrentProfile(newName);
+    return true;
   }
 
   /* ---------- navigazione schermate ---------- */
@@ -239,7 +317,7 @@ const Engine = (() => {
     showScreen('screen-game');
     if (typeof Sound !== 'undefined') Sound.music(musicForScene(scene));
     $('hud-location').textContent = '📍 ' + (scene.caption || '');
-    Scenes.paint('scene-canvas', scene.location);
+    Scenes.paint('scene-canvas', scene.location, null, scene.npc);
     $('scene-caption').textContent = scene.caption || '';
 
     const narr = $('narration');
@@ -760,6 +838,7 @@ const Engine = (() => {
 
   return {
     newGame, saveGame, loadGame, hasSave, clearSave, listSaves, firstFreeSlot,
+    listProfiles, currentProfile, setCurrentProfile, deleteProfile, renameProfile, exportCode, importCode,
     showScreen, gotoScene, currentScene, renderPartyBar,
     showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu, showDiary, showBestiary,
     usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,

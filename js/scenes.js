@@ -361,21 +361,31 @@ const Scenes = (() => {
 
     cripta(ctx, W, H) {
       const r = rng(71);
-      blocks(ctx, 0, 0, W, H, '#1d1a26', 16, r, 0.22);
-      blocks(ctx, 0, H - 50, W, 50, '#14121c', 14, r, 0.18);
-      // archi
+      blocks(ctx, 0, 0, W, H, '#242030', 16, r, 0.22);
+      blocks(ctx, 0, H - 50, W, 50, '#1a1724', 14, r, 0.18);
+      // archi in rilievo con vano scuro
       for (const fx of [0.2, 0.5, 0.8]) {
-        blocks(ctx, W * fx - 60, H * 0.25, 24, H * 0.6, '#2e2a3d', 10, r, 0.15);
-        blocks(ctx, W * fx + 36, H * 0.25, 24, H * 0.6, '#2e2a3d', 10, r, 0.15);
-        blocks(ctx, W * fx - 60, H * 0.18, 120, 24, '#2e2a3d', 10, r, 0.15);
+        blocks(ctx, W * fx - 34, H * 0.24, 68, H * 0.58, '#161320', 12, r, 0.12);
+        blocks(ctx, W * fx - 64, H * 0.22, 28, H * 0.62, '#3d374d', 10, r, 0.15);
+        blocks(ctx, W * fx + 36, H * 0.22, 28, H * 0.62, '#3d374d', 10, r, 0.15);
+        blocks(ctx, W * fx - 64, H * 0.15, 128, 26, '#443d55', 10, r, 0.15);
       }
-      // sarcofagi
-      blocks(ctx, W * 0.12, H - 100, 130, 50, '#3a3548', 8, r, 0.15);
-      blocks(ctx, W * 0.68, H - 100, 130, 50, '#3a3548', 8, r, 0.15);
-      // candele verdi
-      for (const fx of [0.1, 0.35, 0.62, 0.9]) {
-        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx, H * 0.5, 6, 14);
-        ctx.fillStyle = '#5fe08a'; ctx.fillRect(W * fx - 2, H * 0.5 - 10, 10, 10);
+      // sarcofagi decorati
+      for (const fx of [0.12, 0.68]) {
+        blocks(ctx, W * fx, H - 104, 130, 54, '#4a4460', 8, r, 0.15);
+        blocks(ctx, W * fx - 6, H - 112, 142, 12, '#5a5372', 8, r, 0.12);
+        ctx.fillStyle = '#f5c542'; ctx.fillRect(W * fx + 56, H - 96, 16, 4); ctx.fillRect(W * fx + 62, H - 102, 4, 16);
+      }
+      // il tavolo dell'argenteria di Gerbold
+      blocks(ctx, W * 0.42, H - 92, 130, 12, '#4a3524', 8, r, 0.12);
+      ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.44, H - 80, 10, 34); ctx.fillRect(W * 0.53, H - 80, 10, 34);
+      for (let i = 0; i < 5; i++) { ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.425 + i * 0.026 * W, H - 100, 16, 6); }
+      // candele verdi con alone
+      for (const fx of [0.08, 0.34, 0.62, 0.9]) {
+        ctx.fillStyle = 'rgba(95,224,138,.12)'; ctx.fillRect(W * fx - 16, H * 0.46 - 20, 42, 48);
+        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx, H * 0.5, 7, 16);
+        ctx.fillStyle = '#5fe08a'; ctx.fillRect(W * fx - 2, H * 0.5 - 12, 11, 12);
+        ctx.fillStyle = '#c8f5d8'; ctx.fillRect(W * fx + 1, H * 0.5 - 8, 5, 6);
       }
       // ragnatele
       ctx.strokeStyle = 'rgba(200,200,220,.25)'; ctx.lineWidth = 2;
@@ -386,31 +396,58 @@ const Scenes = (() => {
     ballo(ctx, W, H) {
       const r = rng(83);
       blocks(ctx, 0, 0, W, H, '#2a1d33', 16, r, 0.15);
-      blocks(ctx, 0, H - 60, W, 60, '#3d2a1d', 12, r, 0.12); // parquet
-      // lampadario
-      ctx.fillStyle = '#f5c542';
-      ctx.fillRect(W * 0.5 - 3, 0, 6, 30);
-      ctx.fillRect(W * 0.5 - 50, 30, 100, 8);
-      for (const dx of [-50, -25, 0, 25, 44]) {
-        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * 0.5 + dx, 20, 6, 12);
-        ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.5 + dx - 2, 12, 10, 10);
+      // vetrate colorate sulla parete
+      for (const fx of [0.18, 0.5, 0.82]) {
+        const vx = W * fx - 34;
+        ctx.fillStyle = '#1a1226'; ctx.fillRect(vx - 6, 26, 80, 120);
+        const cols = ['#8a35b8', '#e84a5a', '#3a6ab8', '#c85ae0'];
+        for (let row = 0; row < 4; row++) for (let col = 0; col < 2; col++) {
+          ctx.fillStyle = cols[(row + col) % cols.length];
+          ctx.fillRect(vx + col * 34, 32 + row * 28, 30, 24);
+        }
+        // arco della vetrata
+        ctx.fillStyle = '#1a1226';
+        ctx.fillRect(vx - 6, 18, 80, 10);
       }
+      blocks(ctx, 0, H - 60, W, 60, '#3d2a1d', 12, r, 0.12); // parquet
+      // riflessi del parquet
+      ctx.fillStyle = 'rgba(245,197,66,.06)';
+      for (let i = 0; i < 8; i++) ctx.fillRect(r() * W, H - 56 + r() * 40, 40 + r() * 60, 4);
+      // lampadario GRANDE
+      ctx.fillStyle = '#c8a032';
+      ctx.fillRect(W * 0.5 - 4, 0, 8, 34);
+      ctx.fillRect(W * 0.5 - 90, 34, 180, 10);
+      ctx.fillRect(W * 0.5 - 60, 54, 120, 8);
+      for (const [dx, y] of [[-90, 34], [-56, 34], [-20, 34], [16, 34], [52, 34], [82, 34], [-60, 54], [-28, 54], [4, 54], [36, 54], [52, 54]]) {
+        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * 0.5 + dx, y - 12, 7, 12);
+        ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.5 + dx - 2, y - 20, 11, 10);
+      }
+      ctx.fillStyle = 'rgba(245,224,66,.08)'; ctx.fillRect(W * 0.5 - 110, 0, 220, 90);
       // tende
       blocks(ctx, 0, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
       blocks(ctx, W - 50, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
+      ctx.fillStyle = '#f5c542'; ctx.fillRect(0, H * 0.4, 50, 6); ctx.fillRect(W - 50, H * 0.4, 50, 6);
       // tavolo banchetto
-      blocks(ctx, W * 0.62, H - 130, 260, 16, '#5d4530', 10, r, 0.12);
-      ctx.fillStyle = '#4a3524'; ctx.fillRect(W * 0.64, H - 114, 12, 54); ctx.fillRect(W * 0.85, H - 114, 12, 54);
-      // cibo
-      ctx.fillStyle = '#e84a5a'; ctx.fillRect(W * 0.65, H - 146, 22, 16);
-      ctx.fillStyle = '#f5c542'; ctx.fillRect(W * 0.72, H - 142, 30, 12);
-      ctx.fillStyle = '#c85ae0'; ctx.fillRect(W * 0.8, H - 144, 18, 14);
-      // ospiti mascherati (silhouette)
-      for (let i = 0; i < 5; i++) {
-        const x = W * 0.12 + i * W * 0.1, hgt = 60 + r() * 14;
-        ctx.fillStyle = i % 2 ? '#1d1428' : '#241a30';
-        ctx.fillRect(x, H - 60 - hgt, 26, hgt);
-        ctx.fillStyle = '#f0e8d8'; ctx.fillRect(x + 4, H - 60 - hgt + 6, 18, 8); // maschera
+      blocks(ctx, W * 0.66, H - 130, 240, 16, '#5d4530', 10, r, 0.12);
+      ctx.fillStyle = '#4a3524'; ctx.fillRect(W * 0.68, H - 114, 12, 54); ctx.fillRect(W * 0.88, H - 114, 12, 54);
+      ctx.fillStyle = '#e84a5a'; ctx.fillRect(W * 0.69, H - 146, 22, 16);
+      ctx.fillStyle = '#f5c542'; ctx.fillRect(W * 0.75, H - 142, 30, 12);
+      ctx.fillStyle = '#c85ae0'; ctx.fillRect(W * 0.83, H - 144, 18, 14);
+      // coppie di ospiti mascherati che danzano
+      const guestCols = ['#241a30', '#1d1428', '#2e1a26', '#1a2030'];
+      const maskCols = ['#f0e8d8', '#f5c542', '#c85ae0', '#5a9de0', '#e84a5a'];
+      for (let i = 0; i < 4; i++) {
+        const x = W * 0.09 + i * W * 0.14, hgt = 74 + r() * 16;
+        // coppia: due sagome inclinate l'una verso l'altra
+        for (const [off, lean] of [[0, 3], [30, -3]]) {
+          ctx.fillStyle = guestCols[Math.floor(r() * guestCols.length)];
+          ctx.fillRect(x + off + lean, H - 60 - hgt, 24, hgt);
+          ctx.fillRect(x + off + lean + 4, H - 60 - hgt - 14, 16, 16); // testa
+          ctx.fillStyle = maskCols[Math.floor(r() * maskCols.length)];
+          ctx.fillRect(x + off + lean + 6, H - 60 - hgt - 10, 12, 7); // maschera colorata
+        }
+        // mani unite
+        ctx.fillStyle = '#d8c8b8'; ctx.fillRect(x + 24, H - 60 - hgt + 18, 8, 5);
       }
     },
 
@@ -541,8 +578,8 @@ const Scenes = (() => {
     },
   };
 
-  // Disegna una scena per location, con eventuali eroi in campo
-  function paint(canvasId, locationKey, heroKeys = null) {
+  // Disegna una scena per location, con eventuali eroi e PNG in campo
+  function paint(canvasId, locationKey, heroKeys = null, npcKeys = null) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -552,6 +589,21 @@ const Scenes = (() => {
     painter(ctx, W, H);
     if (heroKeys && heroKeys.length) {
       heroesRow(ctx, W, H - 8, heroKeys, 3);
+    }
+    // i personaggi della scena, in carne (o ossa, o ectoplasma)
+    if (npcKeys && npcKeys.length) {
+      const scale = 5, size = 16 * scale;
+      let x = Math.floor(W * 0.68 - (npcKeys.length - 1) * (size + 14) / 2);
+      for (const key of npcKeys) {
+        const def = Sprites.registry[key];
+        if (def) {
+          // piedistallo d'ombra per staccare dal fondo
+          ctx.fillStyle = 'rgba(0,0,0,.35)';
+          ctx.fillRect(x + 6, H - 16, size - 12, 8);
+          Sprites.drawSprite(ctx, def.map, def.palette, x, H - 12 - size, scale, true);
+        }
+        x += size + 14;
+      }
     }
   }
 

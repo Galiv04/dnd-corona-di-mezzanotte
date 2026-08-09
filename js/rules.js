@@ -39,7 +39,7 @@ Se cade tutto il gruppo... il DM è clemente, ma la storia prenderà una piega m
 • Le prove fallite non rovinano la partita: la rendono più divertente.<br>
 • Parlate nei panni del personaggio: vale doppio.<br>
 • Tenete d'occhio le pozioni prima del gran finale.<br>
-• Il gioco salva da solo a ogni scena: potete chiudere e riprendere quando volete. Ci sono <b>3 slot di salvataggio</b>: gruppi diversi possono avere ognuno la propria partita sullo stesso dispositivo, e alla ripresa un riepilogo vi ricorda dov'eravate.</p>
+• Il gioco salva da solo a ogni scena: potete chiudere e riprendere quando volete. Con il pulsante <b>👤 Utenti</b> (nel titolo) ogni gruppo crea il proprio profilo con <b>3 slot di salvataggio</b>; e ogni slot genera un <b>codice</b> da copiare per portare la partita su un altro browser o computer.</p>
 
 <h3>⌨ Scorciatoie e comodità</h3>
 <p>• Tasti <b>1-9</b>: scelgono l'opzione corrispondente (scene, combattimento, modali) · <b>Invio</b>: conferma il tiro di dado · <b>Esc</b>: chiude le finestre.<br>
