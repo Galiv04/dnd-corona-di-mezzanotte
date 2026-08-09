@@ -511,8 +511,6 @@ function scenario(name, heroes, choices, opts = {}) {
   };
 }
 
-const V2_FIGHT = { text: 'LEGNATE' };
-
 const scenarios = [];
 
 // ---- Ramo BOSCO, con le 4 varianti di ingresso al castello ----
