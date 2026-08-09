@@ -227,6 +227,7 @@ const Combat = (() => {
       battle.round++;
       if (battle.tauntRounds > 0) { battle.tauntRounds--; if (battle.tauntRounds === 0) battle.tauntHeroIdx = null; }
       if (battle.smokeRounds > 0) battle.smokeRounds--;
+      if (battle.rallyRounds > 0) { battle.rallyRounds--; if (battle.rallyRounds === 0) log(`📯 L'eco del corno si spegne.`, 'log-info'); }
       log(`— Round ${battle.round} —`, 'log-turn');
     }
 
@@ -292,8 +293,10 @@ const Combat = (() => {
     const throwables = G.inventory.filter(it => ITEMS[it].combat);
     for (const type of [...new Set(throwables)]) {
       const count = throwables.filter(p => p === type).length;
+      const cfg = ITEMS[type].combat;
+      const senzaBersaglio = cfg.rally || cfg.aoe;   // squillo di raccolta o colpo ad area
       mkBtn(`${ITEMS[type].icon || '🎯'} ${ITEMS[type].name} (x${count}) <span class="action-sub">${ITEMS[type].desc}</span>`,
-        () => pickTarget(t => useThrowable(hIdx, t, type)));
+        senzaBersaglio ? () => useSupportItem(hIdx, type) : () => pickTarget(t => useThrowable(hIdx, t, type)));
     }
 
     // difesa
@@ -357,6 +360,7 @@ const Combat = (() => {
     const stat = opts.stat || h.attack.stat;
     let mod = heroMod(h, stat) + 2;
     if (battle.isBoss && G.flags.benedizione) mod += 1;
+    if (battle.rallyRounds > 0) mod += 2;            // il corno da guerra nanico
     if (opts.modOverride != null) mod = opts.modOverride;
     Dice.showRoll({
       title: `${h.name}: ${opts.label || h.attack.name}<br>contro ${e.name} (CA ${e.ac})`,
@@ -513,10 +517,41 @@ const Combat = (() => {
     }
   }
 
-  function useThrowable(hIdx, tIdx, itemId) {
-    const item = ITEMS[itemId];
+  function consumeItem(itemId) {
     const i = G.inventory.indexOf(itemId);
     if (i >= 0) G.inventory.splice(i, 1);
+  }
+
+  // oggetti che non colpiscono un singolo bersaglio: squillo di raccolta e colpi ad area
+  function useSupportItem(hIdx, itemId) {
+    const item = ITEMS[itemId];
+    consumeItem(itemId);
+    const h = G.party[hIdx];
+    if (item.combat.rally) {
+      battle.rallyRounds = item.combat.rally + 1;   // conta anche il giro corrente
+      log(`${item.icon || '📯'} <b>${h.name} suona ${item.name}!</b> La compagnia carica: <b>+2 ai tiri per colpire</b> per ${item.combat.rally} giri!`, 'log-crit');
+      if (typeof Sound !== 'undefined') Sound.play('victory');
+    }
+    if (item.combat.aoe && item.combat.dice) {
+      log(`${item.icon || '☀'} <b>${h.name} libera ${item.name}!</b>`, 'log-crit');
+      for (const e of battle.enemies) {
+        if (e.dead) continue;
+        let dmg = Dice.rollDice(item.combat.dice[0], item.combat.dice[1]).total;
+        const doubled = item.combat.holy && e.undead;
+        if (doubled) dmg *= 2;
+        e.hp -= dmg;
+        log(`${item.icon || '☀'} ${e.name}: <b>${dmg} danni</b>${doubled ? ' (DOPPI sul non-morto!)' : ''}.`, 'log-hit');
+        if (e._x != null) floatText(e._x + e._size / 2, e._y, `-${dmg}`, 'float-dmg');
+        checkEnemyDeath(e);
+      }
+      if (typeof Sound !== 'undefined') Sound.play('crit');
+    }
+    render(); endHeroAction();
+  }
+
+  function useThrowable(hIdx, tIdx, itemId) {
+    const item = ITEMS[itemId];
+    consumeItem(itemId);
     const e = battle.enemies[tIdx];
     let dmg = Dice.rollDice(item.combat.dice[0], item.combat.dice[1]).total;
     const doubled = item.combat.holy && e.undead;
@@ -524,6 +559,7 @@ const Combat = (() => {
     e.hp -= dmg;
     let extra = '';
     if (item.combat.distract && !e.dead) { e.distracted = true; extra = ' Il tanfo lo stordisce: svantaggio al prossimo attacco!'; }
+    if (item.combat.stun && !e.dead) { e.stunned = true; extra = ' Impigliato: salterà il prossimo turno!'; }
     log(`${item.icon || '🎯'} ${G.party[hIdx].name} lancia ${item.name} su ${e.name}: <b>${dmg} danni</b>${doubled ? ' (DOPPI sul non-morto!)' : ''}.${extra}`, 'log-hit');
     if (e._x != null) floatText(e._x + e._size / 2, e._y, `-${dmg}`, 'float-dmg');
     if (typeof Sound !== 'undefined') Sound.play('hit');
@@ -537,9 +573,11 @@ const Combat = (() => {
     if (i >= 0) G.inventory.splice(i, 1);
     const wasDown = ally.down;
     ally.down = false;
-    ally.hp = Math.min(ally.maxHp, Math.max(0, ally.hp) + item.heal);
-    log(`🧪 ${G.party[hIdx].name} usa ${item.name} su ${ally.name}: ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${item.heal} PV</b>!`, 'log-heal');
-    if (ally._x != null) floatText(ally._x + ally._size / 2, ally._y, `+${item.heal}`, 'float-heal');
+    const prima = Math.max(0, ally.hp);
+    ally.hp = Math.min(ally.maxHp, prima + item.heal);
+    const recuperati = ally.hp - prima;               // mai più "recupera 999 PV"
+    log(`${item.icon || '🧪'} ${G.party[hIdx].name} usa ${item.name} su ${ally.name}: ${wasDown ? 'SI RIALZA e ' : ''}recupera <b>${recuperati} PV</b>!`, 'log-heal');
+    if (ally._x != null) floatText(ally._x + ally._size / 2, ally._y, `+${recuperati}`, 'float-heal');
     if (typeof Sound !== 'undefined') Sound.play('heal');
     render(); endHeroAction();
   }
@@ -621,6 +659,13 @@ const Combat = (() => {
         if (h.id === 'zonk' && !h.zonkGritUsed) {
           h.zonkGritUsed = true; h.hp = 1;
           log(`💪 <b>Grosso e Solido!</b> Zonk barcolla... ma RESTA IN PIEDI con 1 PV! "Zonk non ancora finito."`, 'log-crit');
+        } else if (G.inventory.includes('ferro_di_cavallo') && !battle.luckyUsed) {
+          // il ferro di cavallo si spezza al posto vostro, una volta per scontro
+          battle.luckyUsed = true; h.hp = 1;
+          const i = G.inventory.indexOf('ferro_di_cavallo');
+          if (i >= 0) G.inventory.splice(i, 1);
+          log(`🍀 <b>Il Ferro di Cavallo si SPEZZA</b> con uno schiocco secco — e ${h.name} resta in piedi con 1 PV! La fortuna, si sa, si consuma.`, 'log-crit');
+          if (typeof Sound !== 'undefined') Sound.play('crit');
         } else {
           h.hp = 0; h.down = true;
           log(`💀 <b>${h.name} cade a terra!</b> Serve una cura o una pozione per rialzarlo!`, 'log-hit');

@@ -26,6 +26,14 @@ const ITEMS = {
   lacrima_di_luna:    { name: 'Lacrima di Luna', desc: 'Una lacrima d\'argento che non si asciuga mai. Custodisce un ricordo felice che non è più vostro — ma nell\'ora più buia potrebbe restituirvi la luce.', usable: false },
   fischietto_di_bertoldo: { name: 'Fischietto di Bertoldo', desc: 'Un fischietto d\'ottone annerito. Richiama l\'attenzione di qualunque fantasma d\'acqua nel raggio di un fiume.', usable: false },
   provviste:          { name: 'Provviste di Bocciolo', desc: 'Pane di segale, formaggio stagionato e un sugo di famiglia dall\'ingrediente segreto. Rende i riposi più efficaci (+2 PV extra).', usable: false },
+
+  /* --- oggetti tattici: si usano in combattimento e cambiano lo scontro --- */
+  corno_nanico:       { name: 'Corno da Guerra Nanico', desc: 'Suonatelo e il gruppo INTERO carica: +2 a tutti i vostri tiri per colpire, per 2 giri. I nani lo usavano anche per svegliarsi.', combat: { rally: 2 }, icon: '📯' },
+  polvere_solare:     { name: 'Polvere di Sole Imbottigliata', desc: 'Un raggio di sole vero, catturato prima dell\'eclissi: 3d8 danni a TUTTI i nemici, RADDOPPIATI sui non-morti.', combat: { dice: [3, 8], aoe: true, holy: true }, icon: '☀' },
+  pergamena_fulmine:  { name: 'Pergamena del Fulmine', desc: 'Si legge ad alta voce (male, di solito): 4d6 danni a un nemico. Poi si sbriciola, offesa.', combat: { dice: [4, 6] }, icon: '📜' },
+  rete_pesante:       { name: 'Rete Pesante', desc: 'Da lancio: 1d6 danni e il bersaglio salta il prossimo turno mentre si dibatte. Poco elegante, molto efficace.', combat: { dice: [1, 6], stun: true }, icon: '🕸' },
+  elisir_coraggio:    { name: 'Elisir del Coraggio', desc: 'Rimette in piedi un eroe a terra riportandolo a PIENA vita. Sa di liquirizia e incoscienza.', usable: true, heal: 999, icon: '🍾' },
+  ferro_di_cavallo:   { name: 'Ferro di Cavallo Fortunato', desc: 'Portafortuna: una volta per combattimento, il primo colpo che vi manderebbe a terra vi lascia invece con 1 PV. Poi si spezza.', usable: false, luck: true, icon: '🍀' },
 };
 
 const CAMPAIGN = {
@@ -306,6 +314,8 @@ Dallo scaffale "ARTICOLI PER LA GUERRA CHIMICA (legalissimi)": **bombe puzzolent
       { text: '💣 Comprate una bomba puzzolente (12 oro)', requiresGold: 12, gold: -12, item: 'bomba_puzzolente' },
       { text: '💧 Comprate una fiala d\'acqua santa (15 oro)', requiresGold: 15, gold: -15, item: 'acqua_santa' },
       { text: '🎲 Comprate il "Dado del Destino" (25 oro) — Gedeone strizza l\'occhio', requiresGold: 25, gold: -25, item: 'dado_destino', once: true },
+      { text: '🕸 Comprate una rete pesante (14 oro) — "per pescare. O per i lupi. O per i creditori."', requiresGold: 14, gold: -14, item: 'rete_pesante' },
+      { text: '🍀 Comprate il ferro di cavallo fortunato (18 oro)', requiresGold: 18, gold: -18, item: 'ferro_di_cavallo', once: true },
       { text: '↩ Tornate in piazza', next: 'v1' },
     ],
   },
@@ -605,7 +615,73 @@ Sopra di voi, l'anello rosso dell'eclissi si sta stringendo. Mezzanotte si avvic
       { text: '🌲 Verso il Bosco dei Sussurri, dalla strega Nonna Ortica', next: 'b1', sets: { via: 'bosco', via_bosco: true } },
       { text: '⛏ Verso le Miniere di Ferrovecchio, in cerca del passaggio', next: 'm1', sets: { via: 'miniere', via_miniere: true } },
       { text: '🛶 Verso il Molo del Vecchio Salice, sul Fiume Torbido', next: 'r1', sets: { via_fiume: true } },
+      { text: '🛒 Prima però: quel carro con la lanterna, fermo sotto la quercia...', next: 'v3_mercante', once: true },
     ],
+  },
+
+  v3_mercante: {
+    location: 'strada',
+    caption: 'Il carro di Fosca Girabanchi — mercante d\'occasione',
+    text: `Sotto la quercia c'è un carro sgangherato con una lanterna appesa e un telo che dice, in vernice fresca: *"APERTO ANCHE DURANTE L'APOCALISSE — anzi, SOPRATTUTTO"*.
+
+Dietro il banco, una donna anziana con dodici anelli e un occhio solo (l'altro è coperto da una benda ricamata a fiori) sta lucidando un corno da guerra con la calma di chi non ha fretta di vivere.
+
+> Fosca: "Ah, eroi. Si vede da come camminate: dritti, decisi, e completamente impreparati." *(sputa il nocciolo di un'oliva)* "Fosca Girabanchi, mercante d'occasione. Vendo alle carovane, ai briganti e — una volta sola, e non ne vado fiera — a un drago che voleva un cappello."
+
+Vi squadra con l'occhio buono, valutandovi come merce.
+
+> Fosca: "Andate al Castello Crepuscolo, vero? Tutti ci vanno, stanotte. Nessuno torna. Non è pessimismo, è STATISTICA." *(sorride)* "Però io ho la roba che serve. Roba VERA, non le cianfrusaglie di quello gnomo di Brindolo."
+
+Scosta il telo. Sul banco: un **corno da guerra nanico**, una **pergamena del fulmine** che frigge da sola, e — in una boccetta che scalda le mani — quella che giura essere **luce di sole imbottigliata**, presa il giorno prima dell'eclissi.
+
+> Fosca: "Prezzi da fine del mondo. In tutti i sensi."`,
+    hub: true,
+    choices: [
+      { text: '📯 Comprate il Corno da Guerra Nanico (40 oro)', requiresGold: 40, gold: -40, item: 'corno_nanico', once: true },
+      { text: '📜 Comprate la Pergamena del Fulmine (35 oro)', requiresGold: 35, gold: -35, item: 'pergamena_fulmine' },
+      { text: '☀ Comprate la Polvere di Sole Imbottigliata (60 oro)', requiresGold: 60, gold: -60, item: 'polvere_solare', once: true },
+      { text: '🍾 Comprate l\'Elisir del Coraggio (30 oro)', requiresGold: 30, gold: -30, item: 'elisir_coraggio' },
+      { text: '💎 Vendete la Gemma Nanica (+45 oro)', requires: { item: 'gemma_nanica' }, removeItem: 'gemma_nanica', gold: 45, once: true },
+      { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
+      { text: '↩ Tornate al bivio', next: 'v3' },
+    ],
+  },
+
+  v3_fosca_parla: {
+    location: 'strada',
+    caption: 'Quello che Fosca ha visto',
+    text: `Fosca posa il corno. L'occhio buono si stringe.
+
+> Fosca: "Vent'anni fa gli ho venduto una cosa. Al vampiro, sì." *(alza una mano prima delle proteste)* "Non giudicate: pagava in oro vero e non mordeva i fornitori. È più di quanto faccia il Consiglio."
+
+Si accende una pipa che non fuma tabacco ma qualcosa che profuma di temporale.
+
+> Fosca: "Voleva **corde di liuto**. Le migliori. Ne ha comprate abbastanza per cent'anni. E sapete la cosa strana? Ogni volta mi chiedeva la stessa identica cosa, con le stesse identiche parole: *'e queste, signora, tengono l'accordatura anche se nessuno le ascolta?'*"
+
+Sbuffa il fumo verso l'eclissi.
+
+> Fosca: "Un uomo che compra corde di liuto per cent'anni non è un mostro che vuole distruggere il mondo, ragazzi miei. È uno che **suona da solo in una stanza** e non lo ammetterebbe nemmeno sotto tortura." *(pausa)* "Fateci quello che volete, di questa informazione. Io vendo merce, mica consigli. I consigli li regalo, e si vede."
+
+**(Avete scoperto il segreto di Vesper: era e resta un musicista. Nuove possibilità nel finale!)**`,
+    sets: { sa_passato_bardo: true, sa_corde: true },
+    choices: [{ text: '↩ Tornate al banco', next: 'v3_mercante' }],
+  },
+
+  v3_fosca_tace: {
+    location: 'strada',
+    caption: 'Segreti professionali',
+    text: `Fosca vi guarda a lungo. Poi scoppia in una risata che sa di ghiaia.
+
+> Fosca: "Bel tentativo! Ma io ho commerciato con nani, elfi, contrabbandieri e un'assemblea di condominio. Vi pare che mi faccia intortare da un gruppetto di eroi con le pezze al mantello?"
+
+Riprende a lucidare il corno.
+
+> Fosca: "Le informazioni si pagano, come tutto il resto. E il mio prezzo, stanotte, non è oro." *(vi punta il cannello della pipa)* "Il mio prezzo è che qualcuno TORNI, dopo. A raccontarmi com'è finita. Nessuno torna mai a dirmi com'è finita."
+
+Per un attimo, sotto i dodici anelli e la benda a fiori, sembra soltanto una vecchia signora molto sola.
+
+> Fosca: "Su, comprate qualcosa e filate. Sta per succedere qualcosa di grosso e io ho ancora tre carovane da fregare."`,
+    choices: [{ text: '↩ Tornate al banco', next: 'v3_mercante' }],
   },
 
   /* ==================== ATTO 2A — BOSCO DEI SUSSURRI ==================== */
@@ -2514,7 +2590,7 @@ const CAMPAIGN_START = 'p1';
 const WORLD_MAP = [
   { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio','q_capra1','q_capra1_tracce_ko','q_capra2','q_capra2_ko','q_capra_salvata','q_corvo1','q_corvo_ok','q_corvo_ko'] },
   { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura','v2_guide'] },
-  { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3'] },
+  { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3','v3_mercante','v3_fosca_parla','v3_fosca_tace'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
   { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
