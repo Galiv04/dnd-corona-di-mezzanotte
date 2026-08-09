@@ -7,7 +7,9 @@ const Main = (() => {
   let pendingSlot = null; // slot scelto per la nuova partita
   let pendingDifficulty = 'normale';
 
-  /* Selettore degli slot di salvataggio (mode: 'load' | 'overwrite') */
+  /* Selettore degli slot di salvataggio (mode: 'load' | 'new').
+     Viene mostrato SEMPRE: prima restava nascosto quando c'era un solo
+     salvataggio o uno slot libero, e i tre slot non si vedevano mai. */
   function pickSlot(mode) {
     const saves = Engine.listSaves();
     const box = $('modal-generic-content');
@@ -16,7 +18,8 @@ const Main = (() => {
       const m = Math.round((Date.now() - ts) / 60000);
       return m < 60 ? `${m} min fa` : m < 1440 ? `${Math.round(m / 60)} ore fa` : `${Math.round(m / 1440)} giorni fa`;
     };
-    box.innerHTML = `<h2>${mode === 'load' ? '📂 Quale partita riprendete?' : '⚠ Slot pieni: quale partita sovrascrivere?'}</h2>`;
+    box.innerHTML = `<h2>${mode === 'load' ? '📂 Quale partita riprendete?' : '💾 In quale slot salvate la nuova partita?'}</h2>
+      <p style="color:var(--text-dim);margin-bottom:12px">Utente: <b>${Engine.currentProfile()}</b> — ogni utente ha 3 slot indipendenti, uno per ogni partita in corso.</p>`;
     saves.forEach((s, i) => {
       const n = i + 1;
       const b = document.createElement('button');
@@ -25,17 +28,26 @@ const Main = (() => {
         b.innerHTML = `<b>Slot ${n}</b> — ${s.heroes}${s.players ? ' (' + s.players + ')' : ''} ${s.ended ? '· 🏆 COMPLETATA' : ''}
           <span class="choice-tag">📍 ${s.caption} · 💰 ${s.gold} oro · 🕐 ${fmtAge(s.savedAt)}</span>`;
         b.onclick = () => {
-          $('modal-generic').classList.add('hidden');
-          if (mode === 'load') { if (!Engine.loadGame(n)) alert('Salvataggio danneggiato.'); }
-          else { Engine.clearSave(n); pendingSlot = n; openSetup(); }
+          if (mode === 'load') {
+            $('modal-generic').classList.add('hidden');
+            if (!Engine.loadGame(n)) alert('Salvataggio danneggiato.');
+          } else {
+            if (!confirm(`Lo Slot ${n} contiene già una partita (${s.heroes}).\nSovrascriverla? La partita salvata andrà persa.`)) return;
+            $('modal-generic').classList.add('hidden');
+            Engine.clearSave(n); pendingSlot = n; openSetup();
+          }
         };
       } else {
-        b.innerHTML = `<b>Slot ${n}</b> — <span class="choice-tag">vuoto</span>`;
-        if (mode === 'overwrite') b.onclick = () => { $('modal-generic').classList.add('hidden'); pendingSlot = n; openSetup(); };
-        else b.disabled = true;
+        b.innerHTML = `<b>Slot ${n}</b> — <span class="choice-tag">vuoto${mode === 'new' ? ' — libero per una nuova avventura' : ''}</span>`;
+        if (mode === 'load') b.disabled = true;
+        else b.onclick = () => { $('modal-generic').classList.add('hidden'); pendingSlot = n; openSetup(); };
       }
       box.appendChild(b);
     });
+    const nota = document.createElement('p');
+    nota.style.cssText = 'color:var(--text-dim);font-size:18px;margin-top:10px';
+    nota.innerHTML = '👤 Per gestire gli utenti o trasferire una partita su un altro computer, usate il pulsante <b>Utenti</b> nel titolo.';
+    box.appendChild(nota);
     const close = document.createElement('button');
     close.className = 'btn';
     close.style.marginTop = '12px';
@@ -147,19 +159,9 @@ const Main = (() => {
     Scenes.paint('title-canvas', 'titolo');
     refreshTitle();
 
-    $('btn-new-game').onclick = () => {
-      const free = Engine.firstFreeSlot();
-      if (free) { pendingSlot = free; openSetup(); }
-      else pickSlot('overwrite'); // tutti gli slot pieni: scegliere quale sovrascrivere
-    };
-    $('btn-continue').onclick = () => {
-      const saves = Engine.listSaves().filter(Boolean);
-      if (saves.length === 1) {
-        if (!Engine.loadGame(saves[0].slot)) { alert('Salvataggio non trovato o danneggiato.'); refreshTitle(); }
-      } else {
-        pickSlot('load');
-      }
-    };
+    // entrambi mostrano sempre i 3 slot: così si vede dove si salva e cosa c'è
+    $('btn-new-game').onclick = () => pickSlot('new');
+    $('btn-continue').onclick = () => pickSlot('load');
     $('btn-howto').onclick = () => {
       $('howto-content').innerHTML = RULES_HOWTO;
       Engine.showScreen('screen-howto');

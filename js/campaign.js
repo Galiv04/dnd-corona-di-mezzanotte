@@ -388,8 +388,8 @@ Alzate lo sguardo verso il tempietto del Sole.`,
   },
 
   q_capra2: {
-    location: 'villaggio',
-    npc: ['capra'],
+    location: 'tempietto',
+    npc: [{ key: 'capra', x: 0.5, y: 0.333, scale: 4 }],
     caption: 'Il tetto del tempietto — un déjà-vu',
     text: `Là, in equilibrio perfetto sul colmo del tetto del tempietto del Sole, tra le tegole e il mosaico dorato ora imbronciato, c'è **Berenice**: la capra di Bocciolo, sagoma nera contro l'anello rosso dell'eclissi, che fissa il cielo spento con aria di sfida assoluta. Come se il sole l'avesse offesa personalmente.
 
@@ -408,8 +408,8 @@ Due strade, per farla scendere.`,
   },
 
   q_capra2_ko: {
-    location: 'villaggio',
-    npc: ['capra'],
+    location: 'tempietto',
+    npc: [{ key: 'capra', x: 0.5, y: 0.333, scale: 4 }],
     caption: 'Il tetto del tempietto — tentativo maldestro',
     text: `Che sia l'appiglio che si sbriciola sotto una mano di troppo, o l'offerta di cibo che Berenice giudica personalmente insultante con un solo sguardo laterale, il risultato è lo stesso: qualcuno finisce seduto per terra con la schiena a pezzi. **(-2 PV)**
 
@@ -451,8 +451,8 @@ Berenice vi osserva un'ultima volta dalla soglia, mastica qualcosa che probabilm
   /* ---------- viaggio e imboscata ---------- */
 
   v2: {
-    location: 'strada',
-    npc: ['goblin','goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'La Strada del Nord — ore 15:00, buio pesto',
     text: `Lasciate Brindolo tra gli applausi (e qualche singhiozzo) dei paesani. La strada del nord si inoltra tra colline e boschi, sotto un cielo nero trapunto di stelle confuse — anche loro convinte che sia notte.
 
@@ -471,8 +471,8 @@ I tre goblin incrociano le braccia. Uno di loro sbadiglia vistosamente.`,
   },
 
   v2_guide: {
-    location: 'strada',
-    npc: ['goblin','goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'La Carovana del Sindacato',
     text: `Gruk conta le monete due volte, le morde una a una ("procedura standard"), poi si volta verso l'assemblea:
 
@@ -494,8 +494,8 @@ Vi lasciano al Bivio della Civetta con una stretta di zampa ciascuno e un volant
   },
 
   v2_fight: {
-    location: 'strada',
-    npc: ['goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'Il Ponticello — IMBOSCATA!',
     text: `> Gruk: "SCIOPERO SELVAGGIO!"
 
@@ -511,8 +511,8 @@ I goblin estraggono mazze chiodate decorate con adesivi rivendicativi. Si combat
   },
 
   v2_fight_insulted: {
-    location: 'strada',
-    npc: ['goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'Il Ponticello — trattativa fallita',
     text: `> Gruk: *(offeso)* "Tu... tu parlare come PADRONE! ASSEMBLEA STRAORDINARIA! Ordine del giorno: BOTTE!"
 
@@ -526,7 +526,7 @@ La diplomazia è fallita. I goblin caricano!`,
   },
 
   v2_vittoria: {
-    location: 'strada',
+    location: 'ponte',
     npc: ['goblin'],
     caption: 'Il Ponticello — dopo la battaglia',
     text: `I goblin giacciono a terra emettendo lamenti sindacalmente coordinati. Gruk, con un occhio nero, alza una zampa:
@@ -540,8 +540,8 @@ Interessante: perfino i suoi goblin lo detestano.`,
   },
 
   v2_paga: {
-    location: 'strada',
-    npc: ['goblin','goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'Il Ponticello',
     text: `Contate le 20 monete nella zampa tesa di Gruk, che le esamina professionalmente e vi rilascia perfino una **ricevuta** (scritta su una foglia).
 
@@ -553,8 +553,8 @@ I goblin vi salutano col pugno alzato. **(Informazione preziosa sul Gran Ballo!)
   },
 
   v2_sindacato: {
-    location: 'strada',
-    npc: ['goblin','goblin'],
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'Il Ponticello — assemblea straordinaria',
     text: `Parlate col cuore in mano: gli straordinari non pagati, i turni di notte eterni, un datore di lavoro che LETTERALMENTE ha spento il sole senza consultare i dipendenti...
 
@@ -569,7 +569,8 @@ I goblin vi scortano oltre il ponte cantando un inno di lotta stonatissimo. **(I
   },
 
   v2_paura: {
-    location: 'strada',
+    location: 'ponte',
+    npc: ['goblin', 'goblin_capo', 'goblin'],
     caption: 'Il Ponticello',
     text: `Vi gonfiate come gatti arrabbiati. Chi ringhia, chi fa scrocchiare le nocche, chi solleva un masso con noncuranza fischiettando.
 

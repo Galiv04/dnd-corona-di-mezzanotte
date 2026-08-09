@@ -709,7 +709,7 @@ const Engine = (() => {
   function showMenu() {
     const box = $('modal-generic-content');
     box.innerHTML = `<h2>☰ Menu</h2>
-      <p style="color:var(--text-dim);margin-bottom:14px">La partita si salva da sola a ogni scena. Potete chiudere il browser e riprendere quando volete.</p>
+      <p style="color:var(--text-dim);margin-bottom:14px">💾 Salvataggio automatico a ogni scena — utente <b>${currentProfile()}</b>, <b>slot ${G.slot || 1}</b> di 3. Potete chiudere il browser e riprendere quando volete.</p>
       <button class="choice-btn" onclick="document.getElementById('modal-generic').classList.add('hidden')">▶ Torna alla partita</button>
       <button class="choice-btn" onclick="Engine.showDiary()">📔 Diario di viaggio</button>
       <button class="choice-btn" onclick="Engine.showBestiary()">🐺 Bestiario (nemici incontrati)</button>
