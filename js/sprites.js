@@ -192,6 +192,29 @@ const Sprites = (() => {
     ].map(r => r.padEnd(16,'.').slice(0,16)),
   };
 
+  // Gruk, capo-delegato: fascia rossa e megafono d'ordinanza
+  const goblinCapo = {
+    palette: { s:'#6a9a4a', S:'#4d7a35', e:'#e84a4a', d:'#5a4a35', t:'#e8e0d0', r:'#c8302a', g:'#f5c542', G:'#c8a032' },
+    map: [
+      '................',
+      '..s..........s..',
+      '..ss........ss..',
+      '..sssssssssss s.'.replace(' ',''),
+      '..rrrrrrrrrrrr..',
+      '..sesssssssses..',
+      '..ssssseesssss..',
+      '..sssstttts ss..'.replace(' ',''),
+      '...ssssssss s...'.replace(' ',''),
+      '...ddddddddd.gg.',
+      '..ddddddddddgGg.',
+      '..ddddddddddgGg.',
+      '...ddddddddd.gg.',
+      '...dd.....dd....',
+      '...ss.....ss....',
+      '................',
+    ].map(r => r.padEnd(16,'.').slice(0,16)),
+  };
+
   const wolf = {
     palette: { f:'#5a5a6a', F:'#3d3d4a', e:'#e8d84a', t:'#f0f0e8', n:'#1a1a22' },
     map: [
@@ -510,7 +533,7 @@ const Sprites = (() => {
 
   const registry = {
     torvald, lyra, fizzle, brunilde, kael, zonk,
-    goblin, wolf, skeleton, ragno, bandito, fungo, gerbold, vesper,
+    goblin, goblin_capo: goblinCapo, wolf, skeleton, ragno, bandito, fungo, gerbold, vesper,
     nonnaOrtica, pipistrello, biscotto,
     anguilla, spirito_fiume: spiritoFiume,
     capra, bertoldo, gastone,

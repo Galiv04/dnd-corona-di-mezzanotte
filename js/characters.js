@@ -140,7 +140,7 @@ const BESTIARY = {
     flavor: 'Piccolo, verde e polemico. Rivendica la pausa merenda.',
   },
   goblin_capo: {
-    name: 'Gruk, Capo-Delegato', sprite: 'goblin',
+    name: 'Gruk, Capo-Delegato', sprite: 'goblin_capo',
     maxHp: 20, ac: 13, ai: 'strongest',
     attack: { name: 'Megafono contundente', bonus: 4, dice: [1, 8], plus: 2 },
     flavor: 'Il capo del sindacato goblin. Il megafono è anche un\'arma.',
