@@ -752,7 +752,7 @@ const Scenes = (() => {
       const r = rng(97);
       skyGradient(ctx, W, H, '#0d0a1f', '#4a1540', 12);
       stars(ctx, W, H, r, 70);
-      moon(ctx, W * 0.5, H * 0.26, 52, '#e8e0f0', true);
+      moon(ctx, W * 0.5, H * 0.36, 40, '#e8e0f0', true);   // abbassata: a mezzanotte la corona è enorme
       ctx.fillStyle = 'rgba(232,74,90,.12)';
       ctx.fillRect(0, 0, W, H);
       const g = H - 40;
