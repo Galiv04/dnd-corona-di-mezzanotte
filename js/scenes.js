@@ -404,23 +404,23 @@ const Scenes = (() => {
       const r = rng(19);
       skyGradient(ctx, W, H, '#0d0a1f', '#33204a', 10);
       stars(ctx, W, H, r, 45);
-      moon(ctx, W * 0.14, 62, 26, '#c8b8e8', true);
-      const g = H - 92;
+      moon(ctx, W * 0.14, 58, 26, '#c8b8e8', true);
+      const g = H - 118;                    // terreno alto: il ponte resta sopra la didascalia
       hills(ctx, W, g + 4, 40, '#152515', r, 30);
-      for (let i = 0; i < 5; i++) tree(ctx, 40 + i * (W / 4.5) + (r() * 30 - 15), g + 8, 60 + r() * 26, '#1d3a22', '#3a2a18', r);
+      for (let i = 0; i < 5; i++) tree(ctx, 40 + i * (W / 4.5) + (r() * 30 - 15), g + 8, 56 + r() * 24, '#1d3a22', '#3a2a18', r);
       ground(ctx, W, H, g, '#26402a', r, 12, 10);
       // ruscello sotto il ponte
-      blocks(ctx, W * 0.30, H - 54, W * 0.40, 54, '#12304a', 12, r, 0.24);
+      blocks(ctx, W * 0.30, H - 74, W * 0.40, 74, '#12304a', 12, r, 0.24);
       ctx.fillStyle = 'rgba(150,190,230,.18)';
-      for (let i = 0; i < 10; i++) ctx.fillRect(W * 0.31 + r() * W * 0.37, H - 48 + r() * 40, 16 + r() * 20, 3);
-      // il ponticello
-      bridge(ctx, W * 0.28, H - 62, W * 0.44, r);
+      for (let i = 0; i < 10; i++) ctx.fillRect(W * 0.31 + r() * W * 0.37, H - 70 + r() * 50, 16 + r() * 20, 3);
+      // il ponticello, all'altezza del terreno
+      bridge(ctx, W * 0.28, g - 4, W * 0.44, r);
       // cartello dello sciopero, piantato accanto al ponte
-      sign(ctx, W * 0.19, g + 16, 92, 34, 3);
+      sign(ctx, W * 0.17, g + 14, 92, 34, 3);
       // fagotti e cassetta del "sindacato"
-      blocks(ctx, W * 0.76, g + 4, 34, 22, '#5a4530', 8, r, 0.15);
-      ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.76, g + 10, 34, 4);
-      bush(ctx, W * 0.86, g + 10, 26, '#2a4a2e', r);
+      blocks(ctx, W * 0.80, g + 2, 34, 22, '#5a4530', 8, r, 0.15);
+      ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.80, g + 8, 34, 4);
+      bush(ctx, W * 0.89, g + 8, 26, '#2a4a2e', r);
     },
 
     tempietto(ctx, W, H) {
@@ -893,7 +893,7 @@ const Scenes = (() => {
     const placed = npcKeys.filter(n => typeof n === 'object' && n);
     const scale = 5, size = 16 * scale;
     // i piedi stanno sopra la didascalia, altrimenti i personaggi finiscono coperti
-    const baseFeet = H - 34;
+    const baseFeet = H - 62;
     let x = Math.floor(W * 0.70 - (plain.length - 1) * (size + 16) / 2);
     for (const key of plain) {
       const def = Sprites.registry[key];
@@ -910,7 +910,7 @@ const Scenes = (() => {
       const s = n.scale || 5, sz = 16 * s;
       const px = Math.round((n.x != null ? n.x * W : W * 0.7) - sz / 2);
       // n.y indica dove poggiano i PIEDI del personaggio (frazione di altezza)
-      const finalY = n.y != null ? Math.round(n.y * H) - sz : H - 34 - sz;
+      const finalY = n.y != null ? Math.round(n.y * H) - sz : H - 62 - sz;
       ctx.fillStyle = 'rgba(0,0,0,.3)';
       ctx.fillRect(px + 6, finalY + sz - 4, sz - 12, 7);
       Sprites.drawSprite(ctx, def.map, def.palette, px, finalY, s, n.flip !== false);

@@ -170,13 +170,17 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; display:block
     radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.28) 100%);
 }
 #scene-canvas, #combat-canvas { width: 100%; height: auto; }
+/* Didascalia compatta: il titolo per esteso è già nell'intestazione,
+   qui basta una riga discreta che non copra la scena. */
 .scene-caption {
   position:absolute; left:0; right:0; bottom:0;
-  background: linear-gradient(transparent, rgba(0,0,0,.85));
-  color: var(--gold); font-family: var(--font-pixel); font-size: 11px;
-  padding: 18px 12px 8px; text-align:center;
+  background: linear-gradient(transparent, rgba(0,0,0,.8));
+  color: var(--gold); font-family: var(--font-pixel); font-size: 9px;
+  padding: 10px 12px 5px; text-align:center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   pointer-events:none;
 }
+@media (max-width: 760px) { .scene-caption { font-size: 8px; padding: 8px 8px 4px; } }
 
 .narration-wrap {
   background: var(--panel);

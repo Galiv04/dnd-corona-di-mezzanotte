@@ -452,7 +452,7 @@ Berenice vi osserva un'ultima volta dalla soglia, mastica qualcosa che probabilm
 
   v2: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'La Strada del Nord — ore 15:00, buio pesto',
     text: `Lasciate Brindolo tra gli applausi (e qualche singhiozzo) dei paesani. La strada del nord si inoltra tra colline e boschi, sotto un cielo nero trapunto di stelle confuse — anche loro convinte che sia notte.
 
@@ -472,7 +472,7 @@ I tre goblin incrociano le braccia. Uno di loro sbadiglia vistosamente.`,
 
   v2_guide: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'La Carovana del Sindacato',
     text: `Gruk conta le monete due volte, le morde una a una ("procedura standard"), poi si volta verso l'assemblea:
 
@@ -495,7 +495,7 @@ Vi lasciano al Bivio della Civetta con una stretta di zampa ciascuno e un volant
 
   v2_fight: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello — IMBOSCATA!',
     text: `> Gruk: "SCIOPERO SELVAGGIO!"
 
@@ -512,7 +512,7 @@ I goblin estraggono mazze chiodate decorate con adesivi rivendicativi. Si combat
 
   v2_fight_insulted: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello — trattativa fallita',
     text: `> Gruk: *(offeso)* "Tu... tu parlare come PADRONE! ASSEMBLEA STRAORDINARIA! Ordine del giorno: BOTTE!"
 
@@ -527,7 +527,7 @@ La diplomazia è fallita. I goblin caricano!`,
 
   v2_vittoria: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.50, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.50, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello — dopo la battaglia',
     text: `I goblin giacciono a terra emettendo lamenti sindacalmente coordinati. Gruk, con un occhio nero, alza una zampa:
 
@@ -541,7 +541,7 @@ Interessante: perfino i suoi goblin lo detestano.`,
 
   v2_paga: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello',
     text: `Contate le 20 monete nella zampa tesa di Gruk, che le esamina professionalmente e vi rilascia perfino una **ricevuta** (scritta su una foglia).
 
@@ -554,7 +554,7 @@ I goblin vi salutano col pugno alzato. **(Informazione preziosa sul Gran Ballo!)
 
   v2_sindacato: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello — assemblea straordinaria',
     text: `Parlate col cuore in mano: gli straordinari non pagati, i turni di notte eterni, un datore di lavoro che LETTERALMENTE ha spento il sole senza consultare i dipendenti...
 
@@ -570,7 +570,7 @@ I goblin vi scortano oltre il ponte cantando un inno di lotta stonatissimo. **(I
 
   v2_paura: {
     location: 'ponte',
-    npc: [{ key: 'goblin', x: 0.37, y: 0.828, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.828, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.828, scale: 4 }],
+    npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello',
     text: `Vi gonfiate come gatti arrabbiati. Chi ringhia, chi fa scrocchiare le nocche, chi solleva un masso con noncuranza fischiettando.
 
