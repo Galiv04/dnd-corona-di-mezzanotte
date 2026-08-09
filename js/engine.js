@@ -313,9 +313,23 @@ const Engine = (() => {
     return MUSIC_BY_LOCATION[scene.location] || 'explore';
   }
 
+  /* Quanto è avanzata l'eclissi, scena per scena (0 = appena iniziata, 1 = mezzanotte).
+     Segue l'orologio della storia: mezzogiorno → 15:00 → 18:00 → 22:00 → 23:55. */
+  function eclipsePhaseFor(id) {
+    if (/^e_/.test(id)) return 0;                       // epiloghi: il sole è tornato
+    if (/^(f_|c_vetta)/.test(id)) return 1;             // mezzanotte meno cinque
+    if (/^c_scala/.test(id)) return 0.92;               // 23:30
+    if (/^c_/.test(id)) return 0.78;                    // il castello, ore 22:00
+    if (/^(b|m|r)\d|^(b|m|r)[0-9_]/.test(id)) return 0.6; // atti 2: sera inoltrata
+    if (id === 'v3') return 0.45;                       // il bivio, ore 18:00
+    if (/^v2/.test(id)) return 0.32;                    // il ponte, ore 15:00
+    return 0.16;                                        // prologo a Brindolo
+  }
+
   function renderScene(scene, instant = false) {
     showScreen('screen-game');
     if (typeof Sound !== 'undefined') Sound.music(musicForScene(scene));
+    if (typeof Scenes.setEclipse === 'function') Scenes.setEclipse(eclipsePhaseFor(G.sceneId));
     $('hud-location').textContent = '📍 ' + (scene.caption || '');
     Scenes.paint('scene-canvas', scene.location, null, scene.npc);
     $('scene-caption').textContent = scene.caption || '';

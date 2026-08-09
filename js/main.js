@@ -44,9 +44,16 @@ const Main = (() => {
       }
       box.appendChild(b);
     });
+    const trasferisci = document.createElement('button');
+    trasferisci.className = 'choice-btn';
+    trasferisci.style.borderLeftColor = 'var(--green)';
+    trasferisci.innerHTML = `📤 <b>Trasferisci una partita da/verso un altro dispositivo</b>
+      <span class="choice-tag">Genera un codice da incollare su un altro browser o computer: la partita riprende esattamente da dov'era.</span>`;
+    trasferisci.onclick = () => showCodes(Engine.currentProfile());
+    box.appendChild(trasferisci);
     const nota = document.createElement('p');
     nota.style.cssText = 'color:var(--text-dim);font-size:18px;margin-top:10px';
-    nota.innerHTML = '👤 Per gestire gli utenti o trasferire una partita su un altro computer, usate il pulsante <b>Utenti</b> nel titolo.';
+    nota.innerHTML = '👤 Per creare o cambiare utente, usate il pulsante <b>Utenti</b> nel titolo.';
     box.appendChild(nota);
     const close = document.createElement('button');
     close.className = 'btn';

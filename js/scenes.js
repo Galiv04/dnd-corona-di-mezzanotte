@@ -55,17 +55,66 @@ const Scenes = (() => {
     }
   }
 
-  function moon(ctx, x, y, r, color = '#e8e0f0', eclipse = false) {
-    ctx.fillStyle = color;
-    for (let dy = -r; dy <= r; dy += 3) {
-      const hw = Math.floor(Math.sqrt(r * r - dy * dy) / 3) * 3;
-      ctx.fillRect(x - hw, y + dy, hw * 2, 3);
+  /* ---------- ECLISSI ----------
+     Fase 0 = appena iniziata (anello sottile e pallido)
+     Fase 1 = mezzanotte (corona rossa larga e pulsante).
+     La imposta il motore scena per scena: vedi Engine.eclipsePhaseFor().  */
+  let eclipsePhase = 0.3;
+  function setEclipse(p) { eclipsePhase = Math.max(0, Math.min(1, p)); }
+  function getEclipse() { return eclipsePhase; }
+
+  // Disco a pixel PERFETTAMENTE simmetrico (il vecchio disegno era storto)
+  function pixelDisc(ctx, cx, cy, r, px = 3) {
+    const CX = Math.round(cx / px) * px, CY = Math.round(cy / px) * px;
+    const R = Math.max(px, Math.round(r / px) * px);
+    for (let dy = -R; dy < R; dy += px) {
+      const yy = dy + px / 2;                     // centro della riga: simmetrico per dy e -dy-px
+      const hw = Math.sqrt(Math.max(0, R * R - yy * yy));
+      const w = Math.max(px, Math.round(hw / px) * px);
+      ctx.fillRect(CX - w, CY + dy, w * 2, px);
     }
-    if (eclipse) {
-      ctx.fillStyle = '#3a1025';
-      for (let dy = -r + 6; dy <= r - 6; dy += 3) {
-        const hw = Math.floor(Math.sqrt((r - 6) * (r - 6) - dy * dy) / 3) * 3;
-        ctx.fillRect(x - hw + 4, y + dy, hw * 2, 3);
+  }
+
+  function mix(a, b, t) {
+    const ca = parseInt(a.slice(1), 16), cb = parseInt(b.slice(1), 16);
+    const r = Math.round(((ca >> 16) & 255) * (1 - t) + ((cb >> 16) & 255) * t);
+    const g = Math.round(((ca >> 8) & 255) * (1 - t) + ((cb >> 8) & 255) * t);
+    const bl = Math.round((ca & 255) * (1 - t) + (cb & 255) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  function moon(ctx, x, y, r, color = '#e8e0f0', eclipse = false, phase = null) {
+    const p = phase != null ? phase : eclipsePhase;
+    if (!eclipse) { ctx.fillStyle = color; pixelDisc(ctx, x, y, r); return; }
+
+    // alone esterno: si allarga e si arrossa con l'avanzare della notte
+    const halo = Math.round(r * (0.5 + p * 1.4));
+    ctx.fillStyle = `rgba(${Math.round(180 + 60 * p)},${Math.round(90 - 50 * p)},${Math.round(140 - 60 * p)},${0.05 + p * 0.10})`;
+    pixelDisc(ctx, x, y, r + halo);
+    ctx.fillStyle = `rgba(${Math.round(200 + 40 * p)},${Math.round(80 - 40 * p)},${Math.round(120 - 60 * p)},${0.06 + p * 0.12})`;
+    pixelDisc(ctx, x, y, r + Math.round(halo * 0.55));
+
+    // la corona: da tenue lilla a rosso sangue, sempre più spessa
+    const ring = Math.round(3 + p * 9);
+    ctx.fillStyle = mix('#c8b8e8', '#f0323e', p);
+    pixelDisc(ctx, x, y, r + ring);
+    // bordo interno più caldo, per dare spessore alla corona
+    ctx.fillStyle = mix('#e8e0f0', '#ff6a52', Math.min(1, p * 1.2));
+    pixelDisc(ctx, x, y, r + Math.round(ring * 0.45));
+
+    // il disco nero che divora il sole
+    ctx.fillStyle = mix('#2a1020', '#12060c', p);
+    pixelDisc(ctx, x, y, r);
+
+    // lingue di corona quando mezzanotte è vicina
+    if (p > 0.55) {
+      const n = 8, len = Math.round((p - 0.55) * r * 1.6);
+      ctx.fillStyle = mix('#e8607a', '#ff3a3a', p);
+      for (let i = 0; i < n; i++) {
+        const a = i * (Math.PI * 2 / n) + p;
+        const fx = x + Math.cos(a) * (r + ring + 1), fy = y + Math.sin(a) * (r + ring + 1);
+        ctx.fillRect(Math.round(fx - 1), Math.round(fy - 1), 3, 3);
+        ctx.fillRect(Math.round(fx + Math.cos(a) * len - 1), Math.round(fy + Math.sin(a) * len - 1), 3, 3);
       }
     }
   }
@@ -794,7 +843,7 @@ const Scenes = (() => {
       const r = rng(101);
       skyGradient(ctx, W, H, '#3a5a8a', '#f5a05a', 12);
       const g = H - 78;
-      // raggi di sole
+      // il sole è tornato: disco pieno, niente eclissi
       moon(ctx, W * 0.5, H * 0.6, 46, '#f5e042', false);
       ctx.fillStyle = 'rgba(245,224,66,.16)';
       for (let i = 0; i < 10; i++) {
@@ -843,13 +892,15 @@ const Scenes = (() => {
     const plain = npcKeys.filter(n => typeof n === 'string');
     const placed = npcKeys.filter(n => typeof n === 'object' && n);
     const scale = 5, size = 16 * scale;
+    // i piedi stanno sopra la didascalia, altrimenti i personaggi finiscono coperti
+    const baseFeet = H - 34;
     let x = Math.floor(W * 0.70 - (plain.length - 1) * (size + 16) / 2);
     for (const key of plain) {
       const def = Sprites.registry[key];
       if (def) {
         ctx.fillStyle = 'rgba(0,0,0,.35)';
-        ctx.fillRect(x + 6, H - 16, size - 12, 8);
-        Sprites.drawSprite(ctx, def.map, def.palette, x, H - 12 - size, scale, true);
+        ctx.fillRect(x + 6, baseFeet - 4, size - 12, 8);
+        Sprites.drawSprite(ctx, def.map, def.palette, x, baseFeet - size, scale, true);
       }
       x += size + 16;
     }
@@ -859,12 +910,12 @@ const Scenes = (() => {
       const s = n.scale || 5, sz = 16 * s;
       const px = Math.round((n.x != null ? n.x * W : W * 0.7) - sz / 2);
       // n.y indica dove poggiano i PIEDI del personaggio (frazione di altezza)
-      const finalY = n.y != null ? Math.round(n.y * H) - sz : H - 12 - sz;
+      const finalY = n.y != null ? Math.round(n.y * H) - sz : H - 34 - sz;
       ctx.fillStyle = 'rgba(0,0,0,.3)';
       ctx.fillRect(px + 6, finalY + sz - 4, sz - 12, 7);
       Sprites.drawSprite(ctx, def.map, def.palette, px, finalY, s, n.flip !== false);
     }
   }
 
-  return { paint, painters, rng, blocks, shade, heroesRow, tree, willow, house, torch, sign, ground, hills };
+  return { paint, painters, rng, blocks, shade, heroesRow, tree, willow, house, torch, sign, ground, hills, moon, setEclipse, getEclipse, pixelDisc };
 })();
