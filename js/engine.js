@@ -177,18 +177,54 @@ const Engine = (() => {
 
   /* ---------- codici di salvataggio (trasferimento tra dispositivi) ---------- */
 
+  /* Il salvataggio completo contiene backstory e descrizioni (migliaia di caratteri):
+     per il codice da copiare teniamo solo ciò che non è ricostruibile da HEROES.
+     Risultato: da ~4.800 a poche centinaia di caratteri.                        */
+  function compact(g) {
+    return {
+      v: 2,
+      p: g.party.map(h => ({ i: h.id, n: h.player || '', h: h.hp, d: !!h.down, m: h.maxHp, a: h.ac, u: h.abilities.map(ab => ab.uses) })),
+      U: g.uses, g: g.gold, I: g.inventory, f: g.flags, s: g.sceneId,
+      c: g.usedChoices, e: g.enteredScenes, y: g.history, n: g.seenEnemies,
+      l: g.lastCombatSceneId, D: g.difficulty, t: g.stats, w: g.savedAt,
+    };
+  }
+
+  function expand(c) {
+    const party = c.p.map(p => {
+      const base = HEROES.find(h => h.id === p.i);
+      if (!base) return null;
+      const hero = JSON.parse(JSON.stringify(base));
+      hero.player = p.n; hero.hp = p.h; hero.down = p.d;
+      if (p.m != null) hero.maxHp = p.m;
+      if (p.a != null) hero.ac = p.a;
+      if (p.u) hero.abilities.forEach((ab, i) => { if (p.u[i] != null) ab.uses = p.u[i]; });
+      return hero;
+    }).filter(Boolean);
+    return {
+      party, uses: c.U, gold: c.g, inventory: c.I, flags: c.f, sceneId: c.s,
+      usedChoices: c.c || {}, enteredScenes: c.e || {}, history: c.y || [],
+      seenEnemies: c.n || [], lastCombatSceneId: c.l || null,
+      difficulty: c.D || 'normale', stats: c.t || { combats: 0, checksPassed: 0, checksFailed: 0, scenes: 0, start: Date.now() },
+      savedAt: c.w || Date.now(),
+    };
+  }
+
   function exportCode(slot, profile = null) {
     try {
       const raw = localStorage.getItem(slotKey(slot, profile));
       if (!raw) return null;
-      return btoa(unescape(encodeURIComponent(raw)));
+      const json = JSON.stringify(compact(JSON.parse(raw)));
+      return btoa(unescape(encodeURIComponent(json)));
     } catch (e) { return null; }
   }
 
   function importCode(code, slot, profile = null) {
     try {
-      const raw = decodeURIComponent(escape(atob(code.trim())));
-      const g = JSON.parse(raw);
+      const raw = decodeURIComponent(escape(atob(code.trim().replace(/\s+/g, ''))));
+      const parsed = JSON.parse(raw);
+      // accetta sia il formato compatto (v:2) sia i vecchi codici per esteso
+      const g = parsed.v === 2 ? expand(parsed) : parsed;
       if (!g.party || !g.party.length || !g.sceneId) return 'Codice non valido: manca la compagnia o la scena.';
       if (!CAMPAIGN[g.sceneId]) g.sceneId = CAMPAIGN_START;
       localStorage.setItem(slotKey(slot, profile), JSON.stringify(g));
