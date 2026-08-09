@@ -201,14 +201,14 @@ const BESTIARY = {
   },
   vesper: {
     name: 'Lord Vesper Morn', sprite: 'vesper',
-    maxHp: 65, ac: 16, ai: 'smart', undead: true, boss: true,
+    maxHp: 65, ac: 16, ai: 'smart', undead: true, boss: true, lifesteal: true,
     attack: { name: 'Rapsodia di sangue', bonus: 6, dice: [2, 8], plus: 2 },
-    flavor: 'Vampiro, ex-bardo, drammaticissimo. Il mantello è sempre al vento. Sempre.',
+    flavor: 'Vampiro, ex-bardo, drammaticissimo. Il mantello è sempre al vento. Sempre. E ogni suo colpo lo RIGENERA: abbattetelo in fretta.',
   },
   vesper_corona: {
     name: 'Vesper Incoronato', sprite: 'vesper',
-    maxHp: 45, ac: 17, ai: 'smart', undead: true, boss: true,
+    maxHp: 45, ac: 17, ai: 'smart', undead: true, boss: true, lifesteal: true,
     attack: { name: 'Notte Divorante', bonus: 7, dice: [3, 8], plus: 0 },
-    flavor: 'La Corona di Mezzanotte pulsa sul suo capo. L\'oscurità si piega a lui.',
+    flavor: 'La Corona di Mezzanotte pulsa sul suo capo. L\'oscurità si piega a lui — e lo nutre a ogni colpo.',
   },
 };

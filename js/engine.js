@@ -709,6 +709,17 @@ const Engine = (() => {
       choicesEl.appendChild(epi);
     }
 
+    // cronache di Lumelia: il mondo ricorda le vostre scelte
+    if (typeof CRONACA !== 'undefined') {
+      const righe = CRONACA.filter(c => G.flags[c.flag]);
+      if (righe.length) {
+        const cron = document.createElement('div');
+        cron.innerHTML = `<h3 style="font-family:var(--font-pixel);font-size:14px;color:var(--purple);margin:14px 0 8px">📜 Cronache di Lumelia — sei mesi dopo</h3>` +
+          righe.map(c => `<div class="ability-box" style="border-left-color:var(--purple)"><div class="ability-desc">${c.icon} ${c.text}</div></div>`).join('');
+        choicesEl.appendChild(cron);
+      }
+    }
+
     // imprese sbloccate
     if (typeof IMPRESE !== 'undefined') {
       const unlocked = IMPRESE.filter(i => G.flags[i.flag]);

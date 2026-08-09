@@ -607,6 +607,15 @@ const Combat = (() => {
       log(`${crit ? '💥 <b>CRITICO!</b> ' : ''}🗡 ${e.name} colpisce ${h.name} con ${e.attack.name}: <b>${dmg} danni</b>.`, crit ? 'log-crit' : 'log-hit');
       if (typeof Sound !== 'undefined') Sound.play('hit');
       if (h._x != null) floatText(h._x + h._size / 2, h._y, `-${dmg}`, 'float-dmg');
+      // il vampiro si nutre dei colpi che mette a segno
+      if (e.lifesteal && e.hp > 0 && e.hp < e.maxHp) {
+        const drain = Math.min(Math.ceil(dmg / 2), e.maxHp - e.hp);
+        if (drain > 0) {
+          e.hp += drain;
+          log(`🩸 ${e.name.split(',')[0]} si NUTRE del colpo e recupera <b>${drain} PV</b>. Maledetti vampiri.`, 'log-hit');
+          if (e._x != null) floatText(e._x + e._size / 2, e._y, `+${drain}`, 'float-heal');
+        }
+      }
       if (h.hp <= 0) {
         // passiva Zonk
         if (h.id === 'zonk' && !h.zonkGritUsed) {

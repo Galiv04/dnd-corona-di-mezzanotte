@@ -70,3 +70,23 @@ const IMPRESE = [
   { flag: 'tentazione_resistita',   icon: '🛡️', title: 'Più Forti della Corona',       desc: 'La Corona di Mezzanotte vi ha sussurrato. Le avete risposto di no.' },
   { flag: 'tentazione_ceduta',      icon: '👑', title: 'Il Regno dei Quattro Secondi', desc: 'Uno di voi ha regnato sull\'oscurità per quattro secondi esatti. Che regno, però.' },
 ];
+
+/* ==================== CRONACHE DI LUMELIA ====================
+   Righe d'epilogo che compaiono SOLO se avete vissuto quella storia:
+   il finale riflette le scelte fatte lungo la strada.              */
+
+const CRONACA = [
+  { flag: 'sa_ballo',            icon: '✊', text: 'I Goblin Riuniti del Turno di Notte hanno ottenuto il primo contratto collettivo della storia di Lumelia. Gruk è stato eletto sindaco del suo ponte, carica che esercita con megafono e fascia tricolore.' },
+  { flag: 'gerbold_alleato',     icon: '🏖️', text: 'Gerbold è tornato dalla sua prima vacanza al mare con un colorito ("È SABBIA, ma apprezzo l\'ottimismo") e ha fondato "Dignità & Argenteria", agenzia di maggiordomi con ferie garantite. Ha già dodici iscritti e un fantasma in prova.' },
+  { flag: 'fatto_ridere_ortica', icon: '😂', text: 'Nonna Ortica ha riso altre tre volte, quest\'anno. Il Bosco dei Sussurri non parla d\'altro. Il gatto ha chiesto di cambiare capanna.' },
+  { flag: 'remo_ritrovato',      icon: '🚣', text: 'Bertoldo naviga di nuovo con il remo di suo padre. Dicono che nelle notti calme lo si senta fischiettare sulle rapide — intonato, per la prima volta in centocinquant\'anni.' },
+  { flag: 'bertoldo_amico',      icon: '👻', text: 'Alla Corporazione dei Barcaioli è arrivato un reclamo scritto con grafia ottocentesca: Bertoldo esige gli arretrati di 150 anni di straordinari. La pratica è in valutazione. Lui non ha fretta.' },
+  { flag: 'capra_salvata',       icon: '🐐', text: 'Berenice è tornata sul tetto del tempietto il giorno dopo. Nessuno sa come. Nessuno osa più chiederlo. Pipino ha aggiunto una scala, che lei ignora per principio.' },
+  { flag: 'burocrazia_battuta',  icon: '📋', text: 'Il vostro Modulo 7-B è esposto in una teca nell\'Ufficio Reclami del Sottosuolo, con la dicitura "ESEMPLARE UNICO — NON TOCCARE". Gli scheletri ci portano i tirocinanti in pellegrinaggio.' },
+  { flag: 'sa_corvo',            icon: '🐦‍⬛', text: 'Amleto Dellacroce ha ripreso a pubblicare recensioni, incise a beccate sulle staccionate del regno. Sono temute, attese e sorprendentemente giuste. Il pane di Brindolo è migliorato del 40%.' },
+  { flag: 'benedizione',         icon: '⛪', text: 'Pipino è stato promosso a chierico di prima classe. Il manuale, nella nuova edizione, ha finalmente un capitolo sul sole spento. L\'ha scritto lui.' },
+  { flag: 'lacrima_ceduta',      icon: '🌙', text: 'Il Pescatore di Ricordi custodisce ancora quel ricordo felice. A volte, nelle notti giuste, lo lascia galleggiare in superficie perché il fiume lo porti a chi ne ha più bisogno. Funziona.' },
+  { flag: 'tentazione_ceduta',   icon: '🤫', text: 'Del Regno dei Quattro Secondi non si parla. MAI. (Il sovrano deposto paga ancora da bere a chi promette silenzio.)' },
+  { flag: 'tentazione_resistita', icon: '🛡️', text: 'La storia di chi disse no alla Corona è diventata una parabola che si racconta ai bambini di Lumelia. La morale cambia a ogni racconto, ma il finale è sempre lo stesso: "e per questo il sole sorge ancora".' },
+  { flag: 'solo',                icon: '🌟', text: 'E i bardi ancora discutono: com\'è possibile che UN SOLO eroe abbia fatto tutto questo? La risposta, come sempre, è: pozioni. Tante, tante pozioni.' },
+];
