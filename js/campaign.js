@@ -11,6 +11,7 @@ const ITEMS = {
   pozione_cura_magg:  { name: 'Pozione di Cura Maggiore', desc: 'Ripristina 20 PV. Usabile in combattimento.', usable: true, heal: 20 },
   bomba_puzzolente:   { name: 'Bomba Puzzolente', desc: 'Da lancio: colpisce sempre, 2d6 danni e il bersaglio resta stordito dal tanfo (svantaggio al prossimo attacco).', combat: { dice: [2, 6], distract: true }, icon: '💣' },
   acqua_santa:        { name: 'Fiala d\'Acqua Santa', desc: 'Da lancio: colpisce sempre, 2d8 danni — DOPPI contro i non-morti. Benedetta da Pipino in persona.', combat: { dice: [2, 8], holy: true }, icon: '💧' },
+  dado_destino:       { name: 'Dado del Destino', desc: 'Il d20 "fortunato" di Gedeone. UNA volta sola, permette di ritirare una prova di abilità fallita. Gedeone giura che non è truccato. Gedeone giura tante cose.', usable: false, reroll: true },
   specchio_argento:   { name: 'Specchio d\'Argento', desc: 'I vampiri non si riflettono... e ODIANO che glielo si faccia notare.', usable: false },
   aglio:              { name: 'Treccia d\'Aglio', desc: 'Contro i vampiri, dicono. Di sicuro contro i compagni di viaggio.', usable: false },
   corda:              { name: 'Corda Robusta (15 m)', desc: 'Non si sa mai. Davvero, non si sa MAI.', usable: false },
@@ -225,7 +226,63 @@ Dove andate?`,
       { text: '👵 La vecchia Mirtilla — dicono sappia TUTTO di tutti', next: 'v_mirtilla', once: true },
       { text: '⛪ Il tempietto del Sole — una benedizione non guasta', next: 'v_tempio', once: true },
       { text: '🐐 Bocciolo irrompe in piazza: "BERENICE È SPARITA! DI NUOVO!"', next: 'q_capra1', once: true },
+      { text: '🐦‍⬛ Il corvo di Vesper è ancora appollaiato sulla fontana. Vi FISSA.', next: 'q_corvo1', once: true },
       { text: '🐴 Si parte! Verso nord, verso il Castello Crepuscolo!', next: 'v2' },
+    ],
+  },
+
+  /* ---------- il corvo Amleto ---------- */
+
+  q_corvo1: {
+    location: 'villaggio',
+    caption: 'La fontana di Brindolo — un corvo con opinioni',
+    text: `Il corvo che ha consegnato la lettera di Vesper non se n'è andato. Se ne sta appollaiato sulla fontana, e vi osserva con un'aria che non è da uccello: è da CRITICO. Uno di quelli delle prime file, che prende appunti.
+
+Quando vi avvicinate, inclina la testa e — giurereste — *alza un sopracciglio*. I corvi non hanno sopracciglia. Questo se l'è procurato apposta.
+
+> Bartolo: *(di passaggio, sottovoce)* "Quella bestiaccia è qui da stamattina. Ha rifiutato il pane di tre fornai diversi. TRE. Con motivazioni, mi è parso di capire."
+
+Il corvo gracchia qualcosa che suona sospettosamente come una recensione. C'è di sicuro qualcosa di strano in lui — e chissà cosa sa del suo padrone.`,
+    choices: [
+      { text: '🧠 Osservatelo bene: cosa NON torna in questo corvo?', tag: 'Prova di Intelligenza — CD 11', check: { stat: 'INT', dc: 11, success: 'q_corvo_ok', fail: 'q_corvo_ko' } },
+      { text: '🗣 Parlategli con rispetto, da pubblico a critico', tag: 'Prova di Carisma — CD 11', check: { stat: 'CAR', dc: 11, success: 'q_corvo_ok', fail: 'q_corvo_ko' } },
+    ],
+  },
+
+  q_corvo_ok: {
+    location: 'villaggio',
+    caption: 'Amleto, ex critico musicale',
+    text: `Ci arrivate: il portamento teatrale, il disprezzo per il pane scadente, il modo in cui gracchia in PENTAMETRI. Questo non è un corvo. È — o meglio, ERA — una persona.
+
+Al vostro sguardo di comprensione, il corvo si scioglie in un gracchiare fiume che, con un po' di fantasia e molto contesto, si lascia interpretare:
+
+> Corvo: "CRA! Cra-cra... CRA!" *(traduzione libera: "FINALMENTE! Duecento anni che nessuno lo capisce!")*
+
+Mettendo insieme i gesti, i graffi sul bordo della fontana (ci ha INCISO delle note!) e il suo indicare insistente verso nord, la storia emerge: si chiamava **Amleto Dellacroce**, critico musicale della corte. Fu LUI, duecento anni fa, a stroncare per iscritto la Ballata per un Re Sordo — "un'opera avanti di due secoli, purtroppo eseguita con due secoli di ritardo", scrisse. Il neonato vampiro lo maledisse trasformandolo in corvo... e poi, non sapendo che farsene, lo assunse come postino.
+
+> Corvo: *(gracchiando piano, quasi triste)* "Cra... cra." *(traduzione: "La ballata era BUONA. Era l'ESECUZIONE, il problema. Nessuno stronca l'anima: si stronca la serata.")*
+
+**(Avete scoperto il passato di Vesper — e che perfino il suo critico più feroce ne riconosceva il talento. Questo, lassù, può valere oro.)**`,
+    sets: { sa_passato_bardo: true, sa_corvo: true },
+    choices: [
+      { text: 'Amleto vi fa un inchino d\'ala. Tornate in piazza', next: 'v1' },
+    ],
+  },
+
+  q_corvo_ko: {
+    location: 'villaggio',
+    caption: 'Incomprensioni ornitologiche',
+    text: `Il vostro approccio parte con le migliori intenzioni e finisce come ogni conversazione con un critico: male.
+
+Qualcuno prova con "chi è un bel corvetto?", e il corvo si IRRIGIDISCE come se aveste applaudito tra un movimento e l'altro di una sinfonia. Qualcun altro gli offre una briciola di pane raccolto da terra, e il corvo la esamina, la respinge con la zampa, e gracchia tre note secche che non serve un traduttore per capire: *"da due su dieci"*.
+
+Poi si volta dall'altra parte, offesissimo, e finge di ammirare il panorama.
+
+> Bartolo: *(di passaggio)* "Ci avete provato. Con quello lì hanno fallito in tanti. Dicono che il fornaio del '48 ci sia rimasto secco, dopo la recensione."
+
+Il corvo vi concede un ultimo sguardo — deluso ma non sorpreso, il peggiore degli sguardi — e torna a fissare il nord.`,
+    choices: [
+      { text: 'Ritirata dignitosa. Tornate in piazza', next: 'v1' },
     ],
   },
 
@@ -248,6 +305,7 @@ Dallo scaffale "ARTICOLI PER LA GUERRA CHIMICA (legalissimi)": **bombe puzzolent
       { text: '💰 Comprate l\'aglio (2 oro). Non si sa mai.', requiresGold: 2, gold: -2, item: 'aglio', once: true },
       { text: '💣 Comprate una bomba puzzolente (12 oro)', requiresGold: 12, gold: -12, item: 'bomba_puzzolente' },
       { text: '💧 Comprate una fiala d\'acqua santa (15 oro)', requiresGold: 15, gold: -15, item: 'acqua_santa' },
+      { text: '🎲 Comprate il "Dado del Destino" (25 oro) — Gedeone strizza l\'occhio', requiresGold: 25, gold: -25, item: 'dado_destino', once: true },
       { text: '↩ Tornate in piazza', next: 'v1' },
     ],
   },
@@ -404,7 +462,30 @@ I tre goblin incrociano le braccia. Uno di loro sbadiglia vistosamente.`,
       { text: '💰 Pagate le 20 monete. La solidarietà è importante.', requiresGold: 20, gold: -20, next: 'v2_paga' },
       { text: '🗣 "Gruk, ragioniamo: è VESPER che vi sfrutta. Il nemico è lui!"', tag: 'Prova di Carisma — CD 12', check: { stat: 'CAR', dc: 12, success: 'v2_sindacato', fail: 'v2_fight_insulted' } },
       { text: '💪 Vi fate GRANDI e ringhiate. Tutti insieme.', tag: 'Prova di Forza — CD 13', check: { stat: 'FOR', dc: 13, success: 'v2_paura', fail: 'v2_fight_insulted' } },
+      { text: '🤝 "Controproposta: 35 monete e ci fate da GUIDE fino al bivio."', requiresGold: 35, gold: -35, next: 'v2_guide' },
     ],
+  },
+
+  v2_guide: {
+    location: 'strada',
+    caption: 'La Carovana del Sindacato',
+    text: `Gruk conta le monete due volte, le morde una a una ("procedura standard"), poi si volta verso l'assemblea:
+
+> Gruk: "Compagni! Proposta di lavoro REGOLARE: scorta turistica, tariffa piena, mancia non esclusa! Chi è a favore?"
+
+Tre zampe si alzano all'istante. Mai visto un sindacato deliberare così in fretta.
+
+Il viaggio fino al bivio diventa un'esperienza che nessuna guida stamperebbe mai: i goblin conoscono OGNI scorciatoia ("di qua il fango è solo fino al ginocchio!"), ogni pianta commestibile ("questa no. questa NO. questa sì ma poi si vede il futuro e non è mai bello"), e soprattutto ogni pettegolezzo del regno.
+
+> Gruk: "...e al castello, capito, stasera GRANDE festa mascherata. Ospiti da tutto il regno! E il ponte levatoio ovest, catena rotta da anni. Vesper tirchio. MAI fare il tirchio coi ponti levatoi."
+
+Vi lasciano al Bivio della Civetta con una stretta di zampa ciascuno e un volantino ("GOBLIN TOUR — si accettano prenotazioni"). Onestamente? Soldi ben spesi.
+
+**(Informazioni sul Gran Ballo ottenute, e siete arrivati riposati: +3 PV a tutti!)**`,
+    sets: { sa_ballo: true },
+    heal: 3,
+    rep: 1,
+    choices: [{ text: 'Al Bivio della Civetta', next: 'v3' }],
   },
 
   v2_fight: {
@@ -2150,11 +2231,68 @@ Il vampiro crolla come una marionetta tagliata. La corona, nelle vostre mani, UR
 
 > Vesper: *(da terra, con la voce di nuovo SUA, roca)* "...l'altare... SPACCATELA... sull'altare... è quello il suo... il suo PALCO..."
 
-Non ve lo fate ripetere. La Corona di Mezzanotte incontra l'ossidiana alla massima velocità consentita dalla fisica.
+La corona, però, non ha finito. Tra le vostre dita, la gemma rossa smette di urlare e comincia a *sussurrare* — a OGNUNO di voi, con una voce diversa, la voce giusta:
+
+*"Con me la locanda non fallirà mai... l'Accademia si INGINOCCHIERÀ... nessuna lettera resterà mai più senza risposta... la luce non si spegnerà MAI più, se sarai TU a portarla..."*
+
+È leggera. È bellissima. E vi starebbe benissimo.`,
+    choices: [
+      { text: '💥 SULL\'ALTARE. SUBITO. (spaccatela!)', next: 'f_corona_distrutta' },
+      { text: '👑 "...e se la indossassimo NOI? Solo per sistemare le cose. Solo per un po\'."', tag: 'Prova di Saggezza — CD 13 (resistere alla tentazione)', check: { stat: 'SAG', dc: 13, success: 'f_tentazione_ok', fail: 'f_tentazione_ko' } },
+    ],
+  },
+
+  f_tentazione_ok: {
+    location: 'vetta',
+    caption: 'La Tentazione — respinta',
+    text: `Per un lungo istante, la mano che regge la corona... si alza. Verso una fronte. La vostra.
+
+Poi chi di voi ha la testa più lucida guarda giù: Vesper Morn, in ginocchio tra i frammenti del suo rituale, duecento anni di eternità sprecata negli occhi. Ecco com'è, uno che ha detto di sì.
+
+> Voi: "...no. Nessuno dovrebbe portarti. Nemmeno noi. SOPRATTUTTO noi."
+
+La corona STRILLA di frustrazione — un suono che scheggia due merli della torre — perché sa di aver perso: la sua unica arma è il desiderio, e voi avete appena smesso di desiderarla.
+
+> Vesper: *(piano, da terra)* "Duecento anni... e a me non è riuscito in duecento anni quello che voi avete fatto in dieci secondi. Chapeau. Sinceramente."
+
+**(Avete resistito alla Corona di Mezzanotte. Pochissimi, nella storia di Lumelia, possono dirlo.)**`,
+    sets: { tentazione_resistita: true },
+    choices: [{ text: '💥 E ora: L\'ALTARE.', next: 'f_corona_distrutta' }],
+  },
+
+  f_tentazione_ko: {
+    location: 'vetta',
+    caption: 'Il Regno dei Quattro Secondi',
+    text: `La corona tocca la fronte di uno di voi.
+
+Per la cronaca di Lumelia, il regno che ne segue dura **quattro secondi esatti**, e viene ricordato così:
+
+*Secondo uno:* gli occhi del nuovo sovrano diventano viola e la sua voce esce in MAIUSCOLO: "**FINALMENTE. COME PRIMO DECRETO—**"
+
+*Secondo due:* il resto del gruppo, con la prontezza di chi si conosce da mille (va bene, tre) avventure, placca il monarca in carica con un rugby di gruppo degno degli annali.
+
+*Secondo tre:* la corona rotola sul pavimento della torre strillando "**NON È COSTITUZIONALE**" con la voce di prima.
+
+*Secondo quattro:* l'ex sovrano, seduto per terra, sbatte le palpebre e chiede: "...cos'è successo? Perché mi fa male TUTTO? E perché stavo per dire 'decreto'?"
+
+**(-3 PV al monarca deposto, per via del placcaggio. Ne è valsa la pena.)**
+
+> Vesper: *(da terra, quasi divertito)* "Quattro secondi. Il mio record negativo era un'ora. Siete AMICI migliori dei miei, devo dire."`,
+    sets: { tentazione_ceduta: true },
+    damage: 3,
+    choices: [{ text: '💥 BASTA. L\'ALTARE. ORA.', next: 'f_corona_distrutta' }],
+  },
+
+  f_corona_distrutta: {
+    location: 'vetta',
+    caption: 'La fine della Corona di Mezzanotte',
+    text: `La Corona di Mezzanotte incontra l'ossidiana alla massima velocità consentita dalla fisica.
 
 **CRACK.**
 
-L'urlo si sente fino a Brindolo. Poi: silenzio. E nel cielo, il filo rosso dell'eclissi... si spezza.
+L'urlo si sente fino a Brindolo. Poi: silenzio. La gemma rossa esplode in mille schegge che si dissolvono in fumo, portandosi via duecento anni di ninnananne avvelenate.
+
+E nel cielo, il filo rosso dell'eclissi... si spezza.
 
 *(continua)*`,
     sets: { finale: 'corona_distrutta', finale_corona_distrutta: true },
@@ -2316,11 +2454,11 @@ const CAMPAIGN_START = 'p1';
 
 /* Mappa del mondo: luoghi e coordinate (per il canvas della mappa) */
 const WORLD_MAP = [
-  { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio','q_capra1','q_capra1_tracce_ko','q_capra2','q_capra2_ko','q_capra_salvata'] },
-  { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura'] },
+  { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio','q_capra1','q_capra1_tracce_ko','q_capra2','q_capra2_ko','q_capra_salvata','q_corvo1','q_corvo_ok','q_corvo_ko'] },
+  { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura','v2_guide'] },
   { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
   { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
-  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
+  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];

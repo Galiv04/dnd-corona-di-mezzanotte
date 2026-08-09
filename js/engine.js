@@ -373,18 +373,42 @@ const Engine = (() => {
       b.innerHTML = `${h.name} <span class="choice-tag">${STAT_NAMES[check.stat]}: ${mod >= 0 ? '+' + mod : mod}${h.player ? ' · giocato da ' + h.player : ''}</span>`;
       b.onclick = () => {
         $('modal-generic').classList.add('hidden');
-        Dice.showRoll({
-          title: `${h.name} tenta:<br>${STAT_NAMES[check.stat]} — CD ${check.dc}`,
+        const rollIt = (isReroll) => Dice.showRoll({
+          title: `${h.name} ${isReroll ? 'RITIRA (Dado del Destino!)' : 'tenta'}:<br>${STAT_NAMES[check.stat]} — CD ${check.dc}`,
           mod, dc: check.dc,
           onDone: res => {
+            if (!res.success && !isReroll && G.inventory.includes('dado_destino')) {
+              return offerReroll(() => {
+                const i = G.inventory.indexOf('dado_destino');
+                if (i >= 0) G.inventory.splice(i, 1);
+                saveGame();
+                rollIt(true);
+              }, () => {
+                G.stats.checksFailed++;
+                gotoScene(check.fail);
+              });
+            }
             if (res.success) G.stats.checksPassed++; else G.stats.checksFailed++;
             gotoScene(res.success ? check.success : check.fail);
           },
         });
+        rollIt(false);
       };
       box.appendChild(b);
     });
     $('modal-generic').classList.remove('hidden');
+  }
+
+  // proposta di ritiro con il Dado del Destino
+  function offerReroll(onYes, onNo) {
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>🎲 Il Dado del Destino freme...</h2>
+      <p style="margin-bottom:12px">La prova è fallita, ma nello zaino il dado di Gedeone <i>vibra</i>. Un solo uso. Questo momento lo merita?</p>
+      <button class="choice-btn" id="btn-reroll-yes">🎲 <b>SÌ: ritirate il dado!</b> (consuma il Dado del Destino)</button>
+      <button class="choice-btn" id="btn-reroll-no">🙅 No, accettate il fato: sarà per un momento più importante</button>`;
+    $('modal-generic').classList.remove('hidden');
+    $('btn-reroll-yes').onclick = () => { $('modal-generic').classList.add('hidden'); onYes(); };
+    $('btn-reroll-no').onclick = () => { $('modal-generic').classList.add('hidden'); onNo(); };
   }
 
   /* ---------- barra del gruppo ---------- */

@@ -94,6 +94,17 @@ const Combat = (() => {
       if (!G.seenEnemies) G.seenEnemies = [];
       if (!G.seenEnemies.includes(e)) G.seenEnemies.push(e);
     }
+    // Gerbold alleato: ha "smistato" parte della sicurezza del padrone
+    if (battle.isBoss && G.flags.gerbold_alleato) {
+      const i = battle.enemies.findIndex(e => e.key === 'pipistrello' && !e.dead);
+      if (i >= 0) {
+        battle.enemies.splice(i, 1);
+        battle.enemies.forEach((e, idx) => { e.idx = idx; });
+        battle.turnQueue = battle.turnQueue.filter(c => !(c.type === 'enemy' && c.idx >= battle.enemies.length));
+        log(`🧹 <b>Gerbold ha colpito ancora:</b> metà dei pipistrelli di guardia ha ricevuto "ferie arretrate, con effetto immediato". Un nemico in meno!`, 'log-heal');
+      }
+    }
+
     // reazioni situazionali degli eroi
     if (battle.enemies.some(e => e.key === 'ragno') && G.party.some(h => h.id === 'zonk' && !h.down)) {
       log(`🕷 Zonk: "RAGNI. Perché sempre RAGNI. Zonk combattere... da molto, MOLTO lontano."`, 'log-turn');

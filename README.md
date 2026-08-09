@@ -10,7 +10,7 @@ Il vampiro Lord Vesper Morn ha spento il sole. Avete tempo fino a mezzanotte per
 
 - 🎭 **6 eroi pregenerati** con storia, abilità e personalità (scegliete da 1 a 6 personaggi)
 - 🎙 **Dungeon Master automatico**: il gioco narra, propone scelte, tira i dadi e arbitra i combattimenti
-- 🗺 **Storia ramificata**: 133 scene, 3 percorsi principali (bosco, miniere, fiume), una side-quest, 3 finali diversi e 23 imprese sbloccabili
+- 🗺 **Storia ramificata**: 140 scene, 3 percorsi principali (bosco, miniere, fiume), side-quest, 3 finali con varianti (inclusa la Tentazione della Corona) e 26 imprese sbloccabili
 - ⚔ **Combattimenti a turni** semplificati in stile D&D (d20, CA, vantaggio/svantaggio)
 - 📖 **Regole consultabili in un click** — pensato per chi non ha MAI giocato a D&D
 - 💾 **Salvataggio automatico** su 3 slot (gruppi diversi sullo stesso dispositivo) con riepilogo alla ripresa

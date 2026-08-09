@@ -66,4 +66,7 @@ const IMPRESE = [
   { flag: 'bertoldo_amico',         icon: '👻', title: 'Amici di un Fantasma Bagnato', desc: 'Avete ascoltato la storia di Bertoldo. Nessuno gliel\'aveva mai chiesta.' },
   { flag: 'lacrima_ceduta',         icon: '🌙', title: 'Un Ricordo per la Luce',       desc: 'Qualcuno di voi ha ceduto un ricordo felice al Pescatore. Per tutti.' },
   { flag: 'lacrima_usata',          icon: '🌅', title: 'La Scelta della Taverna',      desc: 'Con una lacrima e un ricordo avete salvato il mondo senza sguainare la spada.' },
+  { flag: 'sa_corvo',               icon: '🐦‍⬛', title: 'Amici del Critico',           desc: 'Avete capito Amleto Dellacroce, corvo ed ex critico musicale. Lui ha capito voi.' },
+  { flag: 'tentazione_resistita',   icon: '🛡️', title: 'Più Forti della Corona',       desc: 'La Corona di Mezzanotte vi ha sussurrato. Le avete risposto di no.' },
+  { flag: 'tentazione_ceduta',      icon: '👑', title: 'Il Regno dei Quattro Secondi', desc: 'Uno di voi ha regnato sull\'oscurità per quattro secondi esatti. Che regno, però.' },
 ];
