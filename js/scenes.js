@@ -700,6 +700,57 @@ const Scenes = (() => {
       torch(ctx, W * 0.30, H * 0.42); torch(ctx, W * 0.78, H * 0.42);
     },
 
+    torreInterno(ctx, W, H) {
+      const r = rng(211);
+      // muri di pietra della torre, con la PENDENZA che si sente
+      blocks(ctx, 0, 0, W, H, '#2a2438', 14, r, 0.14);
+      ctx.save();
+      ctx.transform(1, 0.045, 0, 1, 0, -W * 0.02); // tutto pende, piano
+      // finestre ad arco con le stelle
+      for (const fx of [0.14, 0.5, 0.86]) {
+        const wx = W * fx - 26, wy = H * 0.10;
+        ctx.fillStyle = '#0d0a1d'; ctx.fillRect(wx, wy + 14, 52, 78);
+        ctx.fillStyle = '#0d0a1d';
+        for (let k = 0; k < 7; k++) ctx.fillRect(wx + 4 + k * 6, wy + 14 - Math.round(Math.sin((k / 6) * Math.PI) * 14), 6, 16);
+        ctx.fillStyle = '#e8e0f0';
+        for (let st = 0; st < 8; st++) ctx.fillRect(wx + 6 + ((st * 17) % 44), wy + 20 + ((st * 29) % 62), 2, 2);
+        ctx.fillStyle = '#4a4258'; ctx.fillRect(wx - 4, wy + 90, 60, 6);
+      }
+      // la scala a chiocciola che sale verso destra
+      for (let g = 0; g < 9; g++) {
+        const gx = W * 0.06 + g * W * 0.1, gy = H * 0.82 - g * H * 0.055;
+        blocks(ctx, gx, gy, W * 0.12, 12, '#4a4258', 8, r, 0.12);
+        ctx.fillStyle = '#332e44'; ctx.fillRect(gx, gy + 12, W * 0.12, 5);
+      }
+      // il corrimano di corda, che non si fida
+      ctx.strokeStyle = '#6a5a3a'; ctx.lineWidth = 3; ctx.beginPath();
+      ctx.moveTo(W * 0.08, H * 0.72);
+      for (let g = 1; g < 9; g++) ctx.lineTo(W * 0.12 + g * W * 0.1, H * 0.72 - g * H * 0.055 + Math.sin(g) * 5);
+      ctx.stroke();
+      // pile di libri e pergamene sui gradini
+      for (const [bx, by, n] of [[0.18, 0.76, 3], [0.47, 0.60, 2], [0.76, 0.44, 4]]) {
+        for (let k = 0; k < n; k++) {
+          ctx.fillStyle = ['#7a2432', '#3d5a80', '#8a6a2d', '#3d8a80'][k % 4];
+          ctx.fillRect(W * bx + (r() * 6 - 3), H * by - k * 7, 34, 6);
+        }
+      }
+      // candele nelle nicchie
+      for (const fx of [0.3, 0.66]) {
+        glow(ctx, W * fx, H * 0.5, 22, 16, '232,182,76');
+        ctx.fillStyle = '#e8e4dc'; ctx.fillRect(W * fx - 2, H * 0.5 - 8, 4, 10);
+        ctx.fillStyle = '#f5c542'; ctx.fillRect(W * fx - 1, H * 0.5 - 12, 2, 4);
+      }
+      // un astrolabio d\'ottone appeso
+      ctx.strokeStyle = '#c8a032'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(W * 0.55, H * 0.28, 16, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(W * 0.55, H * 0.28, 10, 0.5, Math.PI * 2 + 0.5); ctx.stroke();
+      ctx.fillStyle = '#c8a032'; ctx.fillRect(W * 0.55 - 1, H * 0.28 - 22, 2, 8);
+      ctx.restore();
+      // polvere di gesso che cade dalla pendenza (fuori trasformazione: cade DRITTA)
+      ctx.fillStyle = 'rgba(220,215,230,.25)';
+      for (let k = 0; k < 8; k++) ctx.fillRect(30 + ((k * 127) % (W - 60)), (k * 61) % H, 2, 2);
+    },
+
     torrePendente(ctx, W, H) {
       const r = rng(157);
       skyGradient(ctx, W, H, '#0d0a1f', '#2e1f42', 10);

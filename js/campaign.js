@@ -667,7 +667,7 @@ Scosta il telo. Sul banco: un **corno da guerra nanico**, una **pergamena del fu
       { text: '☀ Comprate la Polvere di Sole Imbottigliata (60 oro)', requiresGold: 60, gold: -60, item: 'polvere_solare', once: true },
       { text: '🍾 Comprate l\'Elisir del Coraggio (30 oro)', requiresGold: 30, gold: -30, item: 'elisir_coraggio' },
       { text: '💎 Vendete la Gemma Nanica (+45 oro)', requires: { item: 'gemma_nanica' }, removeItem: 'gemma_nanica', gold: 45, once: true },
-      { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
+      { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', once: true, check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
       { text: '↩ Tornate al bivio', next: 'v3' },
     ],
   },
@@ -1136,7 +1136,7 @@ Arrivate a una biforcazione. A sinistra: un tunnel a piedi, lungo ma tranquillo.
 > Gastone: "A piedi son due ore. Col carrello, dieci minuti. Il carrello però non lo usiamo dal 1847 per via dell'incidente che chiamiamo 'l'Incidente'."`,
     choices: [
       { text: '🔦 Prima: accendete le torce e frugate nel vecchio deposito accanto ai binari', requires: { item: 'torce' }, once: true, next: 'm2_deposito' },
-      { text: '🛒 CARRELLO. Ovviamente carrello.', tag: 'Prova di Destrezza — CD 12 (il frenatore)', check: { stat: 'DES', dc: 12, success: 'm2_carrello_ok', fail: 'm2_carrello_ko' } },
+      { text: '🛒 CARRELLO. Ovviamente carrello.', once: true, tag: 'Prova di Destrezza — CD 12 (il frenatore)', check: { stat: 'DES', dc: 12, success: 'm2_carrello_ok', fail: 'm2_carrello_ko' } },
       { text: '🚶 A piedi. Due ore di cammino non hanno mai ucciso nessuno.', next: 'm2_piedi' },
     ],
   },
@@ -2548,7 +2548,7 @@ Il sentiero verso il Bivio è ancora lì, alle vostre spalle: potreste tornare i
   },
 
   t2: {
-    location: 'miniera',
+    location: 'torreInterno',
     caption: 'La Scala che Pende — primo rampante',
     text: `Dentro, la torre è ancora peggio di quanto sembrasse da fuori: il pavimento del pianterreno pende talmente a sinistra che un tavolo intero si è incagliato contro il muro come una nave arenata. Contro lo stesso muro, in un'unica composizione, tre candelabri, due tazze da tè (ancora piene) e un gatto — profondamente addormentato, del tutto imperturbabile.
 
@@ -2566,7 +2566,7 @@ Salite dietro di lei, con la schiena incollata al muro giusto e il cuore un po' 
   },
 
   t2_capitombolo: {
-    location: 'miniera',
+    location: 'torreInterno',
     caption: 'Il Capitombolo',
     text: `Il piede scivola sul gradino sbagliato — quello che sembrava il più solido, ovviamente — e il resto è un susseguirsi di *bonk*, *ahia* e almeno un *miao* fortemente indignato quando qualcuno atterra a un palmo dalla pila di gatto-e-tazze-da-tè.
 
@@ -2581,7 +2581,7 @@ Vi rialzate, doloranti nell'orgoglio più che nel corpo — **nessun danno, solo
   },
 
   t3: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'L\'Osservatorio — dove il soffitto ha smesso di fidarsi del pavimento',
     text: `La stanza è un tripudio ordinato di caos: telescopi di ogni misura puntati verso direzioni a caso (il pavimento pende ora dal lato opposto rispetto alle scale, e ogni strumento se n'è accorto a modo suo), astrolabi appesi a catenelle che oscillano piano, orologi solari che segnano ore diverse fra loro come se fossero in disaccordo politico.
 
@@ -2599,7 +2599,7 @@ Vi indica il grande telescopio centrale, l'unico ancora puntato verso il cielo v
   },
 
   t3_distratti: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'Una distrazione astronomica',
     text: `Vi concentrate sullo strumento sbagliato: un astrolabio dorato, elaboratissimo, coperto di incisioni misteriose e leve di ogni tipo. Lo azionate con solennità.
 
@@ -2616,7 +2616,7 @@ Ottavia vi raggiunge e, con due gesti rapidi e competenti, corregge lei stessa l
   },
 
   t4: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'La Biblioteca del Caos',
     text: `Se l'osservatorio era disordinato, questa stanza ha superato il disordine ed è arrivata dall'altra parte, in un territorio che meriterebbe un nome nuovo. L'inclinazione di questo piano è diversa ANCORA da quella di sotto, e i libri — corollario naturale — hanno passato anni a migrare lentamente verso l'angolo più basso, ammucchiandosi in una collina di carta che Ottavia chiama, senza ironia, "Monte Sapere".
 
@@ -2632,7 +2632,7 @@ Monte Sapere ondeggia leggermente, come se respirasse. Da qualche parte al suo i
   },
 
   t4_valanga: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'La Valanga di Monte Sapere',
     text: `Tirate il volume sbagliato. Per un istante non succede nulla, il che è quasi più spaventoso di quello che segue: Monte Sapere si arrende alla gravità tutto insieme, in un'unica frana cartacea che vi seppellisce fino alle ginocchia in trattati di astrologia, almanacchi ammuffiti e — inspiegabilmente — tre ricette di torta alle mele.
 
@@ -2649,7 +2649,7 @@ Recupera dalla frana esattamente il volume dalla copertina blu (o verde) che cer
   },
 
   t5: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'Perielio Monta la Guardia',
     text: `L'ultima rampa, stretta e a chiocciola, porta dritta alla terrazza. Peccato che a metà scala, seduto proprio al centro del gradino più angusto, ci sia un gatto grigio dal pelo dritto e lo sguardo fisso — e ogni tanto, per una frazione di secondo, leggermente TRASPARENTE, come se un pezzo di lui avesse deciso di stare altrove.
 
@@ -2667,7 +2667,7 @@ Perielio non si muove di un centimetro. Il suo sguardo passa da voi alla scala, 
   },
 
   t5_scontro: {
-    location: 'cripta',
+    location: 'torreInterno',
     caption: 'Perielio Non Condivide',
     text: `Le sardine finiscono per terra, rifiutate con sdegno, oppure non arrivate mai a essere offerte: in ogni caso, Perielio decide che è ora di dimostrare chi comanda su questa rampa di scale.
 
