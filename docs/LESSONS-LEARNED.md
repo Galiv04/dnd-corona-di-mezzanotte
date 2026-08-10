@@ -113,3 +113,9 @@ Normalizzare `drawSprite` sulla griglia 16 (`px = scale * 16 / h`) permette mapp
 
 **24. La personalizzazione vera sta nei dettagli d'inventario.**
 Tronello, birre al limone, taralli razionati, sfida pancakes-crêpes: i dettagli veri delle persone vere, trasformati in oggetti e scene, hanno reso il gioco "loro" più di qualunque ritratto. Chiedere al committente gli aneddoti minori: sono oro.
+
+**25. I testi non devono contare il gruppo.**
+"Sei intrusi in cucina", "sei eroi che salvarono il sole": veri solo col gruppo al completo. Con 2 giocatori stonano subito (segnalato da Gali in partita). Scrivere sempre neutro ("Intrusi in cucina", "gli eroi") o usare il conteggio dal motore.
+
+**26. `once` non basta per i salvataggi esistenti.**
+Una prova resa `once` DOPO che un giocatore l'ha già fatta ricompare comunque nel suo salvataggio (usedChoices non registrato all'epoca). Il fix retro-compatibile è il flag dell'esito: `requires: { notFlag: <flag_del_successo> }` in aggiunta al `once`.
