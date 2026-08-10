@@ -193,6 +193,22 @@ const BESTIARY = {
     attack: { name: 'Corrente Gelida', bonus: 4, dice: [1, 8], plus: 1 },
     flavor: 'Un\'ombra d\'acqua che sorveglia il canneto da più tempo di quanto chiunque ricordi.',
   },
+  gatto_astrale: {
+    name: 'Perielio, Gatto Astrale', sprite: 'wolf',
+    maxHp: 10, ac: 12, ai: 'random',
+    attack: { name: 'Zampata Costellata', bonus: 2, dice: [1, 4], plus: 0 },
+    flavor: 'Un gatto normale, se non fosse che ogni tanto diventa leggermente trasparente e attraversa i muri. Ottavia giura sia "solo un vezzo".',
+  },
+  garzone_scheletro: {
+    name: 'Garzone Scheletrico di Riserva',
+    sprite: 'skeleton',
+    maxHp: 12,
+    ac: 12,
+    ai: 'random',
+    undead: true,
+    attack: { name: 'Colpo di Mestolo Regolamentare', bonus: 3, dice: [1, 6], plus: 1 },
+    flavor: 'Non è geloso di Ossobuco. È SOLO geloso di Ossobuco. C\'è una bella differenza, a sentir lui.',
+  },
   gerbold: {
     name: 'Gerbold, Maggiordomo Scheletrico', sprite: 'gerbold',
     maxHp: 40, ac: 14, ai: 'strongest', undead: true, boss: true,

@@ -27,6 +27,30 @@ const ITEMS = {
   fischietto_di_bertoldo: { name: 'Fischietto di Bertoldo', desc: 'Un fischietto d\'ottone annerito. Richiama l\'attenzione di qualunque fantasma d\'acqua nel raggio di un fiume.', usable: false },
   provviste:          { name: 'Provviste di Bocciolo', desc: 'Pane di segale, formaggio stagionato e un sugo di famiglia dall\'ingrediente segreto. Rende i riposi più efficaci (+2 PV extra).', usable: false },
 
+  mappa_stellare: {
+    name: 'Mappa Stellare di Ottavia',
+    desc: 'Disegnata a mano, con annotazioni frenetiche a margine e almeno una macchia di tè. Rivela un dettaglio cruciale sul rituale di Vesper — il tipo di dettaglio che si nota solo se qualcuno ci ha passato sopra vent\'anni a guardare il cielo.',
+    usable: false,
+  },
+  lente_di_ottavia: {
+    name: 'Lente di Ottavia',
+    desc: 'Una lente da telescopio smontata a mano, tarata per concentrare anche l\'ultimo filo di luce rimasto nel cielo spento. Contro i non-morti, quel filo taglia che è un piacere.',
+    combat: { dice: [3, 6], holy: true },
+    icon: '🔭',
+  },
+  banchetto_ragout: {
+    name: 'Il Banchetto di Monsieur Ragoût',
+    desc: 'Sette portate impilate con cura ossessiva in un unico vassoio "da viaggio". Un piatto talmente buono da rimettere in piedi un morto, letteralmente.',
+    usable: true,
+    heal: 25,
+  },
+  coltello_da_cuoco: {
+    name: 'Coltello da Cuoco di Monsieur Ragoût',
+    desc: 'Lama affilata da duecento anni di solo, inutile, perfetto affilamento. Bilanciato per tagliare julienne o, all\'occorrenza, un vampiro.',
+    combat: { dice: [2, 8] },
+    icon: '🔪',
+  },
+
   /* --- oggetti tattici: si usano in combattimento e cambiano lo scontro --- */
   corno_nanico:       { name: 'Corno da Guerra Nanico', desc: 'Suonatelo e il gruppo INTERO carica: +2 a tutti i vostri tiri per colpire, per 2 giri. I nani lo usavano anche per svegliarsi.', combat: { rally: 2 }, icon: '📯' },
   polvere_solare:     { name: 'Polvere di Sole Imbottigliata', desc: 'Un raggio di sole vero, catturato prima dell\'eclissi: 3d8 danni a TUTTI i nemici, RADDOPPIATI sui non-morti.', combat: { dice: [3, 8], aoe: true, holy: true }, icon: '☀' },
@@ -615,6 +639,7 @@ Sopra di voi, l'anello rosso dell'eclissi si sta stringendo. Mezzanotte si avvic
       { text: '🌲 Verso il Bosco dei Sussurri, dalla strega Nonna Ortica', next: 'b1', sets: { via: 'bosco', via_bosco: true } },
       { text: '⛏ Verso le Miniere di Ferrovecchio, in cerca del passaggio', next: 'm1', sets: { via: 'miniere', via_miniere: true } },
       { text: '🛶 Verso il Molo del Vecchio Salice, sul Fiume Torbido', next: 'r1', sets: { via_fiume: true } },
+      { text: '🔭 Un sentiero laterale sale a una torre pendente: l\'astronoma che aveva PREVISTO l\'eclissi', tag: 'Deviazione: costa tempo, ma...', next: 't1', once: true },
       { text: '🛒 Prima però: quel carro con la lanterna, fermo sotto la quercia...', next: 'v3_mercante', once: true },
     ],
   },
@@ -1750,6 +1775,7 @@ Scompare tra gli applausi in una nuvola di pipistrelli coreografati. La **scala 
     choices: [
       { text: '💃 Un giro di valzer per non dare nell\'occhio, avvicinandosi al palco ballando', tag: 'Prova di Destrezza — CD 11', check: { stat: 'DES', dc: 11, success: 'c_ballo_danza', fail: 'c_ballo_pesta' } },
       { text: '🍽 Al buffet! Origliare i pettegolezzi degli ospiti (e assaggiare tutto)', next: 'c_ballo_buffet' },
+      { text: '🚪 Sgattaiolate dalla porta di servizio, verso le cucine', next: 'k1', once: true },
       { text: '🎯 Dritti alla scala della torre, ignorando la festa', next: 'c_gerbold' },
     ],
   },
@@ -1896,6 +1922,7 @@ Le sue orbite vuote vi fissano. C'è una domanda lì dentro, da qualche parte.`,
     choices: [
       { text: '🗣 "Gerbold... ti meriti una vacanza. Aiutaci, e ti PORTIAMO al mare."', tag: 'Prova di Carisma — CD 12', check: { stat: 'CAR', dc: 12, success: 'c_gerbold_alleato', fail: 'c_gerbold_fight' } },
       { text: '🧾 "Duecento anni senza ferie? È illegale. Ti serve un sindacato. Conosciamo dei goblin..."', requires: { flag: 'sa_ballo' }, next: 'c_gerbold_alleato' },
+      { text: '🍳 "Gerbold... da quella porta arriva odore di brodo. Da DUECENTO anni?"', next: 'k1', once: true },
       { text: '⚔ Niente chiacchiere: è pur sempre una guardia. All\'attacco!', next: 'c_gerbold_fight' },
     ],
   },
@@ -2490,6 +2517,557 @@ Vi rialzate, scrollate la polvere e vi rimettete in cammino: Lumelia conta su di
     choices: [{ text: '↩ Tornate sui vostri passi e riprovate', next: 'RETRY_COMBAT' }],
   },
 
+
+  /* ==================== DEVIAZIONE — LA TORRE DELL'ASTRONOMO ==================== */
+
+  t1: {
+    location: 'torrePendente',
+    caption: 'La Torre Pendente — oltre il sentiero laterale',
+    text: `La strada laterale che si stacca poco prima del Bivio della Civetta finisce davanti a una torre che sembra aver perso una scommessa con la gravità. **Pende** di un buon quindici gradi verso ovest, tenuta su — a giudicare dai rumori che vengono da dentro — più da cocciutaggine che da malta.
+
+Alla base, un cartello inchiodato storto (naturalmente) recita: *"OSSERVATORIO STELLARE DI OTTAVIA STELLAROSSA. SUONARE. NON RIDERE. Il ridere è già stato fatto da tutti quelli che dovevano crederle, e guardate un po' come è finita."*
+
+Sui davanzali, alcuni gatti siedono a un'angolazione palesemente impossibile rispetto al resto del mondo, del tutto a loro agio: hanno smesso di notare che il pavimento non è dritto da anni.
+
+Una finestra al terzo piano si spalanca di scatto.
+
+> Ottavia: *(sporgendosi pericolosamente)* "L'ECLISSI! Finalmente! Io — QUARANTOTTESIMA! È il numero fortunato, lo sapevo, lo SAPEVO che prima o poi—"
+
+Si interrompe, guarda giù, vi vede davvero.
+
+> Ottavia: "Oh. Persone vere. Bene, benissimo, salite SUBITO, ho grafici, ho TABELLE, ho un gatto che dorme sopra le prove più importanti ma è comunque un ottimo assistente di ricerca!"
+
+La finestra si richiude di scatto. Da dentro, il rumore di qualcosa — molte cose — che rotola da un lato all'altro della stanza.
+
+Il sentiero verso il Bivio è ancora lì, alle vostre spalle: potreste tornare indietro senza aver perso troppo tempo. Ma la porta della torre, socchiusa, promette più di una semplice chiacchierata.`,
+    sets: { via_astronomo: true },
+    choices: [
+      { text: '🚪 Bussate ed entrate', next: 't2' },
+      { text: '🗣 "Ci hanno detto che aveva ragione. Siamo qui per ascoltarla."', next: 't2', sets: { ottavia_creduta: true } },
+    ],
+  },
+
+  t2: {
+    location: 'miniera',
+    caption: 'La Scala che Pende — primo rampante',
+    text: `Dentro, la torre è ancora peggio di quanto sembrasse da fuori: il pavimento del pianterreno pende talmente a sinistra che un tavolo intero si è incagliato contro il muro come una nave arenata. Contro lo stesso muro, in un'unica composizione, tre candelabri, due tazze da tè (ancora piene) e un gatto — profondamente addormentato, del tutto imperturbabile.
+
+> Ottavia: *(già a metà scala, senza voltarsi)* "Non toccate la pila a sinistra, ormai è un ecosistema, ci convivo. La scala invece pende dall'ALTRA parte — quindi tenetevi a destra, o almeno provateci. Io cammino storta anche quando sono fuori dalla torre, ormai è un problema strutturale mio, non solo suo."
+
+La scala a chiocciola sale stretta e, come promesso, pende in senso opposto al pianterreno: ogni gradino sembra suggerire con insistenza di scivolare verso il vano centrale, dove — lo notate solo ora — c'è un buco profondo che rende l'idea poco allettante.
+
+> Ottavia: "Il vano l'ho lasciato apposta, per il tiro dell'astrolabio. O forse ci è caduto qualcosa di grosso vent'anni fa e non ho più avuto il coraggio di guardare giù. I dettagli sfumano, col tempo."
+
+Salite dietro di lei, con la schiena incollata al muro giusto e il cuore un po' meno.`,
+    choices: [
+      { text: '👣 Seguite ESATTAMENTE i passi di Ottavia, uno a uno', next: 't3' },
+      { text: '🧗 Andate a modo vostro, aggrappandovi al muro', tag: 'Prova di Destrezza — CD 12', check: { stat: 'DES', dc: 12, success: 't3', fail: 't2_capitombolo' } },
+    ],
+  },
+
+  t2_capitombolo: {
+    location: 'miniera',
+    caption: 'Il Capitombolo',
+    text: `Il piede scivola sul gradino sbagliato — quello che sembrava il più solido, ovviamente — e il resto è un susseguirsi di *bonk*, *ahia* e almeno un *miao* fortemente indignato quando qualcuno atterra a un palmo dalla pila di gatto-e-tazze-da-tè.
+
+Rotolate tutti insieme fino al pianerottolo successivo in una composizione umana che chiamereste "artistica" solo per salvare l'orgoglio.
+
+> Ottavia: *(affacciandosi dall'alto, sinceramente colpita)* "Oh! Bella caduta! Anch'io sono rotolata così, la prima settimana. Ci si abitua. O meglio: mi sono abituata IO a cadere. La torre no, resta indignata ogni volta, come se fosse una novità assoluta."
+
+Il gatto travolto non sembra essersene accorto più di tanto: si sposta di dieci centimetri e si riaddormenta, come se fosse una procedura ormai collaudata da anni di rotolamenti altrui.
+
+Vi rialzate, doloranti nell'orgoglio più che nel corpo — **nessun danno, solo dignità** — e riprendete la salita un gradino alla volta, con la grazia di chi ha appena imparato, a proprie spese, dove NON mettere i piedi.`,
+    choices: [{ text: 'Riprendete la salita, più cauti', next: 't3' }],
+  },
+
+  t3: {
+    location: 'cripta',
+    caption: 'L\'Osservatorio — dove il soffitto ha smesso di fidarsi del pavimento',
+    text: `La stanza è un tripudio ordinato di caos: telescopi di ogni misura puntati verso direzioni a caso (il pavimento pende ora dal lato opposto rispetto alle scale, e ogni strumento se n'è accorto a modo suo), astrolabi appesi a catenelle che oscillano piano, orologi solari che segnano ore diverse fra loro come se fossero in disaccordo politico.
+
+Sulle pareti, decine di mappe stellari. Su tre di esse, comodamente addormentati, altrettanti gatti.
+
+> Ottavia: "Quelli sono i miei assistenti di ricerca più fidati. Dormono esattamente sui dati più importanti, è una loro specialità. Non chiedetemi come facciano a saperlo."
+
+Vi indica il grande telescopio centrale, l'unico ancora puntato verso il cielo vero:
+
+> Ottavia: "Mi serve una lettura ESATTA di dove si trova l'Anello Rosso in questo momento, non fra un'ora. Il problema è che con l'inclinazione ho tarato male metà strumenti, e l'altra metà l'ha tarata mio cugino, che è anche peggio. Serve un occhio attento — o saggio, o *fortunato*, prendetevi pure il complimento che preferite."`,
+    choices: [
+      { text: '🔭 Osservate con calma quale strumento è ancora affidabile', tag: 'Prova di Saggezza — CD 12', check: { stat: 'SAG', dc: 12, success: 't4', fail: 't3_distratti' } },
+      { text: '🗣 Chiedete direttamente a Ottavia quale usare', next: 't4' },
+    ],
+  },
+
+  t3_distratti: {
+    location: 'cripta',
+    caption: 'Una distrazione astronomica',
+    text: `Vi concentrate sullo strumento sbagliato: un astrolabio dorato, elaboratissimo, coperto di incisioni misteriose e leve di ogni tipo. Lo azionate con solennità.
+
+Sputa fuori un getto di vapore e una tazza di tè leggermente tiepido.
+
+> Ottavia: *(senza alzare lo sguardo dai suoi appunti)* "Ah, quello. È il mio prototipo di scaldavivande astrale. Funziona benissimo, in effetti, ma con le stelle non c'entra assolutamente nulla. Ci ho lavorato tre anni. Non ne vado fiera, ma nemmeno mi vergogno, che è un ottimo punto di equilibrio nella vita."
+
+Uno dei gatti, disturbato dal vapore, si sposta pigramente di una mappa e vi guarda con un'espressione che definireste, con una certa sicurezza, di educato disprezzo.
+
+Ottavia vi raggiunge e, con due gesti rapidi e competenti, corregge lei stessa la messa a fuoco del telescopio giusto.
+
+> Ottavia: "Ecco. Visto? Non è difficile, se non ci si fa distrarre dal tè gratis. Su, andiamo, la biblioteca ci aspetta — ed è anche peggio di qui, ve lo dico subito."`,
+    choices: [{ text: 'Verso la biblioteca', next: 't4' }],
+  },
+
+  t4: {
+    location: 'cripta',
+    caption: 'La Biblioteca del Caos',
+    text: `Se l'osservatorio era disordinato, questa stanza ha superato il disordine ed è arrivata dall'altra parte, in un territorio che meriterebbe un nome nuovo. L'inclinazione di questo piano è diversa ANCORA da quella di sotto, e i libri — corollario naturale — hanno passato anni a migrare lentamente verso l'angolo più basso, ammucchiandosi in una collina di carta che Ottavia chiama, senza ironia, "Monte Sapere".
+
+> Ottavia: "Da qualche parte lì dentro c'è un trattato sui rituali di allineamento astrale che mi servirebbe MOLTISSIMO in questo momento. L'ho letto una volta, vent'anni fa. Ricordo la copertina blu. O forse verde. O forse l'ho prestato a qualcuno che non l'ha mai restituito, il che spiegherebbe tutto."
+
+Monte Sapere ondeggia leggermente, come se respirasse. Da qualche parte al suo interno, uno scricchiolio sospetto.
+
+> Ottavia: "Muovetevi con delicatezza. L'ultima volta che qualcuno ha tirato un libro a caso da quella pila, ci è voluta una settimana per riordinare tutto e un gatto è rimasto disperso per tre giorni. Stava benissimo, semplicemente non voleva più uscire."`,
+    choices: [
+      { text: '📚 Cercate con pazienza il trattato, uno strato alla volta', tag: 'Prova di Intelligenza — CD 12', check: { stat: 'INT', dc: 12, success: 't5', fail: 't4_valanga' } },
+      { text: '🗣 Chiedete a Ottavia di indicarvi il punto esatto', next: 't5' },
+    ],
+  },
+
+  t4_valanga: {
+    location: 'cripta',
+    caption: 'La Valanga di Monte Sapere',
+    text: `Tirate il volume sbagliato. Per un istante non succede nulla, il che è quasi più spaventoso di quello che segue: Monte Sapere si arrende alla gravità tutto insieme, in un'unica frana cartacea che vi seppellisce fino alle ginocchia in trattati di astrologia, almanacchi ammuffiti e — inspiegabilmente — tre ricette di torta alle mele.
+
+Da qualche parte nella pila, un *miao* soffocato ma non allarmato: il gatto disperso di cui parlava Ottavia, a quanto pare, vive lì stabilmente e non gradisce la compagnia improvvisa.
+
+> Ottavia: *(scavando con voi, per nulla scomposta)* "Ah, eccolo! È viva, guardate, sta benissimo. Anche il gatto. Anche voi, probabilmente, appena vi togliete di dosso quel dizionario."
+
+Recupera dalla frana esattamente il volume dalla copertina blu (o verde) che cercava, sfoggiandolo come un trofeo.
+
+> Ottavia: "Visto? Il metodo Monte Sapere funziona sempre, prima o poi. Bisogna solo avere pazienza e un margine di tolleranza per il caos strutturale. Su, verso il piano successivo — l'ultima rampa, promesso."
+
+**(Nessun danno: solo polvere, orgoglio ammaccato e una vaga fragranza di torta alle mele.)**`,
+    choices: [{ text: 'Verso l\'ultima rampa', next: 't5' }],
+  },
+
+  t5: {
+    location: 'cripta',
+    caption: 'Perielio Monta la Guardia',
+    text: `L'ultima rampa, stretta e a chiocciola, porta dritta alla terrazza. Peccato che a metà scala, seduto proprio al centro del gradino più angusto, ci sia un gatto grigio dal pelo dritto e lo sguardo fisso — e ogni tanto, per una frazione di secondo, leggermente TRASPARENTE, come se un pezzo di lui avesse deciso di stare altrove.
+
+Ringhia. Piano, ma con convinzione.
+
+> Ottavia: "Oh, quello è Perielio. Fa la guardia alla terrazza da quando il telescopio grande ha iniziato a perdere un filo di luce delle stelle — dice che è 'roba sua'. Tecnicamente ha ragione, ma è comunque un gatto, non un notaio."
+
+Perielio non si muove di un centimetro. Il suo sguardo passa da voi alla scala, e ritorno, con l'aria di chi ha già deciso come andrà a finire.
+
+> Ottavia: "Ho delle sardine essiccate in tasca, se vi interessa corrompere un felino semi-astrale. Oppure potete provare a convincerlo con la forza bruta, ma vi avviso: l'ultima volta che ci ha provato un cavaliere errante, Perielio ha vinto ai punti."`,
+    choices: [
+      { text: '🐟 Distraetelo con le sardine essiccate di Ottavia', tag: 'Prova di Carisma — CD 11', check: { stat: 'CAR', dc: 11, success: 't6', fail: 't5_scontro' } },
+      { text: '⚔️ Fatevi largo con decisione', next: 't5_scontro' },
+    ],
+  },
+
+  t5_scontro: {
+    location: 'cripta',
+    caption: 'Perielio Non Condivide',
+    text: `Le sardine finiscono per terra, rifiutate con sdegno, oppure non arrivate mai a essere offerte: in ogni caso, Perielio decide che è ora di dimostrare chi comanda su questa rampa di scale.
+
+Si materializza per un istante intero — pelo, coda e tutto — proprio davanti a voi, gli occhi che brillano di un blu innaturale, e carica con un miagolio che sembra più un avviso legale che un ruggito.
+
+> Ottavia: *(da dietro, per nulla preoccupata)* "Attenzione alle unghie! E anche se attraversa i muri, in pratica! Ma è comunque solo un gatto, tranquilli, morde molto meno di un editore scontento!"
+
+Perielio sparisce e riappare tre volte in altrettanti angoli della rampa, come se testasse quale sia il vostro lato debole, mentre dietro di lui Ottavia continua a sistemare pergamene come se una zuffa fra un gatto semi-astrale e un gruppo di avventurieri armati fosse la cosa più ordinaria della settimana — il che, in questa torre, probabilmente è vero.`,
+    combat: {
+      enemies: ['gatto_astrale'],
+      victory: 't6',
+      defeat: 'sconfitta_generica',
+    },
+  },
+
+  t6: {
+    location: 'vetta',
+    caption: 'La Terrazza del Telescopio',
+    text: `In cima, finalmente, l'aria aperta — e sopra le vostre teste, il cielo malato: il disco nero del sole spento, cinto da quell'**anello rosso** che si stringe, minuto dopo minuto, verso la mezzanotte.
+
+Il telescopio principale, enorme, punta dritto in alto, montato su una base che qualcuno ha avuto la premura di livellare a mano — l'unico angolo retto di tutta la torre. Tutt'intorno, appesi a fili e chiodi storti, decine di disegni dello stesso cielo fatti notte dopo notte, anno dopo anno, ciascuno con una data e una nota a margine sempre più stanca.
+
+> Ottavia: *(all'oculare, febbrile)* "Bene. BENE. Ora mi serve la vostra opinione, perché io la mia l'ho già data quarantasette volte a vuoto e stavolta voglio un secondo parere prima di aprire bocca. Guardate qui: quale, delle tre, è la lettura che segna il momento ESATTO in cui il rituale di Vesper raggiungerà il culmine?"
+
+Vi lascia posto all'oculare, le mani che le tremano appena — non di freddo. Tre possibili letture, scritte a margine di suo pugno, tremule per l'entusiasmo, vi aspettano sul foglio appuntato al treppiede:`,
+    choices: [
+      { text: '🌕 "Quando la Luna Vecchia tocca la cima del campanile"', next: 't6_sbagliato' },
+      { text: '🔴 "Quando l\'Anello Rosso si chiude del tutto attorno al disco — il vero mezzogiorno di mezzanotte"', next: 't7' },
+      { text: '🐓 "Quando il gallo canta due volte"', next: 't6_sbagliato' },
+    ],
+  },
+
+  t6_sbagliato: {
+    location: 'vetta',
+    caption: 'Una Lettura Poetica ma Sbagliata',
+    text: `Ottavia aggiusta l'oculare secondo la vostra indicazione, trattiene il fiato per un istante di speranza... e poi lo lascia andare in uno sbuffo.
+
+> Ottavia: "No. NO, aspettate, quello è solo... oh. Oh, capisco l'equivoco, è un vecchio detto contadino, carino, ma astronomicamente è una sciocchezza totale. Il campanile non c'entra, e il gallo — be', il gallo canta quando gli pare, gliel'ho spiegato personalmente più volte, senza risultato."
+
+Attraverso il telescopio, per un attimo, l'immagine mostra tutt'altro: Gastone Piccone, il nano custode delle miniere, che sta bisticciando ad alta voce con uno spioncino vuoto, convinto che qualcuno lo stia spiando *proprio in quel momento*. Ottavia scatta indietro dall'oculare, imbarazzata.
+
+> Ottavia: "Ecco, questo è il rischio di un telescopio troppo potente puntato nella direzione sbagliata. Riprovate. Con calma, stavolta — non c'è fretta. O meglio, c'è moltissima fretta, ma gridarvelo addosso non aiuta nessuno dei due."
+
+Nessun danno, nessun rimprovero vero: solo un indice puntato, gentile, verso l'oculare.`,
+    choices: [{ text: 'Riguardate con attenzione', next: 't7' }],
+  },
+
+  t7: {
+    location: 'vetta',
+    caption: 'Quarantotto',
+    text: `> Ottavia: *(con voce che trema, stavolta non di entusiasmo)* "Esatto. È quello. L'anello che si chiude — il vero segnale. Ve lo dico io: è la prima volta in vent'anni che qualcuno guarda dove guardo io E vede quello che vedo io."
+
+Si allontana dal telescopio, si siede su un baule pieno di rotoli, e per un momento la donna febbrile e chiassosa di poco fa sembra semplicemente stanca.
+
+> Ottavia: "Sapete quante volte ho predetto la fine del mondo? Quarantasette. Il Grande Prosciugamento del 1401 — non prosciugò niente. L'Invasione dei Ragni Parlanti — non hanno mai invaso, si sono scoperti timidi. Ogni volta mi hanno riso dietro, o peggio, davanti. E avevano ragione loro, ogni singola volta."
+
+Indica il cielo, l'anello rosso, quasi con tenerezza.
+
+> Ottavia: "Stavolta ho ragione IO. E scopro che avere ragione, quando la posta in gioco è la fine di tutto, non è affatto la soddisfazione che immaginavo da giovane. Volevo solo che qualcuno, una volta, mi credesse PRIMA della fine del mondo, non durante."
+
+Si scuote, si alza, ritrova in un lampo tutta la sua energia stralunata.
+
+> Ottavia: "Ma basta malinconia, si lavora! Prendete: la mia mappa stellare — lì dentro c'è il dettaglio sul rituale che nessun altro ha mai notato — e questa." Vi porge una lente smontata da un vecchio telescopio, ancora calda. "Concentra la poca luce rimasta in un filo tagliente. Contro i non-morti, fa un male cane. Usatela bene, e ditelo a tutti che la quarantottesima previsione di Ottavia Stellarossa era quella giusta."`,
+    sets: { sa_rituale: true },
+    item: 'mappa_stellare',
+    item2: 'lente_di_ottavia',
+    choices: [{ text: 'Ringraziatela e scendete', next: 't8' }],
+  },
+
+  t8: {
+    location: 'torrePendente',
+    caption: 'Il Congedo — di nuovo dritti, più o meno',
+    text: `Scendete la torre pendente un piano alla volta, e ogni piano vi restituisce l'equilibrio con un'angolazione diversa, tanto che uscendo all'aria aperta qualcuno del gruppo continua per un buon minuto a camminare leggermente storto, convinto che sia ancora il pavimento a pendere e non le proprie gambe.
+
+Ottavia vi saluta dalla finestra del terzo piano, già intenta a segnare qualcosa su una lavagna gremita di crocette — quarantotto, ora, l'ultima cerchiata due volte.
+
+> Ottavia: "Andate, andate! E se salvate il mondo, ditelo in giro che l'astronoma pazza della torre storta aveva ragione! Non per la gloria, badate — per il PRINCIPIO!"
+
+Un gatto le si struscia contro la caviglia. Lei lo solleva con una mano sola, senza smettere di scrivere con l'altra.
+
+> Ottavia: "Sì, sì, anche tu sei stato un ottimo assistente di ricerca. Il migliore. Come tutti gli altri, del resto."
+
+Il sentiero laterale vi riporta, in pochi minuti, sotto la vecchia quercia del **Bivio della Civetta**, dove la civetta vi osserva con la stessa aria di sempre — forse, se è possibile per un uccello, con un filo di approvazione in più.
+
+L'anello rosso, sopra di voi, continua a stringersi. Ma ora avete una mappa, una lente, e una certezza in più su cosa affrontate stanotte. Resta solo da scegliere, davvero, quale strada prendere.`,
+    choices: [{ text: 'Tornate al Bivio della Civetta', next: 'v3' }],
+  },
+
+
+  /* ---------- k1: ingresso ---------- */
+
+  k1: {
+    location: 'cucine',
+    caption: 'Le Cucine di Crepuscolo — sotto il salone',
+    text: `Una porta di servizio, un corridoio in discesa, e l'aria cambia: dal profumo di cera e vino della festa a qualcosa di molto più concreto. **Brodo. Arrosto. Burro rosolato.**
+
+Le cucine del castello sono enormi, illuminate da braci che covano da chissà quanto, e in perfetto, assurdo ordine. Su un bancone lunghissimo: anatre laccate, torri di soufflé che non collassano, una zuppa che fuma con pazienza infinita. Non manca NULLA.
+
+Tranne i commensali.
+
+Piatti su piatti, disposti con precisione da parata militare, e non un morso da nessuna parte. Vassoi d'argento allineati come soldati, ognuno etichettato con un cartellino elegante: *"Portata IV — servire immediatamente"*. Il più vecchio che notate dice *"1841"*.
+
+Da una porta socchiusa in fondo, luce di candele verdi e una voce che urla in un francese furibondo contro — a giudicare dal tintinnio — una salsa che ha osato non addensarsi in tempo.
+
+> Voce: "MAIS ENFIN! Una BÉCHAMEL non si comporta così! Duecento anni e ancora non hai IMPARATO?!"
+
+Qualcosa — o qualcuno — piange. Una salsa che piange è un'informazione che nessuno di voi sapeva di poter avere.
+
+Vi guardate. Il **Gran Ballo** pulsa lontano, sopra le vostre teste; qui sotto, in questo silenzio pieno di odori meravigliosi e nessun ospite, sembra di essere entrati in un segreto che il castello custodisce da molto più tempo della festa.`,
+    sets: { via_cucine: true },
+    choices: [{ text: 'Avvicinatevi alla porta e alla voce furente', next: 'k2' }],
+  },
+
+  /* ---------- k2: Monsieur Ragoût ---------- */
+
+  k2: {
+    location: 'cucine',
+    caption: 'Monsieur Ragoût, Primo Cuoco di Crepuscolo',
+    text: `Dietro la porta: un fantasma in tenuta da chef, toque compresa, che fluttua a mezzo palmo dal pavimento agitando un cucchiaio di legno come uno scettro di giudizio. La salsa, in una casseruola di rame, gorgoglia sommessa e — giurereste — mortificata.
+
+Vi vede. Si compone. Si presenta con un inchino che sarebbe elegantissimo se non attraversasse parzialmente il tavolo.
+
+> "**Monsieur Ragoût**, Primo Cuoco di questo castello da duecentotré anni. Sei intrusi in cucina la notte del gran rituale. *Magnifique.* Almeno QUALCUNO ha trovato la strada giusta."
+
+Vi squadra, poi guarda, con un'espressione che vi si incolla addosso, il bancone stracolmo di capolavori intatti.
+
+> Ragoût: "Vedete questo? Sette portate. Perfette. La Duchessa Anversa in salsa di melagrana, il soufflé al Calvados che non crolla MAI, la zuppa dell'applauso... e sapete chi le ha assaggiate, in due secoli? **NESSUNO.** I vampiri bevono. Solo quello. BEVONO. Io cucino capolavori per gente che ha smesso di avere un palato nel millesettecento e rotti!"
+
+Il cucchiaio di legno trema nella sua mano trasparente.
+
+> Ragoût: "Ma... MA CHI ASSAGGIA?! Ditemelo voi, chi assaggia?!"
+
+Si riprende, dignitosissimo, e si passa la manica sugli occhi che non ha più.
+
+> Ragoût: "Perdonate. È stata una brutta cinquantina d'anni. Cosa posso fare per voi, prima che il vostro amico pipistrellesco di sopra faccia a pezzi il mio soffitto con quella corona maledetta?"`,
+    choices: [
+      { text: '📖 "Cosa sono TUTTI questi appunti sul ricettario?"', next: 'k3' },
+      { text: '🥫 "Possiamo dare un\'occhiata alla dispensa?"', next: 'k4' },
+      { text: '🍳 Torvald si fa avanti: "Da cuoco a cuoco... posso vedere la vostra cucina?"', requires: { flag: 'torvald_presente' }, next: 'k_torvald' },
+      { text: '⏩ "Non abbiamo tempo, Monsieur. Ci serve il vostro aiuto contro Vesper."', next: 'k5' },
+    ],
+  },
+
+  /* ---------- k3: il ricettario disperato (gag) ---------- */
+
+  k3: {
+    location: 'cucine',
+    caption: 'Il Grande Ricettario di Crepuscolo',
+    text: `Ragoût apre con orgoglio un volume enorme, rilegato in pelle scura, spesso come un tronco. È il suo ricettario. O meglio: era un ricettario, prima di diventare qualcos'altro.
+
+La prima pagina, del 1823, è impeccabile: calligrafia elegante, *"Consommé alla Duchessa, per otto commensali"*. La nota a margine dice: *"Presentare caldo, guarnire con erba cipollina."*
+
+Girate pagina. 1841: la stessa ricetta, riscritta. Nota a margine, più fitta: *"Per SEI commensali (due non sono più tornati. Non chiedete)."*
+
+1877: *"Per QUATTRO commensali, guarnire comunque con erba cipollina, non si sa mai."*
+
+1910: *"Per ZERO commensali. Guarnire lo stesso. La forma è tutto ciò che resta."*
+
+1956: la ricetta è la stessa, perfetta, ma la nota è ridotta a un singolo, straziante *"..."*
+
+2003: qualcuno — Ragoût, ovviamente — ha disegnato una faccina sorridente accanto al piatto vuoto. Poi l'ha cancellata. Poi ridisegnata. Tre volte.
+
+> Ragoût: *(con voce stranamente allegra, il tipo di allegria che fa più male di un pianto)* "Vedete? La tecnica non è MAI calata. È solo che... a un certo punto ho smesso di scrivere 'per quanti commensali' e ho iniziato a scrivere 'in memoria di quanti commensali'."
+
+Richiude il libro con delicatezza, come si richiude qualcosa di fragile.
+
+> Ragoût: "Comunque! Non siete qui per la mia autobiografia gastronomica. Che altro serve?"`,
+    choices: [{ text: 'Tornate da Ragoût', next: 'k5' }],
+  },
+
+  /* ---------- k4: la dispensa (gag + Ossobuco) ---------- */
+
+  k4: {
+    location: 'cripta',
+    caption: 'La Dispensa Eterna',
+    text: `Una porta di quercia annerita, e dietro: file su file di scaffali che scendono nel buio, pieni di formaggi, salumi, vasetti di conserva e barattoli etichettati con grafie di secoli diversi. L'aria non sa di muffa. Sa di... niente. Come se il tempo, qui dentro, avesse semplicemente smesso di passare.
+
+> Ragoût: "Incantesimo di conservazione del castello. Utilissimo per i vini. Per il resto, è una tortura raffinata: niente marcisce MAI. Vedete quella, in fondo?"
+
+Su un piedistallo di marmo, sotto una campana di vetro, troneggia una torta a tre piani, glassa a fiori perfetta, candeline mai accese. Un cartellino: *"Torta di Compleanno — Sua Oscurità, 1826."*
+
+> Ragoût: "Centonovantanove anni fresca come stamattina. Non l'ha mai tagliata. Disse che 'i compleanni sono per chi invecchia'."
+
+Un rumore di masticazione attira la vostra attenzione: in un angolo, uno scheletro con un tovagliolo al collo sta assaggiando, con un cucchiaino, da una dozzina di scodelle diverse.
+
+> Scheletro: "Ossobuco, ai vostri ordini. Assaggiatore Ufficiale del Castello dal 1824." *(assaggia)* "Mmh. Sale." *(assaggia di nuovo, identico gesto)* "Mmh. Ancora sale."
+
+> Voi: "...hai anche solo la lingua, per assaggiare?"
+
+> Ossobuco: *(offeso)* "Non serve la lingua. Serve il **DOVERE**. Assaggio per dovere. SOLO per dovere." *(assaggia una terza volta, identica alle prime due)* "Buonissimo. Come sempre. Come SEMPRE."
+
+Ragoût annuisce, commosso a modo suo: è l'unico, in duecento anni, che ha continuato a fingere di avere un palato solo per fargli compagnia.`,
+    choices: [{ text: 'Tornate su, da Ragoût', next: 'k5' }],
+  },
+
+  /* ---------- k_torvald: scena speciale (requires torvald_presente) ---------- */
+
+  k_torvald: {
+    location: 'cucine',
+    caption: 'Da cuoco a cuoco',
+    text: `Torvald si avvicina al bancone con l'aria di chi entra in un tempio. Passa un dito sul bordo di una casseruola di rame, la annusa, e mormora qualcosa come un professionista che riconosce un collega.
+
+> Torvald: "Riduzione al vino, deglassata due volte. E quella béchamel... l'hai montata a freddo, vero? Nessuno la fa più così."
+
+Ragoût si volta di scatto, il cucchiaio di legno che gli trema nella mano trasparente per un motivo completamente diverso, stavolta.
+
+> Ragoût: "...*deux fois.* Sì. DUE volte. In duecent'anni nessuno — NESSUNO — se n'è mai accorto guardando solo la casseruola!"
+
+Per la prima volta da quando siete arrivati, il fantasma sembra dimenticarsi di essere furioso.
+
+> Ragoût: "Tu. Come ti chiami. Racconta. Dimmi che hai un ristorante, un locale, ANCHE una bancarella. Dimmi che qualcuno, da qualche parte, ti applaude quando cucini."
+
+> Torvald: "Ho una locanda in testa. Non ancora sui piedi. Ma il sogno è quello: un posto dove nessuno si lamenta della cottura."
+
+> Ragoût: *(quasi sottovoce)* "Che lusso. Lamentarsi. Io darei duecento anni di soufflé perfetti per un solo, misero reclamo scritto a mano."
+
+I due parlano di riduzioni e temperature per un tempo che sembra sia troppo poco che troppo lungo. Alla fine Ragoût si scuote, ricomponendosi nella sua dignità professionale.
+
+> Ragoût: "Bene. BENE. Abbastanza sentimentalismo per un secolo. Vediamo se il resto della vostra compagnia è utile quanto il vostro cuoco."`,
+    choices: [{ text: 'Tornate agli altri, da Ragoût', next: 'k5' }],
+  },
+
+  /* ---------- k5: la prova — ricostruire la ricetta ---------- */
+
+  k5: {
+    location: 'cucine',
+    caption: 'La Zuppa dell\'Applauso',
+    text: `Ragoût estrae, da un cassetto chiuso a chiave con tre lucchetti (uno dei quali, ammette, "puramente decorativo, li adoro"), una singola pagina ingiallita e macchiata d'acqua. In cima, a lettere svolazzanti: *"Zuppa dell'Applauso — la ricetta che mi rese famoso a Corte, prima di TUTTO questo."*
+
+Metà del testo è illeggibile. Macchie, bruciature di candela, e — sospetta — qualche lacrima antica.
+
+> Ragoût: "L'ultima cosa che ho cucinato da VIVO. Prima che diventassi... questo. Non ricordo più l'ordine esatto degli ingredienti, e il foglio non aiuta. Se qualcuno di voi ha occhio per la logica, o palato per l'intuito, datemi una mano. Vorrei — solo una volta ancora — sentirne il profumo giusto."
+
+Sul tavolo: una fila di vasetti senza etichetta, una bilancia arrugginita, e appunti sparsi con frammenti di frasi — *"...prima il porro, MAI la cipolla prima..."*, *"...il vino si versa quando il fondo GEME, non prima..."* — indizi, se sapete leggerli, o assaggiarli.
+
+Ragoût si allontana di un passo, quasi non riuscendo a guardare.
+
+> Ragoût: "Fate con calma. O in fretta, vista l'ora. Ma fate ATTENZIONE: sbagliare l'ordine, con una zuppa come questa, è imperdonabile."
+
+Poi, sottovoce, quasi a se stesso:
+
+> Ragoût: "...anche se, diciamocelo, dopo duecento anni cosa volete che sia un altro fallimento."`,
+    choices: [
+      { text: '🧠 Ricostruite la sequenza deducendola dagli appunti', tag: 'Prova di Intelligenza — CD 13', check: { stat: 'INT', dc: 13, success: 'k6a', fail: 'k6b' } },
+      { text: '👅 Assaggiate i vasetti e affidatevi all\'istinto', tag: 'Prova di Saggezza — CD 12', check: { stat: 'SAG', dc: 12, success: 'k6a', fail: 'k6b' } },
+    ],
+  },
+
+  /* ---------- k6a: successo ---------- */
+
+  k6a: {
+    location: 'cucine',
+    caption: 'Il profumo giusto',
+    text: `Porro prima, MAI la cipolla prima. Il vino versato esattamente quando il fondo geme. Un pizzico — solo un pizzico — dell'erba amara che nessuno etichetta perché "si sente e basta". La sequenza si ricompone pezzo dopo pezzo, come se il foglio macchiato ritrovasse, per qualche minuto, la sua calligrafia originale.
+
+Quando la zuppa finalmente sobbolle nell'ordine giusto, l'odore che si alza dalla pentola è qualcosa che va oltre il cibo: caldo, rotondo, quasi... **familiare**, anche per chi non l'ha mai assaggiata prima d'ora.
+
+Ragoût resta immobile, il cucchiaio a mezz'aria, gli occhi (che non ha) fissi sulla pentola.
+
+> Ragoût: "...è LUI. È esattamente lui. Il profumo della sala da concerto, la sera del debutto. Non lo sentivo da... da quando ero ancora fatto di carne."
+
+Si volta verso di voi, e per un istante il fantasma furioso scompare del tutto, lasciando solo un cuoco, commosso, che ha appena ritrovato qualcosa che credeva perduto per sempre.
+
+> Ragoût: "Grazie. Voglio dire — *merci*, davvero. Qualunque cosa vi serva, in questa cucina, è vostra."
+
+Da un corridoio laterale, però, arriva un rumore metallico e stizzito: qualcosa, o qualcuno, non ha gradito affatto la vostra intrusione tra i fornelli.`,
+    choices: [
+      { text: '⚔ Andate a controllare quel rumore', next: 'k7_combat' },
+      { text: '➡ Ignoratelo: c\'è altro di cui parlare con Ragoût', next: 'k8' },
+    ],
+  },
+
+  /* ---------- k6b: fallimento (comico, non punitivo) ---------- */
+
+  k6b: {
+    location: 'cucine',
+    caption: 'Un profumo... diverso',
+    text: `Qualcosa va storto. Forse la cipolla prima del porro, forse il vino versato troppo presto, forse quell'erba amara aggiunta con mano un po' TROPPO generosa. Il risultato, dopo venti minuti di sobbollire fiducioso, è una zuppa di un colore che in natura non esiste, con un profumo che ricorda vagamente dei calzini bolliti in festa.
+
+Ossobuco, se presente, la assaggia per dovere. Impallidisce. Per quanto sia possibile impallidire, essendo già bianco osso.
+
+> Ossobuco: "...per dovere lo dico: NO."
+
+Ragoût osserva la pentola in silenzio per un tempo lunghissimo. Poi, invece di esplodere come vi aspettavate, scoppia in una risata — la prima vera risata che gli avete sentito fare, sghemba e un po' arrugginita per il disuso.
+
+> Ragoût: "MAGNIFIQUE. Un disastro TOTALE. Sapete quante volte, da vivo, ho rovinato una salsa davanti al Re? Zero. Ero troppo bravo per sbagliare, e troppo orgoglioso per ridere quando succedeva. Voi, invece..."
+
+Si asciuga una lacrima immaginaria.
+
+> Ragoût: "Grazie. Non ridevo da... non ricordo nemmeno. Versate pure quella cosa nello scarico. Con rispetto, ma versatela."
+
+Da un corridoio laterale arriva un rumore metallico e indignato: a quanto pare, qualcun altro in cucina non ha trovato la scena altrettanto divertente.`,
+    choices: [
+      { text: '⚔ Andate a controllare quel rumore', next: 'k7_combat' },
+      { text: '➡ Ignoratelo: c\'è altro di cui parlare con Ragoût', next: 'k8' },
+    ],
+  },
+
+  /* ---------- k7_combat: combattimento opzionale ---------- */
+
+  k7_combat: {
+    location: 'cripta',
+    caption: 'La Rivolta dei Garzoni',
+    text: `Nel corridoio verso la dispensa, tre garzoni scheletrici di riserva — mai assunti "ufficialmente", mai promossi, tenuti pronti "in caso di emergenza banchetto" per un secolo e mezzo — hanno deciso che la vostra intrusione tra i fornelli sia l'emergenza che aspettavano. Brandiscono mestoli, mattarelli e uno spiedo particolarmente ambizioso.
+
+> Garzone: "NOI puliamo pentole da CENTOCINQUANT'ANNI senza un grazie, e VOI entrate e vi improvvisate cuochi?! Fuori dalla NOSTRA cucina!"
+
+Ossobuco, se è con voi, li guarda con la superiorità di chi ha un titolo ufficiale e loro no.
+
+> Ossobuco: "Assaggiatori NON autorizzati. Vergognoso."
+
+I mestoli si alzano. Protocollo o gelosia professionale, il risultato è lo stesso: si combatte.`,
+    combat: {
+      enemies: ['garzone_scheletro', 'garzone_scheletro'],
+      victory: 'k8',
+      defeat: 'sconfitta_generica',
+    },
+  },
+
+  /* ---------- k8: la scelta morale ---------- */
+
+  k8: {
+    location: 'cucine',
+    caption: 'Un consiglio da amico',
+    text: `Ragoût vi accompagna verso l'uscita delle cucine, verso la scala che sale alla torre. Si ferma sulla soglia, il cucchiaio di legno stretto contro il petto come uno scudo, e per un momento sembra molto più vecchio dei suoi duecentotré anni.
+
+> Ragoût: "Prima che andiate: so cosa sta per succedere lassù. Lo sento nelle travi, nel modo in cui persino il mio brodo trema quando lui prova il discorso. Ditemi solo una cosa, prima di rischiare la pelle — o le ossa, nel mio caso — per fermarlo: ne vale davvero la pena?"
+
+Guarda oltre le vostre spalle, verso le sue sette portate perfette, i suoi duecento anni di servizio, il contratto che nessuno gli ha mai fatto leggere davvero prima di firmarlo con la sua stessa vita.
+
+> Ragoût: "Perché io, vedete, gli devo ancora un po' di lealtà. È il mio padrone. Ma anche un fantasma stanco ha diritto a sapere per COSA sta continuando a stirare tovaglioli."
+
+C'è dell'altro, dietro la domanda. Duecento anni di servizio creano un legame strano, sospeso a metà tra la lealtà e la prigionia — e la risposta che gli darete potrebbe essere la prima cosa vera che qualcuno gli dice da molto, molto tempo.`,
+    choices: [
+      {
+        text: '🗣 "Vesper non vuole salvare nessuno: vuole spegnere il sole per sempre. Meritavi di saperlo."',
+        sets: { avviso_ragout: true, alleato_ragout: true },
+        next: 'k9',
+      },
+      {
+        text: '🔥 "Duecento anni di ferie mai fatte, Monsieur. Non è ora che qualcuno, in questo castello, si ribelli davvero?"',
+        sets: { ribellione_ragout: true, alleato_ragout: true },
+        next: 'k9',
+      },
+      {
+        text: '🙄 "Non è affar nostro, Monsieur. Abbiamo un castello da salvare."',
+        next: 'k9',
+      },
+    ],
+  },
+
+  /* ---------- k9: il momento di cuore — l'assaggio ---------- */
+
+  k9: {
+    location: 'cucine',
+    caption: 'Il primo assaggio in duecento anni',
+    text: `Sulla soglia, qualcuno del gruppo si ferma. Forse è la fame nervosa prima di una battaglia, forse è solo curiosità: un cucchiaio, preso quasi senza pensarci, affonda in una delle sette portate perfette allineate sul bancone — la Duchessa Anversa in salsa di melagrana, quella che aspetta un commensale dal 1841.
+
+Il boccone sparisce. Segue un secondo di silenzio totale, poi:
+
+> "...è BUONISSIMO. Monsieur, questo è — è il piatto migliore che abbia mai mangiato in vita mia."
+
+*(Torvald, se presente, non dice nulla: si limita ad annuire con la gravità solenne di un intenditore che riconosce un maestro. Poi chiede, sottovoce, la ricetta della salsa.)*
+
+Monsieur Ragoût non si muove. Non parla. Il cucchiaio di legno gli scivola dalla mano e attraversa il pavimento senza far rumore, perché ovviamente un cucchiaio fantasma non fa rumore, ma in quel momento sembra pesare quanto una campana.
+
+> Ragoût: *(con un filo di voce)* "...duecentotré anni."
+
+Si copre il viso con entrambe le mani, e per la prima volta da quando siete entrati in questa cucina, Monsieur Ragoût — furia gastronomica, tiranno dei fornelli, prigioniero di un banchetto senza fine — piange. Ma sorride, mentre lo fa.
+
+> Ragoût: "Qualcuno ha ASSAGGIATO. Finalmente, FINALMENTE qualcuno ha—"
+
+Non finisce la frase. Non ne ha bisogno. Vi impacchetta, con mani tremanti ma velocissime, un intero vassoio da viaggio: **(Il Banchetto di Monsieur Ragoût ottenuto!)**
+
+> Ragoût: "Portatelo con voi. E se dovete rimettere in piedi qualcuno, lassù... che sia con QUESTO."`,
+    item: 'banchetto_ragout',
+    choices: [{ text: 'Ringraziate Monsieur Ragoût e tornate alla scala della torre', next: 'k10' }],
+  },
+
+  /* ---------- k10: commiato ---------- */
+
+  k10: {
+    location: 'cucine',
+    caption: 'Il commiato di Monsieur Ragoût',
+    text: `Vi accompagna fino al piede della scala, fluttuando con un'eleganza che duecento anni di rabbia non erano mai riusciti a spegnere del tutto. Prima di lasciarvi andare, sfila da un blocco di legno un coltello dalla lama sottilissima, lucidata fino a farla sembrare uno specchio.
+
+> Ragoût: "Il mio coltello da julienne. L'ho affilato ogni singola settimana per due secoli, senza mai tagliare altro che verdure che nessuno mangiava. Prendetelo. Che almeno TAGLI qualcosa di importante, per una volta."
+
+**(Coltello da Cuoco di Monsieur Ragoût ottenuto!)**
+
+Vi guarda salire i primi gradini, poi aggiunge, quasi controvoglia:
+
+> Ragoût: "E se per caso... per PURO caso... doveste convincere quell'insopportabile vampiro viziato a lasciare in pace il sole — ditegli che il suo cuoco lo aspetta per il pranzo. Un pranzo VERO. Con commensali VERI. Gli ho preparato la Zuppa dell'Applauso, in fondo. Sarebbe un peccato, no, non condividerla con nessuno?"
+
+Nella sua voce, sotto l'orgoglio ferito di due secoli, c'è qualcosa che assomiglia pericolosamente alla speranza.
+
+Dietro di voi, la cucina torna al suo brontolio sommesso di pentole e fornelli — meno solo, adesso, di quanto lo fosse un'ora fa. Davanti a voi, la scala sale buia verso la torre, e verso mezzanotte.`,
+    choices: [{ text: 'Alla scala della torre', next: 'c_scala' }],
+  },
+
   /* ==================== EPILOGHI ==================== */
 
   e_alba: {
@@ -2594,5 +3172,6 @@ const WORLD_MAP = [
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
   { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
-  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
+  { key: 'torre',     label: 'Torre dell\'Astronomo', x: 0.63, y: 0.66, scenes: ['t1', 't2', 't2_capitombolo', 't3', 't3_distratti', 't4', 't4_valanga', 't5', 't5_scontro', 't6', 't6_sbagliato', 't7', 't8'] },
+  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','k1','k2','k3','k4','k_torvald','k5','k6a','k6b','k7_combat','k8','k9','k10','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];

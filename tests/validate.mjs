@@ -102,7 +102,7 @@ for (const scene of Object.values(CAMPAIGN)) {
 let flagProblems = 0;
 for (const [id, scene] of Object.entries(CAMPAIGN)) {
   for (const c of scene.choices || []) {
-    if (c.requires?.flag && !knownFlags.has(c.requires.flag)) { fail(`scena "${id}": richiede flag mai impostato "${c.requires.flag}"`); flagProblems++; }
+    if (c.requires?.flag && !knownFlags.has(c.requires.flag) && !/^[a-z]+_presente$/.test(c.requires.flag)) { fail(`scena "${id}": richiede flag mai impostato "${c.requires.flag}"`); flagProblems++; }
     for (const itemRef of [c.item, c.removeItem, c.requires?.item]) {
       if (itemRef && !ITEMS[itemRef]) { fail(`scena "${id}": oggetto inesistente "${itemRef}"`); flagProblems++; }
     }

@@ -646,6 +646,104 @@ const Scenes = (() => {
       ctx.fillRect(W * 0.02, g - 306, W * 0.96, 8);
     },
 
+    cucine(ctx, W, H) {
+      const r = rng(151);
+      const floorY = H - 66;
+      blocks(ctx, 0, 0, W, H, '#3d3a34', 14, r, 0.16);          // muri di pietra affumicata
+      blocks(ctx, 0, floorY, W, H - floorY, '#4a4038', 16, r, 0.2);
+      // grande focolare acceso "per abitudine"
+      blocks(ctx, W * 0.04, floorY - 168, 190, 168, '#5a5a60', 10, r, 0.18);
+      blocks(ctx, W * 0.02, floorY - 182, 220, 16, '#6e6e78', 10, r, 0.12);
+      ctx.fillStyle = '#14100e'; ctx.fillRect(W * 0.04 + 34, floorY - 106, 122, 106);
+      glow(ctx, W * 0.04 + 95, floorY - 50, 90, 70, '245,166,35');
+      ctx.fillStyle = '#f5a623'; ctx.fillRect(W * 0.04 + 48, floorY - 70, 94, 70);
+      ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.04 + 66, floorY - 48, 58, 48);
+      // pentolone appeso sul fuoco
+      ctx.fillStyle = '#3a3a45'; ctx.fillRect(W * 0.04 + 60, floorY - 132, 70, 12);
+      blocks(ctx, W * 0.04 + 64, floorY - 122, 62, 40, '#8a5a2a', 8, r, 0.14);
+      ctx.fillStyle = '#c8a032'; ctx.fillRect(W * 0.04 + 64, floorY - 126, 62, 6);
+      // rastrelliera di pentole di rame
+      blocks(ctx, W * 0.30, 44, W * 0.42, 10, '#4a3524', 10, r, 0.1);
+      for (let i = 0; i < 7; i++) {
+        const px = W * 0.31 + i * (W * 0.40 / 7);
+        const s = 22 + (i % 3) * 8;
+        ctx.fillStyle = i % 2 ? '#c87a32' : '#b06a28';
+        ctx.fillRect(px, 54, s, s * 0.8);
+        ctx.fillStyle = '#8a5520'; ctx.fillRect(px + s - 4, 56, 12, 4);
+      }
+      // trecce d'aglio ed erbe appese
+      for (let i = 0; i < 5; i++) {
+        const hx = W * 0.34 + i * 40;
+        ctx.strokeStyle = '#6e5a3a'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(hx, 54); ctx.lineTo(hx, 84); ctx.stroke();
+        ctx.fillStyle = i % 2 ? '#e8e0c8' : '#5a8a4a';
+        for (let k = 0; k < 3; k++) ctx.fillRect(hx - 5, 84 + k * 9, 11, 9);
+      }
+      // lungo tavolo da lavoro macchiato da due secoli di sughi
+      blocks(ctx, W * 0.34, floorY - 62, W * 0.44, 16, '#7a5c3d', 10, r, 0.14);
+      ctx.fillStyle = '#5a3a28';
+      for (let i = 0; i < 9; i++) ctx.fillRect(W * 0.35 + r() * W * 0.4, floorY - 60 + r() * 10, 8 + r() * 14, 4);
+      ctx.fillStyle = '#4a3524';
+      ctx.fillRect(W * 0.36, floorY - 46, 14, 46); ctx.fillRect(W * 0.74, floorY - 46, 14, 46);
+      // sul tavolo: tagliere, verdure, un coltello piantato
+      ctx.fillStyle = '#8a6a45'; ctx.fillRect(W * 0.40, floorY - 72, 46, 10);
+      ctx.fillStyle = '#c85a4a'; ctx.fillRect(W * 0.43, floorY - 78, 10, 8);
+      ctx.fillStyle = '#5fca6a'; ctx.fillRect(W * 0.55, floorY - 76, 14, 8);
+      ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.66, floorY - 86, 4, 24);
+      ctx.fillStyle = '#4a3524'; ctx.fillRect(W * 0.655, floorY - 94, 14, 10);
+      // credenza con stoviglie
+      blocks(ctx, W * 0.82, floorY - 130, W * 0.16, 130, '#5a4530', 10, r, 0.14);
+      for (let row = 0; row < 3; row++) {
+        blocks(ctx, W * 0.82, floorY - 110 + row * 34, W * 0.16, 8, '#4a3524', 8, r, 0.1);
+        for (let i = 0; i < 4; i++) { ctx.fillStyle = '#e8e4d8'; ctx.fillRect(W * 0.83 + i * 26, floorY - 126 + row * 34, 18, 16); }
+      }
+      torch(ctx, W * 0.30, H * 0.42); torch(ctx, W * 0.78, H * 0.42);
+    },
+
+    torrePendente(ctx, W, H) {
+      const r = rng(157);
+      skyGradient(ctx, W, H, '#0d0a1f', '#2e1f42', 10);
+      stars(ctx, W, H, r, 55);
+      moon(ctx, W * 0.16, 54, 24, '#c8b8e8', true);
+      const g = H - 64;
+      hills(ctx, W, g + 2, 44, '#1a1428', r, 32);
+      // la torre pende: ogni piano è spostato di lato rispetto al precedente
+      const base = W * 0.44, piani = 6, ph = 46, pw = 108;
+      for (let i = 0; i < piani; i++) {
+        const off = i * 13;                                  // la pendenza
+        const x = base + off, y = g - (i + 1) * ph;
+        blocks(ctx, x, y, pw, ph, i % 2 ? '#5a5468' : '#4d4860', 10, r, 0.14);
+        blocks(ctx, x - 6, y, pw + 12, 8, '#6a6478', 8, r, 0.1);  // cornicione
+        // finestre illuminate, storte anche loro
+        ctx.fillStyle = 'rgba(245,197,66,.14)'; ctx.fillRect(x + 24, y + 14, 40, 30);
+        ctx.fillStyle = '#f5c542'; ctx.fillRect(x + 34, y + 20, 18, 18);
+        ctx.fillStyle = '#4d4860'; ctx.fillRect(x + 42, y + 20, 3, 18);
+      }
+      // terrazza col telescopio in cima
+      const tx = base + piani * 13, ty = g - piani * ph;
+      blocks(ctx, tx - 12, ty - 14, pw + 24, 16, '#6a6478', 8, r, 0.1);
+      for (let i = 0; i < 5; i++) blocks(ctx, tx - 8 + i * 26, ty - 26, 14, 14, '#5a5468', 7, r, 0.1);
+      // il telescopio puntato di sbieco
+      ctx.strokeStyle = '#8a8a96'; ctx.lineWidth = 9;
+      ctx.beginPath(); ctx.moveTo(tx + 40, ty - 24); ctx.lineTo(tx + 96, ty - 66); ctx.stroke();
+      ctx.fillStyle = '#c8ccd8'; ctx.fillRect(tx + 90, ty - 74, 16, 14);
+      ctx.fillStyle = '#3a3a45'; ctx.fillRect(tx + 30, ty - 26, 22, 10);
+      // gatti sui davanzali (due puntini con le orecchie)
+      for (const [cx, cy] of [[base + 20, g - ph + 6], [base + 3 * 13 + 84, g - 3 * ph + 6]]) {
+        ctx.fillStyle = '#2a2a35'; ctx.fillRect(cx, cy - 10, 16, 10);
+        ctx.fillRect(cx + 1, cy - 15, 4, 6); ctx.fillRect(cx + 11, cy - 15, 4, 6);
+        ctx.fillStyle = '#e8d84a'; ctx.fillRect(cx + 3, cy - 8, 3, 3); ctx.fillRect(cx + 10, cy - 8, 3, 3);
+      }
+      ground(ctx, W, H, g, '#26402a', r, 12, 10);
+      // roba rotolata giù dalla torre, ammucchiata a valle della pendenza
+      for (let i = 0; i < 7; i++) {
+        const ox = base - 60 + r() * 50;
+        ctx.fillStyle = ['#8a6a45', '#5a5a66', '#7a3025'][i % 3];
+        ctx.fillRect(ox, g - 6 - (i % 3) * 6, 12 + r() * 10, 8);
+      }
+      bush(ctx, W * 0.14, g + 6, 24, '#2a4a2e', r);
+    },
+
     salaTrono(ctx, W, H) {
       const r = rng(61);
       blocks(ctx, 0, 0, W, H, '#241d33', 16, r, 0.18);

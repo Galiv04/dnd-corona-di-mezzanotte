@@ -89,6 +89,8 @@ const Engine = (() => {
     for (const h of G.party) {
       G.uses[h.id] = {};
       for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
+      // scene speciali riservate a chi ha certi eroi in squadra
+      G.flags[h.id + '_presente'] = true;
     }
     saveGame();
     gotoScene(CAMPAIGN_START);
