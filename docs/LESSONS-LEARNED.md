@@ -87,3 +87,29 @@ Scrivere tutto un ramo (bosco, miniere, fiume) in una volta mantiene coerenti to
 
 **17. Le scelte che cambiano la trama valgono più delle scene in più.**
 Il ramo del fiume (19 scene) ha aggiunto meno rigiocabilità della "Tentazione della Corona" (3 scene) e delle Cronache di Lumelia, che fanno sentire ogni partita diversa.
+
+
+## Dalla produzione del Relais di Lord Gregorio (agosto 2026)
+
+**18. Ogni flag narrativo deve avere un consumatore.**
+Un flag impostato e mai letto (meccanica, diario, impresa o cronaca) è una promessa non mantenuta: nel Relais ne sono emersi a decine (`ada_perdono`, `chef_allertato`, `menu_memoria`, `avviso_benzinaio`...), e OGNI volta trasformarli in echi ha prodotto le scene migliori del gioco. Ora un validatore statico lo impone.
+→ **Prossima volta**: scrivere l'eco NELLO STESSO momento in cui si scrive il flag.
+
+**19. I validatori di coerenza incrociata valgono più dei test funzionali.**
+Le giunzioni tra moduli (flag↔scene, stinger↔suoni, sprite↔palette, capitoli↔scene) falliscono in silenzio, senza errori JavaScript. Quattro validatori da ~15 righe l'uno hanno intercettato più bug reali di qualunque playthrough.
+
+**20. Il collaudo via UI trova ciò che l'headless non vede.**
+156 partite simulate non hanno mai notato il contatore "0 / 6" (eroi hardcoded dalla Corona) perché il harness non passa dalla schermata di setup. Un solo giro coi click veri l'ha trovato subito.
+→ **Prossima volta**: un giro UI completo (nuova partita → salvataggio → ripresa) fa parte della definizione di fatto.
+
+**21. Sprite a risoluzione doppia senza toccare i call-site.**
+Normalizzare `drawSprite` sulla griglia 16 (`px = scale * 16 / h`) permette mappe 32x32 con lo stesso ingombro: dettaglio quadruplicato, zero modifiche altrove. E uno sprite può riusare la mappa di un altro con palette diversa (Don Michele = Gregorio in tonaca: il papillon diventa il collarino).
+
+**22. I numeri nei documenti invecchiano: usare soglie.**
+"163 scene" era falso dopo due ondate. "Oltre 160 scene" resta vero a lungo — e i numeri si ricalcolano DAL MOTORE, mai a memoria (il conteggio manuale aveva già sbagliato due volte).
+
+**23. La CI trasforma la disciplina in garanzia.**
+"Test verdi prima di ogni push" come convenzione regge finché c'è una sola persona attenta. Una GitHub Action da 15 righe la rende strutturale, per sempre, per chiunque.
+
+**24. La personalizzazione vera sta nei dettagli d'inventario.**
+Tronello, birre al limone, taralli razionati, sfida pancakes-crêpes: i dettagli veri delle persone vere, trasformati in oggetti e scene, hanno reso il gioco "loro" più di qualunque ritratto. Chiedere al committente gli aneddoti minori: sono oro.
