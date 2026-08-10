@@ -667,7 +667,7 @@ Scosta il telo. Sul banco: un **corno da guerra nanico**, una **pergamena del fu
       { text: '☀ Comprate la Polvere di Sole Imbottigliata (60 oro)', requiresGold: 60, gold: -60, item: 'polvere_solare', once: true },
       { text: '🍾 Comprate l\'Elisir del Coraggio (30 oro)', requiresGold: 30, gold: -30, item: 'elisir_coraggio' },
       { text: '💎 Vendete la Gemma Nanica (+45 oro)', requires: { item: 'gemma_nanica' }, removeItem: 'gemma_nanica', gold: 45, once: true },
-      { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', once: true, check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
+      { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', once: true, requires: { notFlag: 'sa_passato_bardo' }, check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
       { text: '↩ Tornate al bivio', next: 'v3' },
     ],
   },
