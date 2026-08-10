@@ -2,7 +2,7 @@
 
 **Un'avventura fantasy interattiva in stile D&D, per 1-6 giocatori, con Dungeon Master automatico.**
 
-🎮 **Gioca subito:** https://galiv04.github.io/dnd-corona-di-mezzanotte/
+🎮 **Gioca subito:** https://galiv04.github.io/dnd-corona-di-mezzanotte/ · [![Test di Lumelia](https://github.com/Galiv04/dnd-corona-di-mezzanotte/actions/workflows/tests.yml/badge.svg)](https://github.com/Galiv04/dnd-corona-di-mezzanotte/actions/workflows/tests.yml)
 
 ## Cos'è
 
