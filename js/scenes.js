@@ -708,7 +708,7 @@ const Scenes = (() => {
       const g = H - 64;
       hills(ctx, W, g + 2, 44, '#1a1428', r, 32);
       // la torre pende: ogni piano è spostato di lato rispetto al precedente
-      const base = W * 0.44, piani = 6, ph = 46, pw = 108;
+      const base = W * 0.42, piani = 5, ph = 42, pw = 104;   // 5 piani: il telescopio in cima resta nell'inquadratura
       for (let i = 0; i < piani; i++) {
         const off = i * 13;                                  // la pendenza
         const x = base + off, y = g - (i + 1) * ph;
