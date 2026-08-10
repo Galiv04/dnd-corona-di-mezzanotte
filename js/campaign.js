@@ -2790,7 +2790,7 @@ Vi guardate. Il **Gran Ballo** pulsa lontano, sopra le vostre teste; qui sotto, 
 
 Vi vede. Si compone. Si presenta con un inchino che sarebbe elegantissimo se non attraversasse parzialmente il tavolo.
 
-> "**Monsieur Ragoût**, Primo Cuoco di questo castello da duecentotré anni. Sei intrusi in cucina la notte del gran rituale. *Magnifique.* Almeno QUALCUNO ha trovato la strada giusta."
+> "**Monsieur Ragoût**, Primo Cuoco di questo castello da duecentotré anni. Intrusi in cucina la notte del gran rituale. *Magnifique.* Almeno QUALCUNO ha trovato la strada giusta."
 
 Vi squadra, poi guarda, con un'espressione che vi si incolla addosso, il bancone stracolmo di capolavori intatti.
 
@@ -3133,7 +3133,7 @@ Brindolo vi ha eretto la statua promessa (magnifica: Zonk è ritratto con i fior
 
 Gerbold è rimasto al castello, che ora è SUO per usucapione ("duecento anni di possesso ininterrotto, ho i documenti"). L'ha trasformato in una locanda a tema: *"Il Crepuscolo — Soggiorni Gotici per Famiglie"*. È sempre pieno.
 
-E nelle sere d'estate, quando i grilli cantano e la birra è fresca, a Brindolo si racconta di sei eroi che salvarono il sole... e lasciarono andare l'uomo che l'aveva spento. C'è chi dice che fu clemenza. C'è chi dice che fu saggezza. Bocciolo dice che eravate solo troppo stanchi per un altro combattimento, ma a Bocciolo piace rovinare le storie.
+E nelle sere d'estate, quando i grilli cantano e la birra è fresca, a Brindolo si racconta degli eroi che salvarono il sole... e lasciarono andare l'uomo che l'aveva spento. C'è chi dice che fu clemenza. C'è chi dice che fu saggezza. Bocciolo dice che eravate solo troppo stanchi per un altro combattimento, ma a Bocciolo piace rovinare le storie.
 
 **🌅 FINE — Il sole è salvo e la leggenda è vostra, eroi di Brindolo!**`,
     ending: true,
