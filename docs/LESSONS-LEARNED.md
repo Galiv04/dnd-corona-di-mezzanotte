@@ -122,3 +122,24 @@ Una prova resa `once` DOPO che un giocatore l'ha già fatta ricompare comunque n
 
 **27. Le battute degli eroi vanno condizionate alla presenza.**
 Con 2 giocatori su 6, "Zonk vuole andare a casa" detto da uno Zonk assente rompe l'incanto (segnalato in partita). Soluzione a due livelli: `[[eroe:id]]...[[/eroe]]` nei testi (il motore filtra) e `requires: { <id>_presente }` nelle scelte. Nel Relais il problema si è risolto a monte col framing: i cinque amici sono SEMPRE nella storia, si sceglie solo chi si gioca.
+
+## Dalla produzione della Casa che non Finisce (agosto 2026)
+
+**28. Gli stub del DOM tradiscono sulle differenze innerHTML/textContent.**
+La modale di sacrificio creava il bottone "Riparliamone" con `textContent`, ma il rilevatore del
+simulatore guardava solo `innerHTML`: la modale veniva scambiata per una normale prova e il test
+"sacrificava" l'eroe sbagliato. → **Regola**: nei matcher dei test leggere SEMPRE
+`innerHTML + textContent`, e nel motore essere consistenti su come si scrive il testo dei bottoni.
+
+**29. La produzione a blocchi paralleli con brief regge benissimo.**
+Cinque agenti-sceneggiatori su blocchi separati (con un BRIEF condiviso: formato dati esatto, tono
+con esempi calibrati, grafo scena-per-scena, elenco chiuso di item/flag/uscite) più assemblaggio
+meccanico (`assemble.mjs`) hanno prodotto ~28.500 parole coerenti in una sessione. I punti che
+hanno evitato il caos: prefissi di scena riservati per blocco, uscite ammesse elencate nel brief,
+"ogni flag dichiara il suo consumatore" nel commento di coda di ogni draft.
+
+**30. I contenuti "gate" vanno garantiti nello zaino di partenza.**
+Il cerchio del tronello e il pegno del Mercante richiedevano il `tronello`: se il giocatore non lo
+trovava prima, due contenuti importanti diventavano irraggiungibili. → **Regola**: per ogni scelta
+`requires: { item }`, verificare che l'oggetto sia garantito (zaino iniziale o percorso obbligato),
+non solo possibile.
