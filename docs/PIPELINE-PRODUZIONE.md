@@ -62,3 +62,14 @@ originali** (lezione 31) — inclusa la stima di durata DAI DATI (scene per run 
 - Oggetti richiesti dai `requires` garantiti nello zaino o nel percorso (lezione 30).
 - I numeri nei documenti invecchiano: soglie, non conteggi (lezione 22).
 - Rete di questa macchina: niente localhost, push con `curloptResolve`, cache Pages ~10'.
+
+## Costo: scegliere SEMPRE il modello dell'agente
+
+Gli agenti **ereditano il modello del chiamante** se non lo si specifica: un fan-out di 6 agenti
+lanciato senza `model` consuma la quota del modello più caro e, quando finisce, muoiono TUTTI
+insieme a metà lavoro (successo dopo il fatto: i file scritti fino a quel punto restano validi,
+ma i riferimenti alle scene non ancora scritte rompono il grafo).
+→ **Regola**: passare `model` esplicito a ogni agente. `sonnet` per il 90% dei compiti (scene su
+brief, test, audit, refactoring, backport); il modello più capace SOLO per il design e i brief,
+che li scrive l'orchestratore. E far chiudere ogni agente con una verifica che LUI stesso esegue
+(`node tests/validate.mjs` verde), così un'interruzione non lascia mai il repo incoerente.
