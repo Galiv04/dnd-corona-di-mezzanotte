@@ -190,3 +190,8 @@ Regola d'oro: **usare sempre `rng(seme)`**, mai `Math.random()`, così lo sfondo
 - `HERO_EPILOGUES[heroId][tipoFinale]` — tre varianti per eroe (`vittoria`/`redenzione`/`esilio`).
 - `IMPRESE` — achievement `{flag, icon, title, desc}`, sbloccati se `G.flags[flag]` è veritiero.
 - `CRONACA` — righe di epilogo mondiale mostrate solo se il flag corrispondente è attivo.
+
+
+## Righe condizionate alla presenza dell'eroe (agosto 2026)
+
+Nel campo `text` delle scene: `[[eroe:torvald]]> Torvald: "..."[[/eroe]]` — il blocco appare solo se l'eroe è nel gruppo e non a terra. Il motore (engine.js, renderScene) rimuove i blocchi degli assenti e collassa le righe vuote residue. Usarlo per OGNI battuta o frase che nomina un eroe giocabile: il gruppo va da 1 a 6. Per le SCELTE esiste già `requires: { flag: '<id>_presente' }` (impostato automaticamente da newGame).

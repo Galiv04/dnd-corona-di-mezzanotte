@@ -119,3 +119,6 @@ Tronello, birre al limone, taralli razionati, sfida pancakes-crêpes: i dettagli
 
 **26. `once` non basta per i salvataggi esistenti.**
 Una prova resa `once` DOPO che un giocatore l'ha già fatta ricompare comunque nel suo salvataggio (usedChoices non registrato all'epoca). Il fix retro-compatibile è il flag dell'esito: `requires: { notFlag: <flag_del_successo> }` in aggiunta al `once`.
+
+**27. Le battute degli eroi vanno condizionate alla presenza.**
+Con 2 giocatori su 6, "Zonk vuole andare a casa" detto da uno Zonk assente rompe l'incanto (segnalato in partita). Soluzione a due livelli: `[[eroe:id]]...[[/eroe]]` nei testi (il motore filtra) e `requires: { <id>_presente }` nelle scelte. Nel Relais il problema si è risolto a monte col framing: i cinque amici sono SEMPRE nella storia, si sceglie solo chi si gioca.
