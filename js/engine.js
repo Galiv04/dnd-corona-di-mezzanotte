@@ -376,7 +376,11 @@ const Engine = (() => {
     const choicesEl = $('choices');
     choicesEl.innerHTML = '';
 
-    const html = `<span class="dm-label">🎙 IL NARRATORE</span>` + formatText(scene.text);
+    // righe condizionate alla presenza dell'eroe: [[eroe:id]]...[[/eroe]] appare solo se l'eroe è in gioco
+    const testoFiltrato = (scene.text || '').replace(/\[\[eroe:([a-z_]+)\]\]([\s\S]*?)\[\[\/eroe\]\]/g,
+      (m, id, corpo) => G.party.some(h => h.id === id && !h.down) ? corpo : ''
+    ).replace(/\n{3,}/g, '\n\n');
+    const html = `<span class="dm-label">🎙 IL NARRATORE</span>` + formatText(testoFiltrato);
 
     if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
 

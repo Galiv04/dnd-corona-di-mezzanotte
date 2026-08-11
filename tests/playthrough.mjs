@@ -832,6 +832,24 @@ if (allEndings.size < 3) {
 /* ==================== ESITO FINALE ==================== */
 
 console.log('\n' + '═'.repeat(60));
+(function testRigheCondizionate() {
+  section('Verifica diretta: le righe [[eroe:id]] appaiono solo se l\'eroe gioca');
+  // senza Torvald: la sua battuta dello stufato non deve apparire
+  const g1 = buildGame(4141);
+  g1.act(() => g1.api.Engine.newGame([{ heroId: 'lyra', player: '' }, { heroId: 'brunilde', player: '' }]));
+  g1.act(() => g1.api.Engine.gotoScene('p2_stufato'));
+  const t1 = g1.doc.getElementById('narration').innerHTML;
+  if (/Le due cose non si escludono/.test(t1)) fail('testRigheCondizionate: battuta di Torvald visibile SENZA Torvald');
+  if (/\[\[eroe:/.test(t1)) fail('testRigheCondizionate: marcatori [[eroe:]] grezzi visibili nel testo');
+  // con Torvald: deve apparire
+  const g2 = buildGame(4142);
+  g2.act(() => g2.api.Engine.newGame([{ heroId: 'torvald', player: '' }]));
+  g2.act(() => g2.api.Engine.gotoScene('p2_stufato'));
+  const t2 = g2.doc.getElementById('narration').innerHTML;
+  if (!/Le due cose non si escludono/.test(t2)) fail('testRigheCondizionate: battuta di Torvald ASSENTE con Torvald in gioco');
+  console.log('  ✅ Righe condizionate: nascoste senza l\'eroe, presenti con, nessun marcatore grezzo');
+})();
+
 if (failures === 0) {
   console.log(`✅ TUTTE LE PARTITE SIMULATE COMPLETATE SENZA ERRORI (${results.length} run, ${allScenesSeen.size} scene distinte visitate, ${allEndings.size}/3 finali)`);
   process.exit(0);

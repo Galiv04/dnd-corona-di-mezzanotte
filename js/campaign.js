@@ -85,7 +85,9 @@ Fuori, il sole splende sul mercato di Brindolo. Dentro, l'oste Bocciolo — un o
   p1b: {
     location: 'taverna',
     caption: 'Taverna "Il Gallo Storto"',
-    text: `Bocciolo posa sul tavolo una zuppiera FUMANTE. Torvald l'annusa da professionista e concede un cenno d'approvazione. È il massimo complimento che Bocciolo riceverà mai.
+    text: `Bocciolo posa sul tavolo una zuppiera FUMANTE. Qualcuno l'annusa da professionista e concede un cenno d'approvazione: è il massimo complimento che Bocciolo riceverà mai.
+
+[[eroe:torvald]]Torvald, in particolare, si accerta pure che la doratura della crosta sia quella giusta.[[/eroe]]
 
 Fuori si sente la banda del paese che accorda gli strumenti per la festa del raccolto. Un piccione si posa sul davanzale. Tutto è pace.
 
@@ -169,7 +171,7 @@ Rivoluzionario. Comunque, guardare il disco nero così a lungo vi ha fatto lacri
 
 > Bocciolo: "Voi... voi siete o incoscienti o eroi."
 
-> Torvald: *(se presente, annuisce)* "Le due cose non si escludono."
+[[eroe:torvald]]> Torvald: *(annuisce)* "Le due cose non si escludono."[[/eroe]]
 
 Lo stomaco pieno vi dà forza: **tutto il gruppo parte con +2 PV bonus per la prossima battaglia.** La saggezza popolare aveva ragione.`,
     sets: { stufato_bonus: true },
@@ -739,7 +741,7 @@ Silenzio. Poi il bosco intero ESPLODE in bisbigli entusiasti:
 
 > "Ha detto SIGNORA!" "Che educazione!" "Nessuno ci parla mai!" "Una volta uno mi ha inciso un cuore con l'ascia, MALEDUCATO..."
 
-I rami si spostano da soli, aprendo un corridoio di funghi luminosi diritto verso la capanna. La quercia vi congeda con una pioggia di ghiande affettuose (una in testa a Zonk, se c'è: il suo "ahia" è dolcissimo).`,
+I rami si spostano da soli, aprendo un corridoio di funghi luminosi diritto verso la capanna. La quercia vi congeda con una pioggia di ghiande affettuose[[eroe:zonk]] (una in testa a Zonk: il suo "ahia" è dolcissimo)[[/eroe]].`,
     choices: [{ text: 'Seguite il corridoio di funghi', next: 'b3_arrivo' }],
   },
 
@@ -754,7 +756,7 @@ Sopra di voi, tra i rami... *fili d'argento*. Spessi come corde. E in fondo ai f
 
 **RAGNI. GIGANTI.**
 
-> Zonk: *(se presente, con un filo di voce)* "Zonk vuole andare a casa."`,
+[[eroe:zonk]]> Zonk: *(con un filo di voce)* "Zonk vuole andare a casa."[[/eroe]]`,
     combat: {
       enemies: ['ragno', 'ragno', 'ragno'],
       victory: 'b1_ragni_vinti',
@@ -1160,9 +1162,9 @@ L'eco, per la cronaca, vi fa un versaccio di saluto. Educata, comunque.`,
   m2_carrello_ok: {
     location: 'miniera',
     caption: 'IL CARRELLO — 80 km/h di gloria nanica',
-    text: `Vi stipate nel carrello (qualcuno in braccio a qualcun altro, non facciamo nomi, Zonk) e via!
+    text: `Vi stipate nel carrello[[eroe:zonk]] (qualcuno in braccio a qualcun altro, non facciamo nomi, Zonk)[[/eroe]] e via!
 
-La discesa è PURA FOLLIA: scintille dalle rotaie, cristalli che sfrecciano come stelle, un pipistrello che vi si spiaccica educatamente sul casco di Torvald. Chi è ai freni li usa con la precisione di un chirurgo: curva a destra, contro-curva, SALTO DEL BINARIO ROTTO—
+La discesa è PURA FOLLIA: scintille dalle rotaie, cristalli che sfrecciano come stelle[[eroe:torvald]], un pipistrello che vi si spiaccica educatamente sul casco di Torvald[[/eroe]]. Chi è ai freni li usa con la precisione di un chirurgo: curva a destra, contro-curva, SALTO DEL BINARIO ROTTO—
 
 *—atterraggio perfetto.*
 
@@ -1227,7 +1229,7 @@ La "procedura d'urgenza", capite dal gesto, prevede legnate.`,
     location: 'miniera',
     npc: ['skeleton'],
     caption: 'Trionfo burocratico',
-    text: `Chi di voi ha la penna più ferma affronta il Modulo 7-B: quarantadue campi, sette firme, una marca da bollo che fabbricate al volo con cera di candela e la faccia di Zonk come sigillo.
+    text: `Chi di voi ha la penna più ferma affronta il Modulo 7-B: quarantadue campi, sette firme, una marca da bollo che fabbricate al volo con cera di candela[[eroe:zonk]] e la faccia di Zonk come sigillo[[/eroe]].
 
 Riga per riga. Casella per casella. PERFETTO.
 
@@ -1270,7 +1272,7 @@ Lo Scheletro Capoufficio legge. Si blocca. Il timbro cala come una ghigliottina:
 
 > Scheletro Capoufficio: "Farò rapporto. POSTUMO."
 
-*(Consiglio da DM: gli scheletri sono non-morti — la Sacra Folgore di Brunilde fa danni DOPPI!)*`,
+[[eroe:brunilde]]*(Consiglio da DM: gli scheletri sono non-morti — la Sacra Folgore di Brunilde fa danni DOPPI!)*[[/eroe]]`,
     combat: {
       enemies: ['scheletro', 'scheletro', 'scheletro'],
       victory: 'm3_fight_win',
@@ -1814,7 +1816,7 @@ Ok. Poteva andare peggio. Al buffet si origlia benissimo, tra l'altro.`,
   c_ballo_buffet: {
     location: 'ballo',
     caption: 'Il buffet dei segreti',
-    text: `Il buffet è sorprendentemente ottimo (Torvald, se c'è, approva i crostini con riserva professionale). E soprattutto: attorno ai tartufi di sangue d'arancia, i vampiri SPETTEGOLANO.
+    text: `Il buffet è sorprendentemente ottimo[[eroe:torvald]] (Torvald approva i crostini con riserva professionale)[[/eroe]]. E soprattutto: attorno ai tartufi di sangue d'arancia, i vampiri SPETTEGOLANO.
 
 > Vampiro 1: "...duecento anni e ancora prova il discorso allo specchio. Che poi, capisci, allo specchio LUI NON SI VEDE..."
 
@@ -2001,7 +2003,7 @@ Decisione tattica, eroi: riposare qui costa tempo prezioso, ma arrivare stanchi 
   c_scala_riposo: {
     location: 'cripta',
     caption: 'Il pianerottolo — riposo del guerriero',
-    text: `Dieci minuti di bende, sorsi di pozione, uno spuntino a base delle provviste di Torvald (o di chi per lui) e qualche profondo respiro. **(+8 PV a tutti e TUTTE le abilità speciali ricaricate!)**
+    text: `Dieci minuti di bende, sorsi di pozione, uno spuntino a base delle provviste[[eroe:torvald]] di Torvald[[/eroe]] e qualche profondo respiro. **(+8 PV a tutti e TUTTE le abilità speciali ricaricate!)**
 
 Quando ripartite siete quasi nuovi. Ma dall'alto, la voce di Vesper è cambiata: non prova più il discorso. Sta *CANTANDO*. E la torre intera vibra di magia.
 
@@ -2068,7 +2070,7 @@ Fa un mezzo passo indietro comunque.
 
 Ha perso completamente il filo del discorso che stava provando. Il leggio è là, abbandonato. **(Vesper è sinceramente TURBATO: -2 ai suoi tiri nel primo round di un eventuale scontro!)**
 
-*(Torvald, se presente, annota la storia del ragù. Per la locanda.)*`,
+[[eroe:torvald]]*(Torvald annota la storia del ragù. Per la locanda.)*[[/eroe]]`,
     sets: { vesper_turbato: true },
     choices: [
       { text: '⚔ Approfittate dello sconcerto: ALL\'ATTACCO!', next: 'f_boss_intro' },
@@ -3030,7 +3032,7 @@ Il boccone sparisce. Segue un secondo di silenzio totale, poi:
 
 > "...è BUONISSIMO. Monsieur, questo è — è il piatto migliore che abbia mai mangiato in vita mia."
 
-*(Torvald, se presente, non dice nulla: si limita ad annuire con la gravità solenne di un intenditore che riconosce un maestro. Poi chiede, sottovoce, la ricetta della salsa.)*
+[[eroe:torvald]]*(Torvald non dice nulla: si limita ad annuire con la gravità solenne di un intenditore che riconosce un maestro. Poi chiede, sottovoce, la ricetta della salsa.)*[[/eroe]]
 
 Monsieur Ragoût non si muove. Non parla. Il cucchiaio di legno gli scivola dalla mano e attraversa il pavimento senza far rumore, perché ovviamente un cucchiaio fantasma non fa rumore, ma in quel momento sembra pesare quanto una campana.
 
@@ -3078,7 +3080,7 @@ Dietro di voi, la cucina torna al suo brontolio sommesso di pentole e fornelli �
 
 Dalla vetta della torre vedete il mondo riaccendersi: i boschi, i campi, il nastro lontano del fiume, e — piccolo piccolo all'orizzonte — il campanile di Brindolo che suona a festa.
 
-Vesper Morn giace tra i frammenti della corona. Sconfitto, spettinato, il mantello ridotto a uno straccio. Alla luce del sole (che curiosamente non lo incenerisce: *"effetto residuo della corona"*, direbbe Lyra — "*fortuna sfacciata*", direbbe Fizzle) sembra solo... un uomo pallido e stanchissimo, di duecentoventi anni.
+Vesper Morn giace tra i frammenti della corona. Sconfitto, spettinato, il mantello ridotto a uno straccio. Alla luce del sole (che curiosamente non lo incenerisce[[eroe:lyra]]: *"effetto residuo della corona"*, direbbe Lyra[[/eroe]][[eroe:fizzle]] — "*fortuna sfacciata*", direbbe Fizzle[[/eroe]]) sembra solo... un uomo pallido e stanchissimo, di duecentoventi anni.
 
 > Vesper: "...e adesso? Il finale prevede la mia distruzione, immagino. Il pubblico ADORA le esecuzioni. Fate pure: ho già pronto un ultimo monologo. Dura solo venti minuti."`,
     choices: [
@@ -3114,7 +3116,7 @@ Brindolo non è mai stata così bene. Il "programma di riabilitazione" di Vesper
 
 Gerbold — riassemblato, dimissionario e RAGGIANTE — gestisce la biglietteria. Ha fatto la sua prima vacanza al mare: esiste un ritratto di uno scheletro in camicia hawaiana su una sdraio, ed è l'immagine più bella che vedrete mai.
 
-La vostra statua in piazza è venuta benissimo (Zonk è ritratto mentre fa i fiorellini all'uncinetto, com'era suo espresso desiderio). Le 500 monete sono state pagate fino all'ultima. La cena da Bocciolo è gratis a vita — per la GIOIA di Bocciolo.
+La vostra statua in piazza è venuta benissimo[[eroe:zonk]] (Zonk è ritratto mentre fa i fiorellini all'uncinetto, com'era suo espresso desiderio)[[/eroe]]. Le 500 monete sono state pagate fino all'ultima. La cena da Bocciolo è gratis a vita — per la GIOIA di Bocciolo.
 
 E quando il sole tramonta su Brindolo — *tramonta e poi RISORGE, ogni giorno, come deve* — dalla taverna parte sempre la stessa canzone: la *Ballata per un Re Sordo*, seconda versione. Quella con il finale nuovo.
 
@@ -3129,7 +3131,7 @@ E quando il sole tramonta su Brindolo — *tramonta e poi RISORGE, ogni giorno, 
 
 Vesper Morn se n'è andato quella mattina stessa, mantello strappato al vento, senza voltarsi. Ogni tanto arrivano voci: un menestrello pallido che canta nelle locande di frontiera, sempre gratis, sempre a capo coperto, che sparisce prima dell'alba per abitudine più che per necessità. Dicono che sia bravo. Dicono che alla fine di ogni canzone sussurri "grazie" al pubblico, anche quando il pubblico è un oste e due ubriachi.
 
-Brindolo vi ha eretto la statua promessa (magnifica: Zonk è ritratto con i fiorellini all'uncinetto, e la piccioncina che nidifica sull'elmo di Torvald sembra messa apposta). Le 500 monete: pagate. La fama: immensa. Il sole: puntualissimo, ogni mattina.
+Brindolo vi ha eretto la statua promessa (magnifica[[eroe:zonk]]: Zonk è ritratto con i fiorellini all'uncinetto[[/eroe]][[eroe:torvald]]. E la piccioncina che nidifica sull'elmo di Torvald sembra messa apposta[[/eroe]]). Le 500 monete: pagate. La fama: immensa. Il sole: puntualissimo, ogni mattina.
 
 Gerbold è rimasto al castello, che ora è SUO per usucapione ("duecento anni di possesso ininterrotto, ho i documenti"). L'ha trasformato in una locanda a tema: *"Il Crepuscolo — Soggiorni Gotici per Famiglie"*. È sempre pieno.
 
