@@ -1,0 +1,64 @@
+# PIPELINE DI PRODUZIONE — il framework riusabile della serie
+
+> Come si produce un gioco nuovo della serie spendendo MENO token e MENO tempo del precedente.
+> Nato con "La Casa che non Finisce" (prodotta in una sessione contro le 24h+ del Relais).
+> Regola madre: **tutto ciò che si costruisce deve essere riusabile dal gioco successivo.**
+
+## Il principio
+
+Il modello principale fa SOLO da **orchestratore**: decide, scrive i brief, integra, revisiona.
+Il lavoro pesante (scene, grafica, audio, test, audit) va ad **agenti in parallelo**, ognuno con
+un incarico chiuso. I costi si abbattono perché: (1) il motore si eredita per copia, (2) i processi
+sono template già scritti, (3) gli agenti lavorano in parallelo su blocchi indipendenti.
+
+## La pipeline in 10 passi
+
+| # | Passo | Chi | Artefatto |
+|---|---|---|---|
+| 1 | Brainstorming col committente (domande mirate, widget) | orchestratore | decisioni confermate |
+| 2 | `docs/DESIGN.md`: struttura, meccaniche nuove, finali, vincoli | orchestratore | il contratto del gioco |
+| 3 | Copia del motore **dal repo più avanzato** + rebrand (chiavi localStorage, stringhe, index.html) | orchestratore | repo nuovo |
+| 4 | Meccaniche nuove nel motore (engine/combat) | orchestratore | motore esteso |
+| 5 | `characters.js` + `ITEMS` + **`drafts/BRIEF.md`** (formato dati, tono con ESEMPI calibrati, contratti chiusi: item/flag/location/stinger/bestiario, grafo scena-per-scena a blocchi) | orchestratore | i contratti di produzione |
+| 6 | **Fan-out**: un agente per blocco di scene (prefissi riservati, uscite ammesse elencate) + epiloghi/imprese/cronache + sprite + painter + musiche — TUTTI in parallelo, output in `drafts/` | agenti | drafts/scene-*.js ecc. |
+| 7 | `tests/assemble.mjs` ricompone `js/campaign.js` dai draft (i fix alle scene si fanno NEI DRAFT) | orchestratore | campaign.js |
+| 8 | `validate.mjs` (statico) + `playthrough.mjs` (partite simulate) — un agente adatta gli scenari | agente | suite verdi |
+| 9 | Pubblicazione (gh repo create + Pages + CI copiata) | orchestratore | sito live |
+| 10 | **Audit visivo** sul sito live (ogni painter + giro UI coi click veri) | agente | fix grafici |
+
+E POI, prima di dichiarare pronto: **la checklist dei requisiti del committente presi dai prompt
+originali** (lezione 31) — inclusa la stima di durata DAI DATI (scene per run × parole ÷ 180).
+
+## Le regole del fan-out (perché non degeneri nel caos)
+
+1. Ogni agente scrive UN file in `drafts/`, con prefissi di scena riservati e le UNICHE uscite
+   esterne ammesse elencate nell'incarico.
+2. Il BRIEF contiene esempi di voce **scritti dall'orchestratore**: gli agenti calibrano su quelli.
+3. Contratti chiusi: niente item/location/stinger/nemici inventati — solo i cataloghi del BRIEF.
+4. Ogni flag impostato dichiara il suo consumatore nel commento di coda del draft (il validatore
+   poi lo impone).
+5. Nelle espansioni (ondate successive): scelte-aggancio SOLO in coda agli array `choices`
+   (le policy dei playthrough contano sull'ordine), spesso `once: true`.
+6. Modelli per costo: haiku/sonnet per lavoro meccanico (audit, refactoring, test), modelli
+   capaci solo dove la qualità creativa lo esige.
+
+## Moduli riusabili (si portano nel gioco nuovo con un copia-incolla)
+
+- **Motore completo** (engine/combat/dice/sprites/scenes/sound + css + index.html): dal repo più
+  avanzato della serie (oggi: casa-che-non-finisce).
+- **Suite di test**: `validate.mjs` (grafo, flag, sprite, stinger, capitoli, prove ripetibili) e
+  l'harness di `playthrough.mjs` (stub DOM + click programmatici): si riscrivono solo gli scenari.
+- **`tests/assemble.mjs`**: ricompone campaign.js dai draft.
+- **"Cosa manca e dove"** (engine.js): `seenScenes/markSeen` + `chapterProgress()` + righe di
+  stato in `showRevive` + blocco suggerimenti senza spoiler in `renderEnding`. Richiede solo
+  `prefixes` nei CHAPTERS; l'inferenza impresa→capitolo è automatica (dalla scena che ne imposta
+  il flag). Presente nella Casa e retro-applicata al Relais.
+- **CI GitHub Actions** (15 righe): validate + playthrough a ogni push.
+- **`drafts/BRIEF.md`** come TEMPLATE: si riscrive solo la parte di contenuto.
+
+## Trappole note (pagate una volta, mai più)
+
+- Stub DOM: i matcher dei test leggono `innerHTML + textContent` (lezione 28).
+- Oggetti richiesti dai `requires` garantiti nello zaino o nel percorso (lezione 30).
+- I numeri nei documenti invecchiano: soglie, non conteggi (lezione 22).
+- Rete di questa macchina: niente localhost, push con `curloptResolve`, cache Pages ~10'.

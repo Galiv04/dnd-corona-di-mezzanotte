@@ -18,6 +18,7 @@ Un'avventura fantasy interattiva in stile D&D, in **italiano**, giocabile nel br
 | [docs/STILE-NARRATIVO.md](docs/STILE-NARRATIVO.md) | Tono, voce, regole di scrittura, esempi buoni e cattivi |
 | [docs/COME-CREARE-UNA-CAMPAGNA.md](docs/COME-CREARE-UNA-CAMPAGNA.md) | Ricetta passo-passo per una nuova storia |
 | [docs/LESSONS-LEARNED.md](docs/LESSONS-LEARNED.md) | Errori commessi e come evitarli la prossima volta |
+| [docs/PIPELINE-PRODUZIONE.md](docs/PIPELINE-PRODUZIONE.md) | Il framework riusabile: orchestratore + agenti, moduli portabili, regole di efficienza |
 | [docs/PREFERENZE.md](docs/PREFERENZE.md) | Preferenze del committente e modo di lavorare atteso |
 | [templates/campagna-template.js](templates/campagna-template.js) | Scheletro commentato di una campagna nuova |
 
