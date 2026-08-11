@@ -93,6 +93,10 @@ Attendere `built`, poi verificare il sito live (ricordando la cache di 10 minuti
 
 ## Checklist finale
 
+- [ ] **Incipit `RULES_STORY`** scritto e cablato (schermata 📖 La Storia dal titolo + modale a inizio partita): dove siete / cosa sta succedendo / cosa vi aspetta / cosa serve al tavolo, senza spoiler
+- [ ] **"Cosa manca e dove"**: `prefixes` nei CHAPTERS, stato per capitolo in Rivivi/Rientra, suggerimenti senza spoiler nel finale
+- [ ] Requisiti del committente ripresi dai **prompt originali**, uno per uno
+- [ ] Durata stimata **dai dati** (scene per run × parole medie ÷ 180 × 2,2-2,8)
 - [ ] `validate.mjs` e `playthrough.mjs` verdi
 - [ ] tutti i finali raggiungibili e testati
 - [ ] ogni promessa scritta nei testi è implementata davvero

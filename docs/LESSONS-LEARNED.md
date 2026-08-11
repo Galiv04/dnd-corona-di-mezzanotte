@@ -158,3 +158,16 @@ I capitoli rigiocabili non bastano: a fine partita il gioco deve DIRE quanto man
 (percentuale di stanze viste per capitolo + imprese mancanti lì, senza spoiler), e offrire il
 salto diretto al capitolo giusto. L'inferenza impresa→capitolo si fa dalla scena che ne imposta
 il flag: zero manutenzione. Feature nata sulla Casa, da retro-applicare a ogni gioco della serie.
+
+**33. Il gioco deve presentarsi: serve l'INCIPIT.**
+Per tre giochi di fila si entrava in partita senza sapere dove si era: il titolo, i personaggi, e
+via nella prima scena. Il committente l'ha segnalato dopo il terzo: manca "la prima parte del
+README" dentro il gioco — dove siamo, che sta succedendo, cosa ci aspetta, senza spoiler.
+→ **Regola per ogni gioco nuovo**: una schermata **📖 La Storia** raggiungibile dal titolo E
+mostrata automaticamente all'inizio di una partita nuova, con quattro blocchi:
+*dove siete* (setting e personaggi), *cosa sta succedendo* (l'evento scatenante), *cosa vi aspetta*
+(la promessa: strade, tono, posta in gioco — mai i twist), *cosa serve al tavolo* (giocatori,
+come si gioca, salvataggi, avvertenze sui contenuti). Circa 250-350 parole, nella voce del gioco.
+Implementazione riusabile: costante `RULES_STORY` in js/rules.js + schermata gemella di
+`screen-howto` + modale in `newGame` (attenzione: dove esiste già la modale del solitario, i due
+contenuti vanno nella STESSA modale).
