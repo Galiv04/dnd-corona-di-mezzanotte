@@ -73,3 +73,11 @@ ma i riferimenti alle scene non ancora scritte rompono il grafo).
 brief, test, audit, refactoring, backport); il modello più capace SOLO per il design e i brief,
 che li scrive l'orchestratore. E far chiudere ogni agente con una verifica che LUI stesso esegue
 (`node tests/validate.mjs` verde), così un'interruzione non lascia mai il repo incoerente.
+
+## Mai `git add -A` mentre un agente sta scrivendo
+
+Un commit "di servizio" (aggiornare un doc) fatto con `git add -A` mentre un agente riscriveva
+`tests/playthrough.mjs` ha pushato il file A METÀ: CI rossa su un lavoro che localmente era solo
+incompleto, non rotto. → **Regola**: durante un fan-out, committare **solo i file che si stanno
+toccando** (`git add <file>`), oppure aspettare che gli agenti abbiano finito. E prima di ogni
+push: `git status --short` per vedere se c'è dentro roba di qualcun altro.
