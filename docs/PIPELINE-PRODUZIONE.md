@@ -53,6 +53,9 @@ originali** (lezione 31) — inclusa la stima di durata DAI DATI (scene per run 
   stato in `showRevive` + blocco suggerimenti senza spoiler in `renderEnding`. Richiede solo
   `prefixes` nei CHAPTERS; l'inferenza impresa→capitolo è automatica (dalla scena che ne imposta
   il flag). Presente nella Casa e retro-applicata al Relais.
+- **Incipit** (`RULES_STORY` in js/rules.js + schermata `screen-story` gemella di `screen-howto` +
+  modale in `newGame`): la presentazione della storia senza spoiler. Obbligatoria in ogni gioco
+  (lezione 33): dove siete / cosa sta succedendo / cosa vi aspetta / cosa serve al tavolo.
 - **CI GitHub Actions** (15 righe): validate + playthrough a ogni push.
 - **`drafts/BRIEF.md`** come TEMPLATE: si riscrive solo la parte di contenuto.
 
