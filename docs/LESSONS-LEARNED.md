@@ -143,3 +143,18 @@ Il cerchio del tronello e il pegno del Mercante richiedevano il `tronello`: se i
 trovava prima, due contenuti importanti diventavano irraggiungibili. → **Regola**: per ogni scelta
 `requires: { item }`, verificare che l'oggetto sia garantito (zaino iniziale o percorso obbligato),
 non solo possibile.
+
+**31. "Veloce" non è "completo": ricontrollare i prompt originali prima di dichiarare pronto.**
+La Casa che non Finisce è stata prodotta in poche ore (motore ereditato + agenti in parallelo) e i
+test erano tutti verdi — ma rileggendo le richieste originali mancavano DUE cose: la durata
+promessa (~6 ore: una run visitava ~75 scene ≈ 4 ore) e la funzione "il gioco ti dice cosa manca
+e in che capitolo, senza spoiler". I test verificano ciò che c'è, non ciò che è stato promesso.
+→ **Regola**: prima di dichiarare pronto, checklist esplicita dei requisiti del committente presi
+dai prompt originali, e stima della durata DAI DATI del playthrough (scene visitate per run ×
+parole/scena ÷ 180), non a sensazione.
+
+**32. La rigiocabilità va servita, non solo permessa.**
+I capitoli rigiocabili non bastano: a fine partita il gioco deve DIRE quanto manca e dove
+(percentuale di stanze viste per capitolo + imprese mancanti lì, senza spoiler), e offrire il
+salto diretto al capitolo giusto. L'inferenza impresa→capitolo si fa dalla scena che ne imposta
+il flag: zero manutenzione. Feature nata sulla Casa, da retro-applicare a ogni gioco della serie.
