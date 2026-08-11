@@ -169,6 +169,11 @@ const Main = (() => {
     // entrambi mostrano sempre i 3 slot: così si vede dove si salva e cosa c'è
     $('btn-new-game').onclick = () => pickSlot('new');
     $('btn-continue').onclick = () => pickSlot('load');
+    $('btn-story').onclick = () => {
+      $('story-content').innerHTML = RULES_STORY;
+      Engine.showScreen('screen-story');
+    };
+    $('btn-story-back').onclick = () => Engine.showScreen('screen-title');
     $('btn-howto').onclick = () => {
       $('howto-content').innerHTML = RULES_HOWTO;
       Engine.showScreen('screen-howto');

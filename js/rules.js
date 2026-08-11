@@ -1,5 +1,22 @@
 /* ============ REGOLE — guida rapida e "come si gioca" ============ */
 
+const RULES_STORY = `
+<h3>🌞 Dove siete</h3>
+<p>Nel <b>Regno di Lumelia</b>: colline verdi, mercati rumorosi, un re che nessuno ha mai visto arrabbiato, e abbastanza taverne perché ogni villaggio abbia la sua leggenda locale. Voi siete una compagnia di avventurieri — quelli che il regno chiama quando succede qualcosa di strano, e a cui paga da bere quando non succede niente.</p>
+<p>Oggi è giorno di mercato a <b>Brindolo</b>. L'oste vi offre lo stufato. Il sole splende. È il momento più tranquillo che vivrete per un bel pezzo.</p>
+
+<h3>🌑 Cosa sta succedendo</h3>
+<p>A mezzanotte, il <b>sole si è spento</b>. Non tramontato: <i>spento</i>. Da allora è notte su tutto il regno — sui campi, sulle greggi, sui bambini che non vogliono dormire perché non capiscono quando è domani.</p>
+<p>Nel cielo, al posto del sole, c'è qualcosa che i vecchi chiamano <b>la Corona di Mezzanotte</b>. Nessuno sa cosa sia. Qualcuno, però, sa perché è lì — e ha ottime ragioni per non dirvelo.</p>
+
+<h3>🗺 Cosa vi aspetta</h3>
+<p>Un viaggio dal villaggio fino a un castello che nessuna mappa segna più, con tre strade possibili e nessuna sicura: boschi con abitanti sindacalizzati, miniere che dovrebbero essere vuote, un fiume che chiede il pedaggio in ricordi. Incontrerete gente che vi aiuterà per i motivi sbagliati e mostri che vi ostacoleranno per motivi sorprendentemente comprensibili.</p>
+<p>Alla fine troverete chi ha spento il sole. Vi dirà perché. E allora avrete una scelta più difficile di qualunque combattimento.</p>
+
+<h3>🎲 Cosa serve al tavolo</h3>
+<p>Da uno a sei giocatori, un solo schermo, zero preparazione: uno legge ad alta voce, si discute, si sceglie insieme, e quando serve si tira il dado. Il Narratore fa tutto il resto. Si salva automaticamente: si può smettere e riprendere quando volete.</p>
+<p><i>Una raccomandazione sola: quando il gioco vi propone una scelta che sembra sbagliata ma divertente — fatela. È lì che vive questa storia.</i></p>`;
+
 const RULES_HOWTO = `
 <h3>🎲 Che gioco è questo?</h3>
 <p>È un'avventura fantasy interattiva ispirata a <b>Dungeons &amp; Dragons</b>, pensata per chi non ha mai giocato.

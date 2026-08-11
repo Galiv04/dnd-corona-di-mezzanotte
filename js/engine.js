@@ -94,15 +94,19 @@ const Engine = (() => {
     }
     saveGame();
     gotoScene(CAMPAIGN_START);
-    if (solo) {
+    {
       const box = $('modal-generic-content');
-      box.innerHTML = `<h2>🌟 Modalità Eroe Solitario</h2>
+      let html = `<h2>📖 La Storia</h2>` + (typeof RULES_STORY !== 'undefined' ? RULES_STORY : '');
+      if (solo) {
+        html += `<h2 style="margin-top:16px">🌟 Modalità Eroe Solitario</h2>
         <p style="margin-bottom:12px">${G.party[0].name} affronta l'avventura DA SOLO. Il destino, impressionato, concede:</p>
         <div class="ability-box"><span class="ability-name">❤ +10 PV massimi e +1 CA</span></div>
         <div class="ability-box"><span class="ability-name">✨ +1 uso a ogni abilità speciale</span></div>
         <div class="ability-box"><span class="ability-name">🧪 2 Pozioni di Cura e +15 monete d'oro di partenza</span></div>
-        <p style="color:var(--text-dim);margin-top:10px">Consiglio da DM: comprate pozioni. TANTE pozioni.</p>
-        <button class="btn btn-gold" style="margin-top:12px" onclick="document.getElementById('modal-generic').classList.add('hidden')">⚔ Che l'avventura abbia inizio</button>`;
+        <p style="color:var(--text-dim);margin-top:10px">Consiglio da DM: comprate pozioni. TANTE pozioni.</p>`;
+      }
+      html += `<button class="btn btn-gold" style="margin-top:12px" onclick="document.getElementById('modal-generic').classList.add('hidden')">⚔ Che l'avventura abbia inizio</button>`;
+      box.innerHTML = html;
       $('modal-generic').classList.remove('hidden');
     }
   }
