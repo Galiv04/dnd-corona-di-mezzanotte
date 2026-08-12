@@ -84,3 +84,24 @@ Un commit "di servizio" (aggiornare un doc) fatto con `git add -A` mentre un age
 incompleto, non rotto. → **Regola**: durante un fan-out, committare **solo i file che si stanno
 toccando** (`git add <file>`), oppure aspettare che gli agenti abbiano finito. E prima di ogni
 push: `git status --short` per vedere se c'è dentro roba di qualcun altro.
+
+## Controllo di densità (misurare la giocabilità, non solo le parole)
+
+Regola ripetuta del committente: *i testi non devono essere prolissi; la lunghezza del gioco deve
+venire dalla varietà e dalla giocabilità.* Non basta tenere le scene corte: bisogna misurare quante
+DECISIONI offre il gioco. Metriche da controllare prima di dichiarare pronto (script in
+`effetto-zoom` — leggono la campagna assemblata):
+
+| Metrica | Soglia |
+|---|---|
+| Parole medie per scena | 150-260 (max 300) |
+| Scene oltre 280 parole | 0 |
+| **Scelte medie per scena** | **≥ 1.9** |
+| **Scene con una sola scelta** (corridoi "avanti") | **≤ 20% delle scene** |
+| Prove di dado | ~1 ogni 3 scene |
+| Scene con un effetto meccanico (gold/heal/damage/item/sets) | ≥ 80% |
+
+Sull'Effetto Zoom la prima stesura aveva testi perfetti (194 parole medie, zero scene lunghe) ma
+1.37 scelte per scena e 52 corridoi su 84: il gioco *si leggeva* invece di *giocarsi*. La passata
+di rifinitura (`drafts/POLISH.md`, riusabile come template) aggiunge scelte e prove **senza toccare
+i testi** — anzi accorciandoli dove serve. Farla SEMPRE, subito dopo la prima stesura.
