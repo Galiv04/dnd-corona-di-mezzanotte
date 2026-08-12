@@ -12,15 +12,17 @@ Un'avventura fantasy interattiva in stile D&D, in **italiano**, giocabile nel br
 
 ## Documentazione di progetto
 
+La documentazione condivisa del motore vive ora nel repo separato **[Galiv04/dnd-motore](https://github.com/Galiv04/dnd-motore)** (`../dnd-motore/`):
+
 | File | Contenuto |
 |---|---|
-| [docs/ARCHITETTURA.md](docs/ARCHITETTURA.md) | Come funziona il motore: formati dati, moduli, flusso di gioco |
-| [docs/STILE-NARRATIVO.md](docs/STILE-NARRATIVO.md) | Tono, voce, regole di scrittura, esempi buoni e cattivi |
-| [docs/COME-CREARE-UNA-CAMPAGNA.md](docs/COME-CREARE-UNA-CAMPAGNA.md) | Ricetta passo-passo per una nuova storia |
-| [docs/LESSONS-LEARNED.md](docs/LESSONS-LEARNED.md) | Errori commessi e come evitarli la prossima volta |
-| [docs/PIPELINE-PRODUZIONE.md](docs/PIPELINE-PRODUZIONE.md) | Il framework riusabile: orchestratore + agenti, moduli portabili, regole di efficienza |
-| [docs/PREFERENZE.md](docs/PREFERENZE.md) | Preferenze del committente e modo di lavorare atteso |
-| [templates/campagna-template.js](templates/campagna-template.js) | Scheletro commentato di una campagna nuova |
+| [../dnd-motore/docs/ARCHITETTURA.md](../dnd-motore/docs/ARCHITETTURA.md) | Come funziona il motore: formati dati, moduli, flusso di gioco |
+| [../dnd-motore/docs/STILE-NARRATIVO.md](../dnd-motore/docs/STILE-NARRATIVO.md) | Tono, voce, regole di scrittura, esempi buoni e cattivi |
+| [../dnd-motore/docs/COME-CREARE-UNA-CAMPAGNA.md](../dnd-motore/docs/COME-CREARE-UNA-CAMPAGNA.md) | Ricetta passo-passo per una nuova storia |
+| [../dnd-motore/docs/LESSONS-LEARNED.md](../dnd-motore/docs/LESSONS-LEARNED.md) | Errori commessi e come evitarli la prossima volta |
+| [../dnd-motore/docs/PIPELINE-PRODUZIONE.md](../dnd-motore/docs/PIPELINE-PRODUZIONE.md) | Il framework riusabile: orchestratore + agenti, moduli portabili, regole di efficienza |
+| [../dnd-motore/docs/PREFERENZE.md](../dnd-motore/docs/PREFERENZE.md) | Preferenze del committente e modo di lavorare atteso |
+| [templates/campagna-template.js](templates/campagna-template.js) | Scheletro commentato di una campagna nuova (ora anche in `../dnd-motore/templates/`) |
 
 ## Comandi
 
