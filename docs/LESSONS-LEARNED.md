@@ -171,3 +171,21 @@ come si gioca, salvataggi, avvertenze sui contenuti). Circa 250-350 parole, nell
 Implementazione riusabile: costante `RULES_STORY` in js/rules.js + schermata gemella di
 `screen-howto` + modale in `newGame` (attenzione: dove esiste già la modale del solitario, i due
 contenuti vanno nella STESSA modale).
+
+**34. Scene corte non bastano: contare le DECISIONI.**
+Sull'Effetto Zoom la prima stesura aveva testi esemplari — 194 parole medie, zero scene oltre 280 —
+ma 1,37 scelte per scena e 52 scene su 84 con un solo bottone "avanti": il gioco si LEGGEVA invece
+di giocarsi. È esattamente il difetto che il committente segnala da sempre ("la lunghezza deve
+stare nella varietà e nella giocabilità"), e la metrica delle parole non lo intercetta.
+→ **Regola**: dopo la prima stesura, misurare con uno script sulla campagna assemblata scelte medie
+per scena (≥1,9), percentuale di scene-corridoio (≤20%), prove di dado (~1 ogni 3 scene) e scene con
+effetti meccanici (≥80%); poi fare la **passata di densità** (template `drafts/POLISH.md`), che
+aggiunge scelte e prove SENZA allungare i testi. Da mettere in preventivo dall'inizio: è una fase
+della pipeline, non un extra.
+
+**35. Chi scrive su brief tende al corridoio.**
+Gli agenti-sceneggiatori, se il grafo dell'incarico dice "A → B", scrivono esattamente una scelta
+per scena: il grafo che gli dai è il tetto della loro interattività, non il pavimento.
+→ **Prossima volta**: nel brief chiedere ESPLICITAMENTE un minimo di 2 scelte per scena (di cui
+almeno una con conseguenza meccanica) e una prova di dado ogni tre scene, e mettere le soglie di
+densità nel testo dell'incarico.
