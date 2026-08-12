@@ -55,6 +55,19 @@ Sei eroi pregenerati coprono bene ogni gruppo. Formula per ciascuno:
 
 Distribuire le statistiche in modo che **ogni eroe sia il migliore in almeno una prova**: così ogni giocatore ha il suo momento.
 
+## Passo 3-bis — Il brief per gli sceneggiatori (e le soglie di densità)
+
+Il grafo che scrivi nell'incarico è **il tetto** dell'interattività, non il pavimento: chi scrive su
+brief tende a produrre una scelta per scena (lezione 35). Nel brief va quindi scritto ESPLICITAMENTE:
+
+> Ogni scena deve avere **almeno 2 scelte**, di cui almeno una con una conseguenza meccanica
+> (`heal`/`damage`/`gold`/`item`/`sets`), e ci vuole **una prova di dado ogni tre scene** circa,
+> distribuita su statistiche diverse. Le scene con un solo bottone "avanti" sono un difetto.
+
+E dopo la prima stesura si misura sempre (soglie in `PIPELINE-PRODUZIONE.md`): scelte medie per scena
+≥1,9 · scene-corridoio ≤20% · prove ~1 ogni 3 scene · scene con effetti meccanici ≥80% ·
+parole medie 150-260. Se non tornano: passata di densità (template `drafts/POLISH.md`).
+
 ## Passo 4 — Scrivere le scene
 
 1. Definire prima l'**elenco degli id** e il grafo su carta (chi porta a chi).
