@@ -31,6 +31,7 @@ const Minigames = (() => {
       if (running.raf) cancelAnimationFrame(running.raf);
       if (running.keyH) document.removeEventListener('keydown', running.keyH);
       if (running.timer) clearInterval(running.timer);
+      if (running.watchdog) clearTimeout(running.watchdog);
       running = null;
     }
     if (overlay) { overlay.classList.add('hidden'); overlay.innerHTML = ''; }
@@ -98,8 +99,23 @@ const Minigames = (() => {
           st.spawned++;
         }
 
+        // driver dei frame: rAF quando c'è, timer di riserva quando il browser
+        // lo sospende (pagina nascosta, ambienti di test) — il gioco non si congela mai
+        let ticked = false;
+        function schedule() {
+          if (!running) return;
+          running.raf = requestAnimationFrame(loop);
+          if (!running.watchdog) {
+            running.watchdog = setTimeout(() => {
+              if (!ticked && running) {
+                running.timer = setInterval(() => loop(performance.now()), 33);
+              }
+            }, 500);
+          }
+        }
         function loop(ts) {
           if (!running) return;
+          ticked = true;
           if (st.last == null) st.last = ts;
           const dt = Math.min(0.033, (ts - st.last) / 1000);
           st.last = ts; st.t += dt;
@@ -145,9 +161,9 @@ const Minigames = (() => {
           if (st.passed + st.obs.filter(o => o.hit).length >= TOT && st.obs.every(o => o.ok || o.hit)) {
             return finish(mg, done, st.hits < 3);
           }
-          running.raf = requestAnimationFrame(loop);
+          if (!running.timer) schedule();
         }
-        running.raf = requestAnimationFrame(loop);
+        schedule();
       });
   }
 
