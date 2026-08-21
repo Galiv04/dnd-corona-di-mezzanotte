@@ -24,6 +24,13 @@ La documentazione condivisa del motore vive ora nel repo separato **[Galiv04/dnd
 | [../dnd-motore/docs/PREFERENZE.md](../dnd-motore/docs/PREFERENZE.md) | Preferenze del committente e modo di lavorare atteso |
 | [templates/campagna-template.js](templates/campagna-template.js) | Scheletro commentato di una campagna nuova (ora anche in `../dnd-motore/templates/`) |
 
+## Aggiornamenti di serie (agosto 2026)
+
+La Corona è stata allineata agli standard degli altri giochi:
+- **Densità**: 11% di scene-corridoio, 1.95 scelte/scena (soglie di serie in `../dnd-motore/docs/PIPELINE-PRODUZIONE.md`). Le prove possono usare `successHeal`/`failDamage` (il dado conta anche a destinazione uguale).
+- **Minigiochi**: `js/minigames.js` + `scene.minigame` — la Frana del Monte Sapere (corsa, t4) e il secondo indovinello del Vecchio Salice (r1_tariffa). Doc: `../dnd-motore/docs/MINIGIOCHI.md`.
+- Regola di serie: **nessuna scelta che promette contenuto narrativo senza una scena di payoff** (i gesti auto-contenuti con effetto visibile sono ok).
+
 ## Comandi
 
 ```bash
