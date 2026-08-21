@@ -24,7 +24,7 @@ const ITEMS = {
   chiave_torre:       { name: 'Chiave della Torre', desc: 'Dono di Gerbold. Apre la scala privata di Lord Morn.', usable: false },
   spartito:           { name: 'Spartito Ingiallito', desc: '"Ballata per un Re Sordo" — di Vespertino Morn. La canzone che rovinò tutto.', usable: false },
   lacrima_di_luna:    { name: 'Lacrima di Luna', desc: 'Una lacrima d\'argento che non si asciuga mai. Custodisce un ricordo felice che non è più vostro — ma nell\'ora più buia potrebbe restituirvi la luce.', usable: false },
-  fischietto_di_bertoldo: { name: 'Fischietto di Bertoldo', desc: 'Un fischietto d\'ottone annerito. Richiama l\'attenzione di qualunque fantasma d\'acqua nel raggio di un fiume.', usable: false },
+  fischietto_di_bertoldo: { name: 'Fischietto di Bertoldo', desc: 'Un fischietto d\'ottone annerito, dono di un barcaiolo che ha ritrovato il remo di suo padre. Non serve a niente, e vale moltissimo.', usable: false },
   provviste:          { name: 'Provviste di Bocciolo', desc: 'Pane di segale, formaggio stagionato e un sugo di famiglia dall\'ingrediente segreto. Rende i riposi più efficaci (+2 PV extra).', usable: false },
 
   mappa_stellare: {
@@ -94,7 +94,7 @@ Fuori si sente la banda del paese che accorda gli strumenti per la festa del rac
 *Tutto è pace per ancora... tre secondi.*`,
     choices: [
       { text: 'Continua', next: 'p2' },
-      { text: '🍺 Un ultimo sorso di sidro, godendosi i tre secondi di pace', once: true, heal: 1, next: 'p2' }
+      { text: '🍺 Un ultimo sorso di birra speziata, godendosi i tre secondi di pace', once: true, heal: 1, next: 'p2' }
     ],
   },
 
@@ -155,7 +155,7 @@ Be'... tecnicamente il panico è passato. Diciamo che era il piano fin dall'iniz
 
 Chi di voi se ne intende riconosce i segni: magia di sangue, antica e teatrale. Qualcuno non ha *spento* il sole... l'ha **rubato**, e ha lasciato quel disco come biglietto da visita.
 
-*Un indizio prezioso.* **(Avete capito che è opera di un incantatore)**`,
+Ve lo annotate a mente: chiunque sia stato, ha firmato il cielo col proprio stile. E chi firma così, prima o poi, vuole un pubblico.`,
     sets: { sa_magia: true },
     choices: [
       { text: 'Continua', next: 'p3' },
@@ -265,7 +265,7 @@ Si gratta la testa.
 > Bartolo: "Ah, e... l'eclissi si completa a **mezzanotte**. Avrete tempo per UNA sola strada. Scegliete bene."`,
     choices: [
       { text: 'Prima di partire: fate provviste in paese', next: 'v1' },
-      { text: '🗺 Farsi ripetere le tre strade da Bartolo, e disegnarle sulla polvere', once: true, gold: 1, next: 'v1' }
+      { text: '🗺 Farsi ripetere le due strade che conosce Bartolo, e disegnarle sulla polvere', once: true, gold: 1, next: 'v1' }
     ],
   },
 
@@ -393,7 +393,7 @@ Fruga in un baule e vi mette in mano un foglio ingiallito: lo **spartito origina
     item: 'spartito',
     choices: [
       { text: 'La ringraziate e le baciate la mano. Tornate in piazza', next: 'v1' },
-      { text: '🫖 Seconda tazza di tè: mezz\'ora dei ricordi più felici di Mirtilla, a ruota libera', once: true, heal: 2, next: 'v1' }
+      { text: '🫖 Accettare la tazza di tè di Mirtilla: mezz\'ora dei suoi ricordi più felici, a ruota libera', once: true, heal: 2, next: 'v1' }
     ],
   },
 
@@ -623,7 +623,7 @@ I goblin vi salutano col pugno alzato. **(Informazione preziosa sul Gran Ballo!)
     sets: { sa_ballo: true },
     choices: [
       { text: 'Proseguite verso nord', next: 'v3' },
-      { text: '✊ Rispondere al saluto goblin col pugno alzato: solidarietà tra lavoratori', once: true, gold: 1, next: 'v3' },
+      { text: '✊ Rispondere al saluto goblin col pugno alzato: solidarietà tra lavoratori', once: true, heal: 1, next: 'v3' },
     ],
   },
 
@@ -713,7 +713,6 @@ Scosta il telo. Sul banco: un **corno da guerra nanico**, una **pergamena del fu
       { text: '📜 Comprate la Pergamena del Fulmine (35 oro)', requiresGold: 35, gold: -35, item: 'pergamena_fulmine' },
       { text: '☀ Comprate la Polvere di Sole Imbottigliata (60 oro)', requiresGold: 60, gold: -60, item: 'polvere_solare', once: true },
       { text: '🍾 Comprate l\'Elisir del Coraggio (30 oro)', requiresGold: 30, gold: -30, item: 'elisir_coraggio' },
-      { text: '💎 Vendete la Gemma Nanica (+45 oro)', requires: { item: 'gemma_nanica' }, removeItem: 'gemma_nanica', gold: 45, once: true },
       { text: '🗣 "Fosca, cosa sai DAVVERO di Vesper Morn?"', tag: 'Prova di Carisma — CD 11', once: true, requires: { notFlag: 'sa_passato_bardo' }, check: { stat: 'CAR', dc: 11, success: 'v3_fosca_parla', fail: 'v3_fosca_tace' } },
       { text: '↩ Tornate al bivio', next: 'v3' },
     ],
@@ -913,7 +912,7 @@ Il fungo è così indignato che — *POFF* — rilascia una nuvola di spore urti
 > Fungo Anziano: "Ok! Ok. Colpa mia, mi sono scaldato. È che ci tengo, all'indovinello. Passate pure. La capanna di Ortica è di là. E... non ditele di questa storia, per favore. Abbiamo un passato."`,
     choices: [
       { text: 'Verso la capanna della strega', next: 'b3_arrivo' },
-      { text: '🤫 Giurare il silenzio sulla storia dell\'indovinello, mano sul cuore', once: true, gold: 1, next: 'b3_arrivo' },
+      { text: '🤫 Giurare il silenzio sulla storia dell\'indovinello, mano sul cuore', once: true, heal: 1, next: 'b3_arrivo' },
     ],
   },
 
@@ -1025,13 +1024,13 @@ Il capobranco ringhia. Dalla finestra, Ortica grida:
     caption: 'Il giardino di Ortica',
     text: `L'ultimo lupo guaisce e il branco si ritira nell'ombra, sconfitto con onore. Sul prato, tra l'erba: un canino perfetto, lungo come un dito. **(Dente di Lupo ottenuto!)**
 
-Ortica esce, lo esamina controluce come un gioielliere e annuisce.
+Ortica esce, lo esamina controluce come un gioielliere, annuisce, e ve lo lascia in mano: "Me lo consegnerete dentro, col cerimoniale dovuto. Le streghe ci tengono, alle consegne."
 
 > Ortica: "Bel pezzo. E le rose sono intatte: siete promossi. Entrate, che la pozione bolle."`,
     item: 'dente_lupo',
     choices: [
-      { text: 'Rientrate nella capanna', next: 'b4' },
-      { text: '🌹 Sistemare le rose spettinate dalla zuffa, da ospiti educati', once: true, gold: 1, next: 'b4' },
+      { text: 'Rientrate nella capanna e consegnate il dente a Ortica', removeItem: 'dente_lupo', next: 'b4' },
+      { text: '🌹 Sistemare le rose spettinate dalla zuffa, da ospiti educati (poi dentro, a consegnare il dente)', once: true, gold: 1, removeItem: 'dente_lupo', next: 'b4' },
     ],
   },
 
@@ -1533,7 +1532,9 @@ Incrocia le braccia trasparenti, per quanto sia possibile farlo con dignità res
 
 Con qualche spallata coordinata (e un contributo non richiesto di chi tratta la vela come un ingrediente ribelle da domare a suon di gomiti), la vela si issa con un ultimo scricchiolio soddisfatto. Bertoldo, per la prima volta, sembra quasi divertito dal caos.
 
-> Bertoldo: "Non malissimo, per essere vivi. Su, a bordo, prima che cambi idea sullo sconto."`,
+> Bertoldo: "Non malissimo, per essere vivi. Su, a bordo, prima che cambi idea sullo sconto."
+
+*(E se nel borsello le venti monete non ci sono tutte, Bertoldo accetta quel che avete, brontolando qualcosa sull'inflazione post-mortem.)*`,
     gold: -20,
     choices: [
       { text: 'Salite a bordo', next: 'r2' },
@@ -1578,7 +1579,7 @@ Non se ne va. Anzi, si avvicina, e l'acqua intorno comincia a girare lenta, come
 > Bertoldo: "Se vi serve un consiglio da esperto: NON toccate altra acqua per un po'. Anche se, ripensandoci, è un po' tardi per quel consiglio."`,
     choices: [
       { text: '⚔ Affrontate anguille e guardiano', next: 'r1_anguille' },
-      { text: '🧠 Distraetele gettando in acqua il cesto di pesce essiccato di Bertoldo', tag: 'Prova di Intelligenza — CD 11', check: { stat: 'INT', dc: 11, success: 'r2', fail: 'r1_anguille' } },
+      { text: '🧠 Distraetele gettando in acqua il cesto di pesce essiccato di Bertoldo', tag: 'Prova di Intelligenza — CD 11', check: { stat: 'INT', dc: 11, success: 'r1_remo_riaffiora', fail: 'r1_anguille' } },
     ],
   },
 
@@ -1603,6 +1604,23 @@ Le anguille sfrecciano tra le gambe cercando di trascinarvi verso il fondo, ment
     },
   },
 
+  r1_remo_riaffiora: {
+    location: 'fiume',
+    npc: ['bertoldo'],
+    caption: 'Il canneto restituisce',
+    text: `Il cesto di pesce essiccato vola in acqua con mira da professionisti. Le anguille dimenticano all'istante il vostro polso: tre schizzi, un gorgo famelico, e il banchetto è servito. Perfino l'ombra del guardiano si abbassa, curiosa, verso il trambusto.
+
+E nel mulinello che si placa, tra le radici smosse dalla festa, qualcosa di chiaro RIAFFIORA e va a sbattere piano contro il molo: un remo consumato, l'impugnatura intagliata a forma di pesce sorridente.
+
+> Bertoldo: "Il... il MIO remo. Quello di mio padre. Centocinquant'anni che lo cerco, e voi lo tirate fuori COL PESCE ESSICCATO?!" *(lo stringe al petto, attraversandolo un poco)* "Salite. Salite SUBITO, e gratis: un uomo che ritrova il remo di suo padre non fa pagare pedaggio, che diamine."
+
+**(Remo Fortunato ritrovato! Bertoldo naviga con più sicurezza: la traversata sarà più agevole.)**`,
+    sets: { remo_ritrovato: true },
+    choices: [
+      { text: 'Salite a bordo', next: 'r2' },
+      { text: '🐟 Un cenno di ringraziamento alle anguille, ora impegnatissime', once: true, heal: 1, next: 'r2' },
+    ],
+  },
 
   mg_salice: {
     location: 'fiume',
@@ -1640,7 +1658,7 @@ ma è SEMPRE lui che finisce a reggermi.
     caption: 'Il Salice paga',
     text: `> Il Vecchio Salice: *(dopo un silenzio lunghissimo, quasi offeso)* "...esatto. ESATTO. Una corona. Non pesa niente eppure schiaccia, e chi la porta finisce a reggerla, altroché possederla." *(le fronde frugano nell'acqua e ne riemergono con una borsina di tela fradicia)* "Il tesoretto dei pesci. Dieci monete, come promesso. E un consiglio non richiesto, che è la mia specialità: quella lassù al castello, la Corona di Mezzanotte... ricordatevi il mio indovinello, quando la vedrete da vicino. Le corone non si POSSIEDONO."
 
-> Fizzle: "Un albero ci ha appena pagati E fatto la morale. Questo fiume mi piace."
+[[eroe:fizzle]]> Fizzle: "Un albero ci ha appena pagati E fatto la morale. Questo fiume mi piace."[[/eroe]]
 
 **(💰 +10 monete. E una verità sul finale, travestita da filastrocca.)**`,
     gold: 10,
@@ -1658,7 +1676,7 @@ ma è SEMPRE lui che finisce a reggermi.
 
 Vi scrollate di dosso mezzo autunno mentre il Salice torna a spettegolare con le fronde alte, già dimentico di voi.
 
-> Torvald: *(cavandosi una foglia dall'orecchio)* "La prossima volta l'indovinello lo faccio IO: 'cos'ha quattro fronde e parla troppo?'"
+[[eroe:torvald]]> Torvald: *(cavandosi una foglia dall'orecchio)* "La prossima volta l'indovinello lo faccio IO: 'cos'ha quattro fronde e parla troppo?'"[[/eroe]]
 
 **(Niente monete. Le foglie, almeno, sono gratis.)**`,
     choices: [
@@ -1845,7 +1863,7 @@ Il barcone approda su una banchina di pietra coperta di muschio fosforescente. S
 Bertoldo lega il barcone a un anello di ferro arrugginito, con la cura meticolosa di chi non è affatto sicuro di voler concludere questo viaggio.`,
     choices: [
       { text: 'Sbarcate sulla banchina', next: 'r7' },
-      { text: '🔦 Alzare la torcia verso il soffitto della grotta: MERITA', once: true, gold: 1, next: 'r7' },
+      { text: '🏮 Alzare la lanterna del barcone verso il soffitto della grotta: MERITA', once: true, heal: 1, next: 'r7' },
     ],
   },
 
@@ -1974,7 +1992,7 @@ Almeno le maschere ormai le avete in mano. Ma prima: i pipistrelli!`,
 Vi infilate le maschere ed entrate, un po' ammaccati ma DENTRO.`,
     choices: [
       { text: 'Il Gran Ballo vi aspetta', next: 'c_ballo' },
-      { text: '🧊 Ghiaccio del buffet sugli zigomi, prima di entrare in scena', once: true, heal: 2, next: 'c_ballo' },
+      { text: '🧊 Neve dal davanzale sulle nocche, prima di entrare in scena', once: true, heal: 2, next: 'c_ballo' },
     ],
   },
 
@@ -2074,7 +2092,7 @@ Uno scheletro. In **livrea da maggiordomo**. Impeccabile. Vi dà le spalle, ma v
 > Scheletro: *(senza voltarsi)* "Gli ospiti della festa hanno sbagliato strada, o gli intrusi hanno trovato quella giusta. In entrambi i casi: benvenuti. Io sono **Gerbold**. Datemi un istante, devo finire il cucchiaino 4.712."`,
     choices: [
       { text: 'Parlate con Gerbold', next: 'c_gerbold' },
-      { text: '🥄 Aspettare in silenzio il cucchiaino 4.712: il rispetto prima di tutto', once: true, gold: 1, next: 'c_gerbold' },
+      { text: '🥄 Aspettare in silenzio il cucchiaino 4.712: il rispetto prima di tutto', once: true, heal: 1, next: 'c_gerbold' },
     ],
   },
 
@@ -2112,7 +2130,7 @@ Da qui, una scala a chiocciola scende verso le cucine e le **cantine**. Passando
 Nelle cantine, in una cripta silenziosa, uno scheletro in livrea da maggiordomo lucida cucchiaini e sospira il sospiro più stanco che abbiate mai sentito.`,
     choices: [
       { text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' },
-      { text: '🧗 Recuperare il rampino con torsione da manuale: attrezzatura salva', once: true, gold: 1, next: 'c_gerbold' },
+      { text: '🧗 Riavvolgere la corda della cordata, con cura da professionisti', once: true, gold: 1, next: 'c_gerbold' },
     ],
   },
 
@@ -2241,6 +2259,7 @@ Dall'alto, attutita, arriva la voce di Vesper che... prova il discorso:
 
 Decisione tattica, eroi: riposare qui costa tempo prezioso, ma arrivare stanchi dal boss...`,
     choices: [
+      { text: '👂 Tendere l\'orecchio alle scale: di sotto, Gerbold sta deviando le guardie a suon d\'argenteria ("L\'INVENTARIO, signori, l\'INVENTARIO!"). La salita è coperta: si respira', requires: { flag: 'gerbold_alleato' }, once: true, heal: 1, next: 'c_scala' },
       { text: '🛌 Riposo breve: bende, pozioni, un boccone (+8 PV a tutti, ma arriverete a rituale INIZIATO)', next: 'c_scala_riposo' },
       { text: '🏃 Di corsa! Coglietelo di sorpresa PRIMA che inizi il rituale (vantaggio al primo turno)', next: 'c_scala_corsa' },
     ],
@@ -2295,6 +2314,30 @@ Vi squadra uno a uno, e per un istante — un istante solo — sotto la posa da 
       { text: '👑 "Non sei tu il nemico. È quella CORONA. Ti sta divorando da duecento anni."', requires: { flag: 'sa_corona' }, next: 'f_corona1' },
       { text: '🪞 Estraete lo specchio d\'argento e glielo puntate contro', requires: { item: 'specchio_argento' }, next: 'f_specchio' },
       { text: '🧄 Brandite la treccia d\'aglio come una reliquia sacra!', requires: { item: 'aglio' }, removeItem: 'aglio', next: 'f_aglio' },
+      { text: '🗺 "Ottavia Stellarossa ti manda i suoi omaggi: il tuo rituale ha una FALLA. Sta scritta sulla mappa stellare."', requires: { flag: 'sa_rituale' }, next: 'f_rituale_falla' },
+    ],
+  },
+
+  f_rituale_falla: {
+    location: 'vetta',
+    npc: ['vesper'],
+    caption: 'Il dettaglio che nessuno aveva mai notato',
+    text: `Srotolate la mappa stellare di Ottavia. Vesper la degna di un'occhiata annoiata... poi di una seconda. Poi la STRAPPA dalle vostre mani.
+
+> Vesper: "Questa... questa annotazione sul margine. L'anello va sigillato al PRIMO rintocco di mezzanotte, non all'ultimo. Chi... CHI l'ha calcolato? Io ci ho messo VENT'ANNI ad arrivarci, e nessun astronomo del regno—"
+
+> Voi: "L'astronoma della torre pendente. Quella di cui tutti ridono. Ha ragione lei, stavolta: quarantottesima previsione."
+
+Vesper fissa la mappa, il leggio, il cielo. Undici rintocchi di margine in meno: tutto il suo copione — il discorso, la posa, il crescendo — non ci sta più. Duecento anni di prove generali da ricalibrare in quattro minuti.
+
+> Vesper: "No. NO. Il monologo dura DODICI rintocchi, l'ho CRONOMETRATO—" *(si passa una mano sul viso)* "Odio i tecnici. Ho sempre odiato i tecnici."
+
+**(Vesper è nel PANICO da scaletta: inizierà l'eventuale scontro con -2 ai suoi tiri per il primo round! La previsione di Ottavia era quella giusta.)**`,
+    sets: { vesper_turbato: true },
+    choices: [
+      { text: '⚔ Approfittate del panico da scaletta: ALL\'ATTACCO!', next: 'f_boss_intro' },
+      { text: '🎭 "Vespertino... la tua ballata merita un vero pubblico." (se sapete del suo passato)', requires: { flag: 'sa_passato_bardo' }, next: 'f_tenzone1' },
+      { text: '👑 "Non sei tu il nemico. È quella CORONA che ti divora." (se conoscete il segreto)', requires: { flag: 'sa_corona' }, next: 'f_corona1' },
     ],
   },
 
@@ -2410,6 +2453,7 @@ La vanità di duecento anni fa il suo lavoro: gli occhi di Vesper si ACCENDONO.
 
 Lo scheletro del mantice corre a prendere un liuto polveroso. La sfida è: colpirlo al cuore (artistico). Chi apre per voi?`,
     choices: [
+      { text: '🎻 "Cent\'anni di corde nuove, Vespertino. \'Tengono l\'accordatura anche se nessuno le ascolta?\' Stanotte, qualcuno ascolta."', requires: { flag: 'sa_corde' }, next: 'f_tenzone2' },
       { text: '🎼 Gli porgete lo SPARTITO ORIGINALE, conservato da Mirtilla per duecento anni', requires: { item: 'spartito' }, next: 'f_tenzone2' },
       { text: '🎵 Aprite con una canzone VOSTRA: sincera, stonata, vera', tag: 'Prova di Carisma — CD 12', check: { stat: 'CAR', dc: 12, success: 'f_tenzone2', fail: 'f_tenzone_fail1' } },
       { text: '🧠 Aprite analizzando la SUA ballata: "la terza strofa era avanti di duecento anni"', tag: 'Prova di Intelligenza — CD 12', check: { stat: 'INT', dc: 12, success: 'f_tenzone2', fail: 'f_tenzone_fail1' } },
@@ -2642,6 +2686,7 @@ La corona, però, non ha finito. Tra le vostre dita, la gemma rossa smette di ur
 È leggera. È bellissima. E vi starebbe benissimo.`,
     choices: [
       { text: '💥 SULL\'ALTARE. SUBITO. (spaccatela!)', next: 'f_corona_distrutta' },
+      { text: '🌳 "Le corone non si POSSIEDONO." L\'indovinello del Salice vi torna in mente, nitido — e la mano smette di tremare. All\'altare, senza esitazione', requires: { flag: 'indovinello_salice' }, next: 'f_corona_distrutta' },
       { text: '👑 "...e se la indossassimo NOI? Solo per sistemare le cose. Solo per un po\'."', tag: 'Prova di Saggezza — CD 13 (resistere alla tentazione)', check: { stat: 'SAG', dc: 13, success: 'f_tentazione_ok', fail: 'f_tentazione_ko' } },
     ],
   },
@@ -3016,7 +3061,7 @@ Si scuote, si alza, ritrova in un lampo tutta la sua energia stralunata.
     item2: 'lente_di_ottavia',
     choices: [
       { text: 'Ringraziatela e scendete', next: 't8' },
-      { text: '⭐ La previsione n°49 di Ottavia: \"Domani, alba. GARANTITA.\" Rassicurante, in effetti', once: true, gold: 1, next: 't8' },
+      { text: '⭐ La previsione n°49 di Ottavia: \"Domani, alba. GARANTITA.\" Rassicurante, in effetti', once: true, heal: 1, next: 't8' },
     ],
   },
 
@@ -3344,7 +3389,7 @@ Non finisce la frase. Non ne ha bisogno. Vi impacchetta, con mani tremanti ma ve
     item: 'banchetto_ragout',
     choices: [
       { text: 'Ringraziate Monsieur Ragoût e tornate alla scala della torre', next: 'k10' },
-      { text: '🍷 Ragoût sceglie il vino per il Banchetto in tre secondi netti: rosso, del 1841', once: true, gold: 1, next: 'k10' },
+      { text: '🍷 Ragoût sceglie il vino per il Banchetto in tre secondi netti: rosso, del 1841', once: true, heal: 1, next: 'k10' },
     ],
   },
 
@@ -3363,7 +3408,9 @@ Vi guarda salire i primi gradini, poi aggiunge, quasi controvoglia:
 
 > Ragoût: "E se per caso... per PURO caso... doveste convincere quell'insopportabile vampiro viziato a lasciare in pace il sole — ditegli che il suo cuoco lo aspetta per il pranzo. Un pranzo VERO. Con commensali VERI. Gli ho preparato la Zuppa dell'Applauso, in fondo. Sarebbe un peccato, no, non condividerla con nessuno?"
 
-Nella sua voce, sotto l'orgoglio ferito di due secoli, c'è qualcosa che assomiglia pericolosamente alla speranza.
+Nella sua voce, sotto l'orgoglio ferito di due secoli, c'è qualcosa che assomiglia pericolosamente alla speranza. Poi indica, col mento, la porta in fondo alla dispensa:
+
+> Ragoût: "Passate di lì: è la porta di servizio dei cuochi, sale fin lassù, dritta alla torre. Nessuna guardia la degna di uno sguardo da duecento anni — è solo la porta della cena, e QUELLI non cenano."
 
 Dietro di voi, la cucina torna al suo brontolio sommesso di pentole e fornelli — meno solo, adesso, di quanto lo fosse un'ora fa. Davanti a voi, la scala sale buia verso la torre, e verso mezzanotte.`,
     choices: [
@@ -3475,7 +3522,7 @@ const WORLD_MAP = [
   { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3','v3_mercante','v3_fosca_parla','v3_fosca_tace'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
-  { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','mg_salice','r1_salice_ok','r1_salice_ko','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
+  { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','mg_salice','r1_salice_ok','r1_salice_ko','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r1_remo_riaffiora','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
   { key: 'torre',     label: 'Torre dell\'Astronomo', x: 0.63, y: 0.66, scenes: ['mg_monte_sapere', 't1', 't2', 't2_capitombolo', 't3', 't3_distratti', 't4', 't4_valanga', 't5', 't5_scontro', 't6', 't6_sbagliato', 't7', 't8'] },
-  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','k1','k2','k3','k4','k_torvald','k5','k6a','k6b','k7_combat','k8','k9','k10','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
+  { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','k1','k2','k3','k4','k_torvald','k5','k6a','k6b','k7_combat','k8','k9','k10','c_vetta','f_aglio','f_specchio','f_rituale_falla','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];
