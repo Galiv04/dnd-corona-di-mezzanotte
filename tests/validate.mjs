@@ -46,6 +46,7 @@ function refsOf(scene) {
     if (c.check) { refs.push(c.check.success, c.check.fail); }
   }
   if (scene.combat) { refs.push(scene.combat.victory, scene.combat.defeat); }
+  if (scene.minigame) { refs.push(scene.minigame.success, scene.minigame.fail); }
   return refs.filter(Boolean);
 }
 

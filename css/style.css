@@ -382,3 +382,36 @@ html.text-large .rules-body, html.text-large .backstory, html.text-large .abilit
   .narration { font-size: 21px; }
   .panel { padding: 14px; }
 }
+
+/* ==================== MINIGIOCHI ==================== */
+.minigame-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(10, 6, 12, 0.94);
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px; overflow-y: auto;
+}
+.minigame-overlay.hidden { display: none; }
+.minigame-box {
+  max-width: 780px; width: 100%;
+  background: var(--panel, #1a1420); border: 3px solid var(--border, #3a2f40);
+  padding: 20px 22px; text-align: center;
+}
+.minigame-box h2 { margin-bottom: 10px; }
+.minigame-rules {
+  border: 2px dashed var(--border, #3a2f40); padding: 10px 12px;
+  margin-bottom: 14px; font-size: 18px; line-height: 1.5; text-align: left;
+  transition: opacity .3s;
+}
+.minigame-body { margin-bottom: 8px; }
+.minigame-canvas { width: 100%; image-rendering: pixelated; border: 2px solid var(--border, #3a2f40); background: #141018; touch-action: manipulation; }
+.minigame-hud { margin: 10px 0; font-size: 19px; }
+.minigame-testo { font-size: 20px; line-height: 1.6; margin: 12px 0 16px; }
+.minigame-simon { display: grid; grid-template-columns: repeat(2, minmax(90px, 130px)); gap: 12px; justify-content: center; margin: 14px 0; }
+.minigame-simon-btn {
+  font-size: 42px; padding: 18px 0; background: #221a2a; border: 3px solid var(--border, #3a2f40);
+  cursor: pointer; transition: transform .08s, box-shadow .08s, background .08s;
+}
+.minigame-simon-btn.lit { background: #4a3a1a; box-shadow: 0 0 22px rgba(255, 200, 80, .65); transform: scale(1.06); }
+.minigame-simon-btn:disabled { opacity: .8; cursor: default; }
+.minigame-timerbar { height: 10px; background: #221a2a; border: 2px solid var(--border, #3a2f40); margin: 8px 0 14px; }
+.minigame-timerbar > div { height: 100%; width: 100%; background: var(--gold, #c9a227); transition: width .1s linear; }

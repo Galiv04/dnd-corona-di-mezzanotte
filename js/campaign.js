@@ -1369,6 +1369,7 @@ Vi accorgete che Bertoldo non tocca MAI l'acqua: resta fermo un palmo sopra la s
 
 > Bertoldo: *(sulla difensiva, notando lo sguardo)* "COSA. Cosa guardate. Sì, sono annegato centocinquant'anni fa, in QUESTO fiume, e no: non impari a nuotare da morto. È una delle ingiustizie più grandi dell'aldilà, ve lo assicuro io. Allora? Pagate, o avete altre proposte? Il Fiume Torbido non aspetta nessuno, nemmeno i suoi barcaioli."`,
     choices: [
+      { text: '🌳 Il Salice si sporge: "Un ALTRO indovinello? Stavolta, se indovinate, pago IO."', once: true, next: 'mg_salice' },
       { text: '💰 Pagate le 30 monete', requiresGold: 30, gold: -30, next: 'r2' },
       { text: '🗣 Parlate del suo passato, con delicatezza', tag: 'Prova di Carisma — CD 12', check: { stat: 'CAR', dc: 12, success: 'r1_commosso', fail: 'r1_offeso' } },
       { text: '🎣 Offritevi di aiutarlo a ritrovare il suo remo fortunato, perduto nel canneto', tag: 'Prova di Saggezza — CD 11', check: { stat: 'SAG', dc: 11, success: 'r1_remo', fail: 'r1_remo_fail' } },
@@ -1474,6 +1475,68 @@ Le anguille sfrecciano tra le gambe cercando di trascinarvi verso il fondo, ment
       defeat: 'sconfitta_generica',
       loot: { gold: 8 },
     },
+  },
+
+
+  mg_salice: {
+    location: 'fiume',
+    caption: 'Il secondo indovinello del Salice',
+    text: `Il Vecchio Salice si piega sull'acqua con tutta la chioma, teatrale come un attore che ha finalmente trovato pubblico pagante.
+
+> Il Vecchio Salice: "I pedaggi belli vanno a COPPIE, come i salici e i rimpianti. Secondo indovinello: se indovinate, dieci monete dal tesoretto che i pesci mi portano dai fondali. Se sbagliate... altre foglie. Ho foglie in abbondanza."
+
+Si schiarisce la voce — le fronde si dispongono a semicerchio, per l'acustica:
+
+*"Non peso niente eppure schiaccio,
+piego i re senza alzare un braccio,
+chi mi porta crede di possedermi —
+ma è SEMPRE lui che finisce a reggermi.
+**Chi sono?**"*`,
+    minigame: {
+      type: 'indovinello',
+      success: 'r1_salice_ok', fail: 'r1_salice_ko',
+      tag: 'Il secondo indovinello — il tavolo ragiona ad alta voce, UNA risposta',
+      config: {
+        titolo: '🌳 L\'indovinello del Salice',
+        testo: 'Non peso niente eppure schiaccio,<br>piego i re senza alzare un braccio,<br>chi mi porta crede di possedermi —<br>ma è SEMPRE lui che finisce a reggermi.<br><b>Chi sono?</b>',
+        risposte: [
+          { t: '👑 Una corona', ok: true },
+          { t: '⚖️ Il potere', ok: false },
+          { t: '🪙 Il debito', ok: false },
+          { t: '🎭 La fama', ok: false },
+        ],
+      },
+    },
+  },
+
+  r1_salice_ok: {
+    location: 'fiume',
+    caption: 'Il Salice paga',
+    text: `> Il Vecchio Salice: *(dopo un silenzio lunghissimo, quasi offeso)* "...esatto. ESATTO. Una corona. Non pesa niente eppure schiaccia, e chi la porta finisce a reggerla, altroché possederla." *(le fronde frugano nell'acqua e ne riemergono con una borsina di tela fradicia)* "Il tesoretto dei pesci. Dieci monete, come promesso. E un consiglio non richiesto, che è la mia specialità: quella lassù al castello, la Corona di Mezzanotte... ricordatevi il mio indovinello, quando la vedrete da vicino. Le corone non si POSSIEDONO."
+
+> Fizzle: "Un albero ci ha appena pagati E fatto la morale. Questo fiume mi piace."
+
+**(💰 +10 monete. E una verità sul finale, travestita da filastrocca.)**`,
+    gold: 10,
+    sets: { indovinello_salice: true },
+    choices: [
+      { text: '⛵ Al barcone di Bertoldo, da vincitori', next: 'r1_tariffa' },
+    ],
+  },
+
+  r1_salice_ko: {
+    location: 'fiume',
+    caption: 'Altre foglie',
+    text: `> Il Vecchio Salice: "SBAGLIATO! Magnificamente, generosamente SBAGLIATO!" *(la raffica di foglie stavolta è il doppio: nei colletti, negli stivali, in posti dove le foglie non dovrebbero poter arrivare)* "La risposta era UNA CORONA. Non pesa niente eppure schiaccia! Chi la porta la regge, mica la possiede! Ah, i giovani. Nessuna cultura del pedaggio."
+
+Vi scrollate di dosso mezzo autunno mentre il Salice torna a spettegolare con le fronde alte, già dimentico di voi.
+
+> Torvald: *(cavandosi una foglia dall'orecchio)* "La prossima volta l'indovinello lo faccio IO: 'cos'ha quattro fronde e parla troppo?'"
+
+**(Niente monete. Le foglie, almeno, sono gratis.)**`,
+    choices: [
+      { text: '⛵ Al barcone di Bertoldo, ravvivati dall\'autunno', next: 'r1_tariffa' },
+    ],
   },
 
   r2: {
@@ -2630,6 +2693,7 @@ Monte Sapere ondeggia leggermente, come se respirasse. Da qualche parte al suo i
     choices: [
       { text: '📚 Cercate con pazienza il trattato, uno strato alla volta', tag: 'Prova di Intelligenza — CD 12', check: { stat: 'INT', dc: 12, success: 't5', fail: 't4_valanga' } },
       { text: '🗣 Chiedete a Ottavia di indicarvi il punto esatto', next: 't5' },
+      { text: '🏃 La via della fisica: attraversare il Monte Sapere DI CORSA mentre frana — 🎮 MINIGIOCO', once: true, next: 'mg_monte_sapere' },
     ],
   },
 
@@ -2648,6 +2712,25 @@ Recupera dalla frana esattamente il volume dalla copertina blu (o verde) che cer
 
 **(Nessun danno: solo polvere, orgoglio ammaccato e una vaga fragranza di torta alle mele.)**`,
     choices: [{ text: 'Verso l\'ultima rampa', next: 't5' }],
+  },
+
+
+  mg_monte_sapere: {
+    location: 'torre',
+    caption: 'La frana del Monte Sapere',
+    text: `C'è una terza via, e la propone il pavimento stesso: la torre è inclinata, il Monte Sapere è in equilibrio precario, e basta UN passo nel punto giusto per innescare una frana controllata di volumi rilegati — con il trattato, per le leggi della sfortuna, esattamente in cima.
+
+> Ottavia: "Oh. OH. State per fare la cosa che il mio maestro chiamava 'consultazione dinamica'. Vi prego, fatela: sono VENT'ANNI che voglio vederla."
+
+Chi corre dovrà saltare i tomi che franano e acchiappare il trattato al volo, prima che il Monte Sapere lo seppellisca per altri vent'anni.
+
+*(🎮 MINIGIOCO — La Frana del Sapere: un tasto = salto. Superate i libri che franano senza inciampare tre volte.)*`,
+    minigame: {
+      type: 'corsa', hero: null,
+      success: 't5', fail: 't4_valanga',
+      tag: 'La Frana del Sapere — un tasto, tre inciampi massimo',
+      config: { titolo: '📚 La Frana del Monte Sapere', tema: 'libri', ostacoli: 9, velocita: 265, cielo: '#151222', suolo: '#2a2136' },
+    },
   },
 
   t5: {
@@ -3173,7 +3256,7 @@ const WORLD_MAP = [
   { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3','v3_mercante','v3_fosca_parla','v3_fosca_tace'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
-  { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
-  { key: 'torre',     label: 'Torre dell\'Astronomo', x: 0.63, y: 0.66, scenes: ['t1', 't2', 't2_capitombolo', 't3', 't3_distratti', 't4', 't4_valanga', 't5', 't5_scontro', 't6', 't6_sbagliato', 't7', 't8'] },
+  { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','mg_salice','r1_salice_ok','r1_salice_ko','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },
+  { key: 'torre',     label: 'Torre dell\'Astronomo', x: 0.63, y: 0.66, scenes: ['mg_monte_sapere', 't1', 't2', 't2_capitombolo', 't3', 't3_distratti', 't4', 't4_valanga', 't5', 't5_scontro', 't6', 't6_sbagliato', 't7', 't8'] },
   { key: 'castello',  label: 'Castello Crepuscolo',   x: 0.52, y: 0.12, scenes: ['c1','c_maschere','c_maschere_ok','c_maschere_ok2','c_maschere_ko','c_maschere_ko_win','c_ballo','c_ballo_danza','c_ballo_pesta','c_ballo_buffet','c_cantine','c_giardino','c_mura_ok','c_mura_ko','c_mura_ko_win','c_gerbold','c_gerbold_alleato','c_gerbold_fight','c_gerbold_sconfitto','c_scala','c_scala_riposo','c_scala_corsa','k1','k2','k3','k4','k_torvald','k5','k6a','k6b','k7_combat','k8','k9','k10','c_vetta','f_aglio','f_specchio','f_corona1','f_corona_win','f_tenzone1','f_tenzone2','f_tenzone_win','f_tenzone_fail1','f_tenzone_fail2','f_boss_intro','f_boss_intro_indebolito','f_boss_fase2_check','f_boss_fase2','f_boss_fase2_dopotentativo','f_corona_strappata','f_tentazione_ok','f_tentazione_ko','f_corona_distrutta','f_lacrima','f_lacrima_win','f_vittoria_boss','f_sconfitta_boss','e_alba','e_alba_redenzione','e_finale_giusto','e_finale_esilio','e_finale_bardo'] },
 ];

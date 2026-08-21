@@ -438,6 +438,17 @@ const Engine = (() => {
       return;
     }
 
+    if (scene.minigame) {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.innerHTML = `🎮 <b>SI GIOCA!</b> <span class="choice-tag">${scene.minigame.tag || 'Un minigioco: il gioco vi spiega le regole.'}</span>`;
+      b.onclick = () => Minigames.start(scene.minigame, ok => {
+        gotoScene(ok ? scene.minigame.success : scene.minigame.fail);
+      });
+      choicesEl.appendChild(b);
+      return;
+    }
+
     if (scene.combat) {
       const b = document.createElement('button');
       b.className = 'choice-btn';
