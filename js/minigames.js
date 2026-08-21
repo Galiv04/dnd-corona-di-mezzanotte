@@ -193,7 +193,7 @@ const Minigames = (() => {
     const c = mg.config || {};
     scelte(mg, done, c.titolo || '🎵 La filastrocca',
       'Completate il verso mancante. Cantarla ad alta voce aiuta (e fa scena).',
-      `<i>${(c.versi || '').replace(/___/g, '<b>______</b>')}</i>`, c.risposte || []);
+      `<i>${(c.versi || '').replace(/___/g, '<b>______</b>').replace(/\n/g, '<br>')}</i>`, c.risposte || []);
   }
 
   /* ==================== MEMORIA — Simon ==================== */
