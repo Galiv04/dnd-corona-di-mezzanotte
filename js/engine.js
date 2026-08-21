@@ -538,6 +538,10 @@ const Engine = (() => {
               });
             }
             if (res.success) G.stats.checksPassed++; else G.stats.checksFailed++;
+            // esiti meccanici opzionali della prova (portati da L'Effetto Zoom):
+            // il dado conta anche quando successo e fallimento portano alla stessa scena
+            if (res.success && check.successHeal) h.hp = Math.min(h.maxHp, h.hp + check.successHeal);
+            if (!res.success && check.failDamage) h.hp = Math.max(1, h.hp - check.failDamage);
             gotoScene(res.success ? check.success : check.fail);
           },
         });

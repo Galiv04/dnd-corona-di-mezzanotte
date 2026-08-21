@@ -94,6 +94,7 @@ Fuori si sente la banda del paese che accorda gli strumenti per la festa del rac
 *Tutto è pace per ancora... tre secondi.*`,
     choices: [
       { text: 'Continua', next: 'p2' },
+      { text: '🍺 Un ultimo sorso di sidro, godendosi i tre secondi di pace', once: true, heal: 1, next: 'p2' }
     ],
   },
 
@@ -127,7 +128,10 @@ Funziona. La folla si ferma, vi guarda, e si aggrappa alla vostra calma come a u
 
 *Il villaggio si ricorderà di voi.* **(+1 Reputazione)**`,
     rep: 1,
-    choices: [{ text: 'Continua', next: 'p3' }],
+    choices: [
+      { text: 'Continua', next: 'p3' },
+      { text: '🤝 Stringere la mano al fornaio, da eroi civici', once: true, gold: 2, next: 'p3' },
+    ],
   },
 
   p2_calma_ko: {
@@ -138,7 +142,10 @@ Funziona. La folla si ferma, vi guarda, e si aggrappa alla vostra calma come a u
 La piazza si ferma. Silenzio. Poi qualcuno ridacchia. Poi ridono tutti, perfino il fornaio.
 
 Be'... tecnicamente il panico è passato. Diciamo che era il piano fin dall'inizio.`,
-    choices: [{ text: 'Uscite dalla fontana con dignità. Continua', next: 'p3' }],
+    choices: [
+      { text: 'Uscite dalla fontana con dignità. Continua', next: 'p3' },
+      { text: '🎭 Inchino teatrale: se ridono, che ridano CON voi', once: true, gold: 1, next: 'p3' },
+    ],
   },
 
   p2_studio_ok: {
@@ -150,7 +157,10 @@ Chi di voi se ne intende riconosce i segni: magia di sangue, antica e teatrale. 
 
 *Un indizio prezioso.* **(Avete capito che è opera di un incantatore)**`,
     sets: { sa_magia: true },
-    choices: [{ text: 'Continua', next: 'p3' }],
+    choices: [
+      { text: 'Continua', next: 'p3' },
+      { text: '📝 Annotare l\'osservazione con cura (Lyra approva)', once: true, gold: 1, next: 'p3' },
+    ],
   },
 
   p2_studio_ko: {
@@ -161,7 +171,10 @@ Chi di voi se ne intende riconosce i segni: magia di sangue, antica e teatrale. 
 Conclusione dell'analisi: *"È diventato buio."*
 
 Rivoluzionario. Comunque, guardare il disco nero così a lungo vi ha fatto lacrimare gli occhi. Almeno ora sapete che... no, niente, è proprio buio e basta.`,
-    choices: [{ text: 'Continua', next: 'p3' }],
+    choices: [
+      { text: 'Continua', next: 'p3' },
+      { text: '💧 Sciacquarsi gli occhi alla fontana, con dignità', once: true, heal: 1, next: 'p3' },
+    ],
   },
 
   p2_stufato: {
@@ -175,7 +188,10 @@ Rivoluzionario. Comunque, guardare il disco nero così a lungo vi ha fatto lacri
 
 Lo stomaco pieno vi dà forza: **tutto il gruppo parte con +2 PV bonus per la prossima battaglia.** La saggezza popolare aveva ragione.`,
     sets: { stufato_bonus: true },
-    choices: [{ text: 'Ora sì: uscite in piazza. Continua', next: 'p3' }],
+    choices: [
+      { text: 'Ora sì: uscite in piazza. Continua', next: 'p3' },
+      { text: '🍲 Chiedere il bis, contro ogni prudenza', once: true, heal: 2, next: 'p3' },
+    ],
   },
 
   p3: {
@@ -213,7 +229,10 @@ Con drammatico affetto,
 
 Vi mette in mano una borsa. **(+50 monete d'oro subito!)** Sapete il fatto vostro, non c'è che dire.`,
     gold: 50,
-    choices: [{ text: 'Continua', next: 'p3_info' }],
+    choices: [
+      { text: 'Continua', next: 'p3_info' },
+      { text: '💰 Ricontare l\'anticipo davanti a Bartolo, da professionisti', once: true, gold: 2, next: 'p3_info' },
+    ],
   },
 
   p3_nego_ko: {
@@ -224,7 +243,10 @@ Vi mette in mano una borsa. **(+50 monete d'oro subito!)** Sapete il fatto vostr
 Il corvo emette un verso che suona sospettosamente come una risata.
 
 Va bene, va bene. 500 monete. E la statua. Che comunque non è male, come pacchetto.`,
-    choices: [{ text: '"Affare fatto." Continua', next: 'p3_info' }],
+    choices: [
+      { text: '"Affare fatto." Continua', next: 'p3_info' },
+      { text: '🐦 Fare un cenno di rispetto al corvo: ha vinto lui', once: true, heal: 1, next: 'p3_info' },
+    ],
   },
 
   p3_info: {
@@ -243,6 +265,7 @@ Si gratta la testa.
 > Bartolo: "Ah, e... l'eclissi si completa a **mezzanotte**. Avrete tempo per UNA sola strada. Scegliete bene."`,
     choices: [
       { text: 'Prima di partire: fate provviste in paese', next: 'v1' },
+      { text: '🗺 Farsi ripetere le tre strade da Bartolo, e disegnarle sulla polvere', once: true, gold: 1, next: 'v1' }
     ],
   },
 
@@ -300,6 +323,7 @@ Mettendo insieme i gesti, i graffi sul bordo della fontana (ci ha INCISO delle n
     sets: { sa_passato_bardo: true, sa_corvo: true },
     choices: [
       { text: 'Amleto vi fa un inchino d\'ala. Tornate in piazza', next: 'v1' },
+      { text: '🎶 Fischiettare ad Amleto l\'unica melodia che sapete, come ringraziamento', once: true, gold: 1, next: 'v1' }
     ],
   },
 
@@ -317,6 +341,7 @@ Poi si volta dall'altra parte, offesissimo, e finge di ammirare il panorama.
 Il corvo vi concede un ultimo sguardo — deluso ma non sorpreso, il peggiore degli sguardi — e torna a fissare il nord.`,
     choices: [
       { text: 'Ritirata dignitosa. Tornate in piazza', next: 'v1' },
+      { text: '🌰 Lasciare comunque una nocciolina sul davanzale, senza rancore', once: true, heal: 1, next: 'v1' }
     ],
   },
 
@@ -368,6 +393,7 @@ Fruga in un baule e vi mette in mano un foglio ingiallito: lo **spartito origina
     item: 'spartito',
     choices: [
       { text: 'La ringraziate e le baciate la mano. Tornate in piazza', next: 'v1' },
+      { text: '🫖 Seconda tazza di tè: mezz\'ora dei ricordi più felici di Mirtilla, a ruota libera', once: true, heal: 2, next: 'v1' }
     ],
   },
 
@@ -386,6 +412,7 @@ Sorprendentemente... *funziona*. Una tenue luce dorata vi avvolge. **(Benedizion
     sets: { benedizione: true },
     choices: [
       { text: '"Grazie, Pipino. Sei un grande." Tornate in piazza', next: 'v1' },
+      { text: '🕯 Lasciare una moneta nell\'offertorio di Pipino, per scaramanzia', once: true, requiresGold: 1, gold: -1, heal: 2, next: 'v1' }
     ],
   },
 
@@ -420,6 +447,7 @@ Sul punto di arrendervi, un dettaglio vi salva: un batuffolo di lana bianca impi
 Alzate lo sguardo verso il tempietto del Sole.`,
     choices: [
       { text: 'Alzate lo sguardo...', next: 'q_capra2' },
+      { text: '👃 Annusare l\'aria come veri ranger (funziona: puzza di capra)', once: true, gold: 1, next: 'q_capra2' }
     ],
   },
 
@@ -457,6 +485,7 @@ Va bene. Riprovate, stavolta con più metodo — e con QUALSIASI cosa aveste in 
     damage: 2,
     choices: [
       { text: 'Riprovate, tutti insieme stavolta', next: 'q_capra_salvata' },
+      { text: '🍎 Offrire a Berenice il torsolo come tributo di pace, PRIMA di riprovare', once: true, heal: 1, next: 'q_capra_salvata' }
     ],
   },
 
@@ -481,6 +510,7 @@ Berenice vi osserva un'ultima volta dalla soglia, mastica qualcosa che probabilm
     rep: 1,
     choices: [
       { text: 'Tornate ai preparativi', next: 'v1' },
+      { text: '🍻 Farsi promettere dall\'oste una birra d\'onore al ritorno', once: true, gold: 1, next: 'v1' }
     ],
   },
 
@@ -526,7 +556,10 @@ Vi lasciano al Bivio della Civetta con una stretta di zampa ciascuno e un volant
     sets: { sa_ballo: true },
     heal: 3,
     rep: 1,
-    choices: [{ text: 'Al Bivio della Civetta', next: 'v3' }],
+    choices: [
+      { text: 'Al Bivio della Civetta', next: 'v3' },
+      { text: '🎫 Comprare anche l\'adesivo GOBLIN TOUR per la sacca (souvenir morale)', once: true, requiresGold: 2, gold: -2, heal: 2, next: 'v3' },
+    ],
   },
 
   v2_fight: {
@@ -572,7 +605,10 @@ La diplomazia è fallita. I goblin caricano!`,
 I tre si trascinano via nel buio. Nella fretta, hanno abbandonato la cassa del sindacato: **15 monete d'oro** e un volantino che dice *"VESPER MORN NON PAGA GLI STRAORDINARI"*.
 
 Interessante: perfino i suoi goblin lo detestano.`,
-    choices: [{ text: 'Proseguite verso nord', next: 'v3' }],
+    choices: [
+      { text: 'Proseguite verso nord', next: 'v3' },
+      { text: '📋 Frugare meglio nella cassa del sindacato', tag: 'Prova di Saggezza — CD 11', once: true, check: { stat: 'SAG', dc: 11, success: 'v3', fail: 'v3', successHeal: 2, failDamage: 1 } },
+    ],
   },
 
   v2_paga: {
@@ -585,7 +621,10 @@ Interessante: perfino i suoi goblin lo detestano.`,
 
 I goblin vi salutano col pugno alzato. **(Informazione preziosa sul Gran Ballo!)**`,
     sets: { sa_ballo: true },
-    choices: [{ text: 'Proseguite verso nord', next: 'v3' }],
+    choices: [
+      { text: 'Proseguite verso nord', next: 'v3' },
+      { text: '✊ Rispondere al saluto goblin col pugno alzato: solidarietà tra lavoratori', once: true, gold: 1, next: 'v3' },
+    ],
   },
 
   v2_sindacato: {
@@ -601,7 +640,10 @@ I goblin si consultano fitto fitto. Poi Gruk si volta, con una lacrimuccia:
 I goblin vi scortano oltre il ponte cantando un inno di lotta stonatissimo. **(Informazioni preziose ottenute! +1 Reputazione)**`,
     sets: { sa_ballo: true },
     rep: 1,
-    choices: [{ text: 'Proseguite verso nord', next: 'v3' }],
+    choices: [
+      { text: 'Proseguite verso nord', next: 'v3' },
+      { text: '🎵 Imparare il ritornello dell\'inno di lotta (stonandolo con rispetto)', once: true, heal: 1, next: 'v3' },
+    ],
   },
 
   v2_paura: {
@@ -615,7 +657,10 @@ I goblin vi guardano. Guardano le loro mazze. Rifanno il conto dei rapporti di f
 > Gruk: "...assemblea delibera PAUSA PRANZO! Anticipata! Molto anticipata!"
 
 Spariscono nel sottobosco a velocità ammirevole, lasciando cadere il cartello dello sciopero. Passate il ponte da trionfatori.`,
-    choices: [{ text: 'Proseguite verso nord', next: 'v3' }],
+    choices: [
+      { text: 'Proseguite verso nord', next: 'v3' },
+      { text: '🪧 Raccogliere il cartello dello sciopero caduto: cimelio di guerra', once: true, gold: 1, next: 'v3' },
+    ],
   },
 
   /* ---------- IL BIVIO ---------- */
@@ -691,7 +736,10 @@ Sbuffa il fumo verso l'eclissi.
 
 **(Avete scoperto il segreto di Vesper: era e resta un musicista. Nuove possibilità nel finale!)**`,
     sets: { sa_passato_bardo: true, sa_corde: true },
-    choices: [{ text: '↩ Tornate al banco', next: 'v3_mercante' }],
+    choices: [
+      { text: '↩ Tornate al banco', next: 'v3_mercante' },
+      { text: '🧣 Comprare qualcosa di piccolo da Fosca, per gratitudine', once: true, requiresGold: 2, gold: -2, heal: 2, next: 'v3_mercante' },
+    ],
   },
 
   v3_fosca_tace: {
@@ -708,7 +756,10 @@ Riprende a lucidare il corno.
 Per un attimo, sotto i dodici anelli e la benda a fiori, sembra soltanto una vecchia signora molto sola.
 
 > Fosca: "Su, comprate qualcosa e filate. Sta per succedere qualcosa di grosso e io ho ancora tre carovane da fregare."`,
-    choices: [{ text: '↩ Tornate al banco', next: 'v3_mercante' }],
+    choices: [
+      { text: '↩ Tornate al banco', next: 'v3_mercante' },
+      { text: '🤝 Salutarla per nome, come si saluta chi è solo da troppo', once: true, heal: 1, next: 'v3_mercante' },
+    ],
   },
 
   /* ==================== ATTO 2A — BOSCO DEI SUSSURRI ==================== */
@@ -742,7 +793,10 @@ Silenzio. Poi il bosco intero ESPLODE in bisbigli entusiasti:
 > "Ha detto SIGNORA!" "Che educazione!" "Nessuno ci parla mai!" "Una volta uno mi ha inciso un cuore con l'ascia, MALEDUCATO..."
 
 I rami si spostano da soli, aprendo un corridoio di funghi luminosi diritto verso la capanna. La quercia vi congeda con una pioggia di ghiande affettuose[[eroe:zonk]] (una in testa a Zonk: il suo "ahia" è dolcissimo)[[/eroe]].`,
-    choices: [{ text: 'Seguite il corridoio di funghi', next: 'b3_arrivo' }],
+    choices: [
+      { text: 'Seguite il corridoio di funghi', next: 'b3_arrivo' },
+      { text: '🌰 Raccogliere una ghianda della quercia, portafortuna ufficiale', once: true, gold: 1, next: 'b3_arrivo' },
+    ],
   },
 
   b1_persi: {
@@ -773,7 +827,10 @@ Sopra di voi, tra i rami... *fili d'argento*. Spessi come corde. E in fondo ai f
 > "Hanno sconfitto i ragni..." "Quelli del piano di sopra saranno FURIOSI..." "Sssh! Indica loro la strada e facciamoli sloggiare!"
 
 Le fronde si scostano rivelando il sentiero. Tra le ragnatele trovate anche un borsello impigliato: **10 monete d'oro** (e un ex-avventuriero che non ne avrà più bisogno: gli fate un cenno di rispetto).`,
-    choices: [{ text: 'Verso la capanna della strega', next: 'b3_arrivo' }],
+    choices: [
+      { text: 'Verso la capanna della strega', next: 'b3_arrivo' },
+      { text: '🕸 Controllare le altre ragnatele, con MOLTA cautela', tag: 'Prova di Destrezza — CD 12', once: true, check: { stat: 'DES', dc: 12, success: 'b3_arrivo', fail: 'b3_arrivo', successHeal: 2, failDamage: 2 } },
+    ],
   },
 
   b2: {
@@ -810,7 +867,10 @@ Il fungo è così felice che rilascia una nuvola di spore dorate profumate di va
 
 > Fungo Anziano: "La capanna di Ortica è dritta di là. Ditele che Gigio la saluta! Lei sa chi sono. Siamo usciti insieme, una volta. Non ha funzionato. Distanza, sapete."`,
     heal: 5,
-    choices: [{ text: '"...Grazie, Gigio." Verso la capanna', next: 'b3_arrivo' }],
+    choices: [
+      { text: '"...Grazie, Gigio." Verso la capanna', next: 'b3_arrivo' },
+      { text: '🍄 Gigio vi regala un fungo buono: \"Commestibile. Quasi sicuro. No no: SICURO.\"', once: true, heal: 2, next: 'b3_arrivo' },
+    ],
   },
 
   b2_sbagliato: {
@@ -851,7 +911,10 @@ Il fungo è così indignato che — *POFF* — rilascia una nuvola di spore urti
     text: `I funghi ringhiosi si sgonfiano con un suono da palloncino triste. Il Fungo Anziano riemerge, spettinato:
 
 > Fungo Anziano: "Ok! Ok. Colpa mia, mi sono scaldato. È che ci tengo, all'indovinello. Passate pure. La capanna di Ortica è di là. E... non ditele di questa storia, per favore. Abbiamo un passato."`,
-    choices: [{ text: 'Verso la capanna della strega', next: 'b3_arrivo' }],
+    choices: [
+      { text: 'Verso la capanna della strega', next: 'b3_arrivo' },
+      { text: '🤫 Giurare il silenzio sulla storia dell\'indovinello, mano sul cuore', once: true, gold: 1, next: 'b3_arrivo' },
+    ],
   },
 
   b3_arrivo: {
@@ -869,7 +932,10 @@ La porta si apre prima che possiate bussare.
 Rientra in casa lasciando la porta aperta. Dal fondo:
 
 > Ortica: "Entrate! La pozione so farla in mezz'ora. Ma le streghe non lavorano GRATIS. Regola del mestiere. Il sindacato è severissimo."`,
-    choices: [{ text: 'Entrate nella capanna', next: 'b3' }],
+    choices: [
+      { text: 'Entrate nella capanna', next: 'b3' },
+      { text: '👃 Annusare cosa bolle in pentola, prima di entrare', once: true, heal: 1, next: 'b3' },
+    ],
   },
 
   b3: {
@@ -919,7 +985,10 @@ La risata di Nonna Ortica fa tremare i barattoli, spaventa il gatto (che perde i
 
 > Ortica: *(asciugandosi le lacrime)* "Duecento... duecento ANNI... oh, che meraviglia. Un patto è un patto, colombelle. LA POZIONE!"`,
     sets: { fatto_ridere_ortica: true },
-    choices: [{ text: 'Continua', next: 'b4' }],
+    choices: [
+      { text: 'Continua', next: 'b4' },
+      { text: '😂 Concedere il bis della scenetta, finché Ortica ride', once: true, gold: 1, next: 'b4' },
+    ],
   },
 
   b3_riso_meh: {
@@ -960,7 +1029,10 @@ Ortica esce, lo esamina controluce come un gioielliere e annuisce.
 
 > Ortica: "Bel pezzo. E le rose sono intatte: siete promossi. Entrate, che la pozione bolle."`,
     item: 'dente_lupo',
-    choices: [{ text: 'Rientrate nella capanna', next: 'b4' }],
+    choices: [
+      { text: 'Rientrate nella capanna', next: 'b4' },
+      { text: '🌹 Sistemare le rose spettinate dalla zuffa, da ospiti educati', once: true, gold: 1, next: 'b4' },
+    ],
   },
 
   b4: {
@@ -983,7 +1055,10 @@ Poi vi afferra per le maniche, improvvisamente seria:
     sets: { sa_corona: true, ha_pozione_crepuscolo: true },
     item: 'pozione_crepuscolo',
     item2: 'pozione_cura_magg',
-    choices: [{ text: 'Salutate Ortica e partite verso il castello', next: 'c1' }],
+    choices: [
+      { text: 'Salutate Ortica e partite verso il castello', next: 'c1' },
+      { text: '🐈 Un grattino al gatto inquietante, a proprio rischio', tag: 'Prova di Carisma — CD 11', once: true, check: { stat: 'CAR', dc: 11, success: 'c1', fail: 'c1', successHeal: 2, failDamage: 1 } },
+    ],
   },
 
   /* ==================== ATTO 2B — MINIERE DI FERROVECCHIO ==================== */
@@ -1030,7 +1105,10 @@ L'occhio si stringe nello spioncino:
 > Gastone: *(spalancando il portone, commosso)* "NIENTE! Esatto! La risposta è NIENTE! Solo un cuore onesto lo sa! Le spie di Vesper avrebbero detto 'del miele'. IL MIELE. Nella birra scura. *Mostri.*"
 
 Vi trascina dentro e richiude tutto a velocità impressionante.`,
-    choices: [{ text: 'Continua', next: 'm2' }],
+    choices: [
+      { text: 'Continua', next: 'm2' },
+      { text: '🍺 Confermare con sdegno: MAI miele nella scura. Gastone commosso', once: true, gold: 1, next: 'm2' },
+    ],
   },
 
   m1_apre_test2: {
@@ -1044,7 +1122,10 @@ Vi trascina dentro e richiude tutto a velocità impressionante.`,
 Rumore di catenacci: il portone si apre su un nano con una barba fino alle ginocchia e gli occhi lucidi.
 
 > Gastone: "Entrate, entrate. Era tanto che non parlavo con qualcuno che non fosse un piccone."`,
-    choices: [{ text: 'Continua', next: 'm2' }],
+    choices: [
+      { text: 'Continua', next: 'm2' },
+      { text: '🗣 La prima storia di Gastone: quella del piccone che parlava. Bella. Lunga. BELLA.', once: true, heal: 1, next: 'm2' },
+    ],
   },
 
   m1_sbaglio: {
@@ -1076,7 +1157,10 @@ Dallo spioncino, la voce di Gastone:
 
 > Gastone: "Entrate, va'. Se eravate spie, siete le peggiori che abbia mai visto. E questo mi rassicura."`,
     damage: 4,
-    choices: [{ text: 'Entrate, doloranti ma dentro', next: 'm2' }],
+    choices: [
+      { text: 'Entrate, doloranti ma dentro', next: 'm2' },
+      { text: '🩹 Spolverarsi e ricomporsi prima di entrare: la dignità è tutto', once: true, heal: 1, next: 'm2' },
+    ],
   },
 
   m2_condotto: {
@@ -1091,7 +1175,10 @@ Il condotto sbuca nel soffitto della sala principale della miniera. Da lì assis
 Vi calate alle sue spalle. Si volta. Vi guarda. Guarda il condotto. Vi riguarda.
 
 > Gastone: "...DAL CONDOTTO?! Duecento anni di piani ANTI-CONDOTTO e arrivano DAL CONDOTTO quando smetto di crederci! Va bene! VA BENE. Rispetto. Cosa volete?"`,
-    choices: [{ text: '"Il passaggio segreto per il castello. E scusa per il condotto."', next: 'm2' }],
+    choices: [
+      { text: '"Il passaggio segreto per il castello. E scusa per il condotto."', next: 'm2' },
+      { text: '🔧 Richiudere il condotto per bene: che i piani anti-condotto valgano qualcosa', once: true, gold: 1, next: 'm2' },
+    ],
   },
 
   m2_condotto_corda: {
@@ -1104,7 +1191,10 @@ Attraversate il condotto e vi calate nella sala principale, sempre con la corda,
 Gastone, il nano custode, è così impressionato dalla manovra che si dimentica di essere paranoico:
 
 > Gastone: "Ma che BELLA calata. Doppia sicura, nodo barcaiolo... GENTE SERIA, finalmente! Le spie di Vesper si calano sempre malissimo. Cosa vi serve?"`,
-    choices: [{ text: '"Il passaggio segreto per il castello, per favore."', next: 'm2' }],
+    choices: [
+      { text: '"Il passaggio segreto per il castello, per favore."', next: 'm2' },
+      { text: '🪢 Recuperare la corda con nodo da manuale: può sempre servire', once: true, gold: 1, next: 'm2' },
+    ],
   },
 
   m1_apre: {
@@ -1122,7 +1212,10 @@ TRE catenacci, DUE lucchetti, UNA sbarra: il portone si apre su un nano commosso
 > Gastone: "Entrate, amici di Bartolo. Le miniere di Ferrovecchio sono a vostra disposizione. Occhio alla testa. E ai fantasmi. E soprattutto... alla BUROCRAZIA."
 
 Non ha l'aria di scherzare, sull'ultima parte.`,
-    choices: [{ text: 'Entrate nelle miniere', next: 'm2' }],
+    choices: [
+      { text: 'Entrate nelle miniere', next: 'm2' },
+      { text: '⛑ \"La burocrazia?\" Gastone indica tre scheletri coi timbri: \"QUELLA.\"', once: true, heal: 1, next: 'm2' },
+    ],
   },
 
   m2: {
@@ -1156,7 +1249,10 @@ Dentro, miracolosamente intatta: una **Pozione di Cura Maggiore** ("olio di grot
 L'eco, per la cronaca, vi fa un versaccio di saluto. Educata, comunque.`,
     item: 'pozione_cura_magg',
     gold: 10,
-    choices: [{ text: '↩ Tornate ai binari', next: 'm2' }],
+    choices: [
+      { text: '↩ Tornate ai binari', next: 'm2' },
+      { text: '👋 Rispondere al versaccio dell\'eco con un versaccio educato', once: true, gold: 1, next: 'm2' },
+    ],
   },
 
   m2_carrello_ok: {
@@ -1174,7 +1270,10 @@ Il carrello si ferma con eleganza al capolinea. Dietro di voi, Gastone arriva co
 
 **(Siete arrivati riposati e gasatissimi: +2 PV a tutti, fino al massimo.)**`,
     heal: 2,
-    choices: [{ text: 'Verso la zona uffici', next: 'm3' }],
+    choices: [
+      { text: 'Verso la zona uffici', next: 'm3' },
+      { text: '🛒 Chiedere il SECONDO giro di carrello (Gastone esita... e cede)', tag: 'Prova di Costituzione — CD 11', once: true, check: { stat: 'COS', dc: 11, success: 'm3', fail: 'm3', successHeal: 2, failDamage: 2 } },
+    ],
   },
 
   m2_carrello_ko: {
@@ -1190,7 +1289,10 @@ Il freno viene azionato col tempismo di un applauso fuori tempo. Il carrello dec
 
 > Gastone: *(arrivando)* "...ecco, ESATTO, è andata ESATTAMENTE così anche nel 1847. Almeno voi siete atterrati sul morbido. Su, scrollatevi: la zona uffici è di là."`,
     damage: 3,
-    choices: [{ text: 'Verso la zona uffici, bianchi come lenzuola', next: 'm3' }],
+    choices: [
+      { text: 'Verso la zona uffici, bianchi come lenzuola', next: 'm3' },
+      { text: '🤢 Cinque minuti seduti, finché il mondo smette di girare', once: true, heal: 2, next: 'm3' },
+    ],
   },
 
   m2_piedi: {
@@ -1201,7 +1303,10 @@ Il freno viene azionato col tempismo di un applauso fuori tempo. Il carrello dec
 È il viaggio più noioso della vostra vita. Ma le gambe vi hanno retto e siete tutti interi.
 
 *(Il tempo però stringe: l'anello dell'eclissi là fuori si sta chiudendo...)*`,
-    choices: [{ text: 'Finalmente: la zona uffici', next: 'm3' }],
+    choices: [
+      { text: 'Finalmente: la zona uffici', next: 'm3' },
+      { text: '🎶 Ingannare l\'ultima mezz\'ora con le canzoni da marcia dei nani', once: true, heal: 1, next: 'm3' },
+    ],
   },
 
   m3: {
@@ -1242,7 +1347,10 @@ Lo Scheletro Capoufficio esamina le tre copie per un tempo interminabile. Le gir
 Vi consegna una **Gemma Nanica** scintillante. I tre scheletri vi fanno la ola con le braccia riattaccabili. **(Passaggio ottenuto senza combattere + gemma preziosa!)**`,
     item: 'gemma_nanica',
     sets: { burocrazia_battuta: true },
-    choices: [{ text: 'Oltre lo sportello, verso il passaggio', next: 'm4' }],
+    choices: [
+      { text: 'Oltre lo sportello, verso il passaggio', next: 'm4' },
+      { text: '🖊 Farsi timbrare ANCHE una copia del modulo, per collezione', once: true, gold: 1, next: 'm4' },
+    ],
   },
 
   m3_modulo_ko: {
@@ -1290,7 +1398,10 @@ Dietro le scrivanie, nel cassetto del capoufficio: **12 monete d'oro** di "fondo
 
 La porta sul retro dell'ufficio si apre su una galleria che sale, sale, sale...`,
     item: 'gemma_nanica',
-    choices: [{ text: 'Verso il passaggio segreto', next: 'm4' }],
+    choices: [
+      { text: 'Verso il passaggio segreto', next: 'm4' },
+      { text: '🦴 Riattaccare un braccio a uno scheletro caduto: fair play', once: true, heal: 1, next: 'm4' },
+    ],
   },
 
   m4: {
@@ -1310,7 +1421,10 @@ Poi vi afferra per le maniche, improvvisamente serissimo:
 **(Segreto cruciale: il potere è nella CORONA, non in Vesper! Nuove opzioni nello scontro finale.)**`,
     sets: { sa_corona: true, ha_passaggio: true },
     item: 'chiave_passaggio',
-    choices: [{ text: 'Ringraziate Gastone e imboccate il passaggio', next: 'c1' }],
+    choices: [
+      { text: 'Ringraziate Gastone e imboccate il passaggio', next: 'c1' },
+      { text: '🪨 Toccare la pietra del passaggio: duecento anni di mani nane l\'hanno lucidata', once: true, heal: 1, next: 'c1' },
+    ],
   },
 
 
@@ -1354,7 +1468,10 @@ Scosso dalla propria indignazione, lascia cadere una raffica di foglie ingiallit
 > Il Vecchio Salice: "Comunque. Andate, andate. Bertoldo è al molo, il cappello è suo, l'odore di muffa pure. E se gli dite che l'indovinello l'ha inventato mia cugina, negherò tutto: la reputazione letteraria di questa famiglia è già abbastanza compromessa."
 
 Un ultimo ramo vi indica la strada, quasi con affetto, prima di tornare a spettegolare fitto con le fronde più alte.`,
-    choices: [{ text: 'Verso il molo, dove aspetta Bertoldo', next: 'r1_tariffa' }],
+    choices: [
+      { text: 'Verso il molo, dove aspetta Bertoldo', next: 'r1_tariffa' },
+      { text: '🍂 Raccogliere le foglie più belle: se piove autunno, si fa collezione', once: true, gold: 1, next: 'r1_tariffa' },
+    ],
   },
 
   r1_tariffa: {
@@ -1396,7 +1513,10 @@ Per la prima volta, l'espressione scontrosa si incrina in qualcosa di più tener
 
 **(Bertoldo è commosso: la traversata è gratuita, e vi condurrà con più cura del solito.)**`,
     sets: { bertoldo_amico: true },
-    choices: [{ text: 'Salite a bordo', next: 'r2' }],
+    choices: [
+      { text: 'Salite a bordo', next: 'r2' },
+      { text: '🎩 Un inchino a Bertoldo, da passeggeri d\'onore', once: true, heal: 1, next: 'r2' },
+    ],
   },
 
   r1_offeso: {
@@ -1415,7 +1535,10 @@ Con qualche spallata coordinata (e un contributo non richiesto di chi tratta la 
 
 > Bertoldo: "Non malissimo, per essere vivi. Su, a bordo, prima che cambi idea sullo sconto."`,
     gold: -20,
-    choices: [{ text: 'Salite a bordo', next: 'r2' }],
+    choices: [
+      { text: 'Salite a bordo', next: 'r2' },
+      { text: '🪙 Lasciare comunque una mancia sul sedile: stile', once: true, requiresGold: 1, gold: -1, heal: 1, next: 'r2' },
+    ],
   },
 
   r1_remo: {
@@ -1435,7 +1558,10 @@ Lo stringe al petto — attraversandolo un poco, essendo un fantasma: il remo fl
 **(Remo Fortunato ritrovato! Bertoldo naviga con più sicurezza: la traversata sarà più agevole.)**`,
     sets: { remo_ritrovato: true },
     item: 'fischietto_di_bertoldo',
-    choices: [{ text: 'Salite a bordo', next: 'r2' }],
+    choices: [
+      { text: 'Salite a bordo', next: 'r2' },
+      { text: '🚣 Provare il Remo Fortunato con due colpi in acqua, per sentirne la fortuna', once: true, heal: 1, next: 'r2' },
+    ],
   },
 
   r1_remo_fail: {
@@ -1521,6 +1647,7 @@ ma è SEMPRE lui che finisce a reggermi.
     sets: { indovinello_salice: true },
     choices: [
       { text: '⛵ Al barcone di Bertoldo, da vincitori', next: 'r1_tariffa' },
+      { text: '🌳 Promettere al Salice di tornare a raccontargli come finisce', once: true, heal: 1, next: 'r1_tariffa' }
     ],
   },
 
@@ -1536,6 +1663,7 @@ Vi scrollate di dosso mezzo autunno mentre il Salice torna a spettegolare con le
 **(Niente monete. Le foglie, almeno, sono gratis.)**`,
     choices: [
       { text: '⛵ Al barcone di Bertoldo, ravvivati dall\'autunno', next: 'r1_tariffa' },
+      { text: '🍂 Infilarsi una foglia nel cappello: se non vinci, almeno vesti a tema', once: true, heal: 1, next: 'r1_tariffa' }
     ],
   },
 
@@ -1566,7 +1694,10 @@ Lo scafo si inclina, l'acqua invade la stiva fino alle caviglie, e nel caos qual
 Il barcone, ammaccato ma intero, esce dalle rapide zoppicando come un'anatra ubriaca e decisamente offesa. Da qualche parte sotto i sedili, qualcuno recupera un elmo, uno stivale spaiato e — mistero irrisolto — un cucchiaio che nessuno del gruppo ricorda di aver portato. Il Fiume Torbido, evidentemente, colleziona souvenir a modo suo.`,
     damage: 3,
     goldLoss: 10,
-    choices: [{ text: 'Riprendete la corrente, gocciolanti', next: 'r3' }],
+    choices: [
+      { text: 'Riprendete la corrente, gocciolanti', next: 'r3' },
+      { text: '🥄 Reclamare il cucchiaio misterioso come risarcimento del fiume', once: true, gold: 1, next: 'r3' },
+    ],
   },
 
   r3: {
@@ -1598,7 +1729,10 @@ Vi guardate. Se il castello piange da duecento anni — da quando Vespertino Mor
 
 **(Avete intuito un pezzo in più della verità: la Corona di Mezzanotte pesa su Vesper da duecento anni — e forse piange quanto lui.)**`,
     sets: { sa_corona: true },
-    choices: [{ text: 'Riprendete la corrente', next: 'r4' }],
+    choices: [
+      { text: 'Riprendete la corrente', next: 'r4' },
+      { text: '💧 Toccare l\'acqua un ultimo istante, per salutare chi ricorda', once: true, heal: 1, next: 'r4' },
+    ],
   },
 
   r4: {
@@ -1637,7 +1771,10 @@ Dalla lenza, dove non c'è ami né esca, sale qualcosa che LUCCICA: una lacrima 
 Il Pescatore china il capo, rilancia la lenza nel nulla, e quando vi voltate a guardarlo ancora una volta, avete già dimenticato di averlo fatto — resta solo, tra le mani, la prova che non era un sogno.`,
     sets: { lacrima_ceduta: true },
     item: 'lacrima_di_luna',
-    choices: [{ text: 'Riprendete la corrente, in silenzio', next: 'r5' }],
+    choices: [
+      { text: 'Riprendete la corrente, in silenzio', next: 'r5' },
+      { text: '🤝 Stringersi le mani in silenzio: qualcuno ha pagato per tutti', once: true, heal: 2, next: 'r5' },
+    ],
   },
 
   r4_rifiuta: {
@@ -1657,7 +1794,10 @@ Bertoldo, dal timone, annuisce con un rispetto insolito.
 > Bertoldo: "Bella scelta. Il mio di ricordo più felice gliel'ho quasi dato, una notte. Poi ho pensato: e se fosse l'unico che mi resta? Tengo la lenza a distanza, da allora."
 
 Il barcone riprende la corrente, verso il rombo lontano di una cascata.`,
-    choices: [{ text: 'Proseguite verso il rombo', next: 'r5' }],
+    choices: [
+      { text: 'Proseguite verso il rombo', next: 'r5' },
+      { text: '🎣 La storia della lenza di Bertoldo: corta, triste, con un pesce enorme e zero testimoni', once: true, heal: 1, next: 'r5' },
+    ],
   },
 
   r5: {
@@ -1686,7 +1826,10 @@ Il barcone punta dritto contro la corrente, verso il muro d'acqua che ruggisce.`
 
 Bisogna riprendere la rincorsa: i remi doloranti, i muscoli che protestano formalmente, e Bertoldo che ripete a voce sempre più acuta "STAVOLTA VA MEGLIO, STAVOLTA VA MEGLIO" come un mantra poco convincente. Ma stavolta, sapendo dove NON spingere, il barcone trova finalmente la fessura giusta nel velo d'acqua e scivola dentro la grotta, ansante ma intero — con un ultimo spruzzo vendicativo della cascata che vi saluta bagnandovi fino all'ultimo centimetro rimasto asciutto.`,
     damage: 3,
-    choices: [{ text: 'Dentro, finalmente', next: 'r6' }],
+    choices: [
+      { text: 'Dentro, finalmente', next: 'r6' },
+      { text: '💦 Strizzare i vestiti facendo l\'inventario: tutto c\'è, tranne l\'asciutto', once: true, heal: 1, next: 'r6' },
+    ],
   },
 
   r6: {
@@ -1700,7 +1843,10 @@ Bisogna riprendere la rincorsa: i remi doloranti, i muscoli che protestano forma
 Il barcone approda su una banchina di pietra coperta di muschio fosforescente. Sopra di voi, una scala di servizio sale nel buio, tagliata nella roccia dalle stesse mani che duecento anni fa scavarono anche le miniere: qualcuno, all'epoca, amava decisamente le scorciatoie sotterranee più del dovuto.
 
 Bertoldo lega il barcone a un anello di ferro arrugginito, con la cura meticolosa di chi non è affatto sicuro di voler concludere questo viaggio.`,
-    choices: [{ text: 'Sbarcate sulla banchina', next: 'r7' }],
+    choices: [
+      { text: 'Sbarcate sulla banchina', next: 'r7' },
+      { text: '🔦 Alzare la torcia verso il soffitto della grotta: MERITA', once: true, gold: 1, next: 'r7' },
+    ],
   },
 
   r7: {
@@ -1722,6 +1868,7 @@ Vi congeda con un cenno buffo, mezzo saluto militare e mezzo inchino, prima di s
     heal: 6,
     choices: [
       { text: 'Salite la scala di servizio verso le cantine del castello', next: 'c_gerbold' },
+      { text: '⚓ Promettere a Bertoldo che al ritorno gli raccontate TUTTO', once: true, heal: 1, next: 'c_gerbold' }
     ],
   },
 
@@ -1776,7 +1923,10 @@ Dietro le carrozze, però, notate un furgone di servizio con la scritta *"MASCHE
 
 > Valletto: *(pausa infinita)* "...i Von Ranocchio. Ma certo. PASSARE PURE."`,
     item: 'maschere',
-    choices: [{ text: 'Dentro: il Gran Ballo vi aspetta', next: 'c_ballo' }],
+    choices: [
+      { text: 'Dentro: il Gran Ballo vi aspetta', next: 'c_ballo' },
+      { text: '🎭 Improvvisare due passi da Von Ranocchio, per calarsi nel ruolo', once: true, gold: 1, next: 'c_ballo' },
+    ],
   },
 
   c_maschere_ok2: {
@@ -1790,7 +1940,10 @@ Il fattorino, che chiaramente odia il suo lavoro con passione, vi squadra:
 
 **(Maschere ottenute!)** Vi presenta perfino al valletto come "il numero d'apertura". Il valletto vi fa passare con un inchino. Il fattorino vi fa l'occhiolino. Che brava persona.`,
     item: 'maschere',
-    choices: [{ text: 'Dentro: il Gran Ballo vi aspetta', next: 'c_ballo' }],
+    choices: [
+      { text: 'Dentro: il Gran Ballo vi aspetta', next: 'c_ballo' },
+      { text: '🎪 Salutare il fattorino complice con l\'inchino della compagnia', once: true, heal: 1, next: 'c_ballo' },
+    ],
   },
 
   c_maschere_ko: {
@@ -1819,7 +1972,10 @@ Almeno le maschere ormai le avete in mano. Ma prima: i pipistrelli!`,
 > Valletto: "...sapete che c'è? PASSARE PURE. 'Compagnia di artisti di strada, numero di lotta comica'. Lo scrivo io sul registro. Non voglio più saperne niente."
 
 Vi infilate le maschere ed entrate, un po' ammaccati ma DENTRO.`,
-    choices: [{ text: 'Il Gran Ballo vi aspetta', next: 'c_ballo' }],
+    choices: [
+      { text: 'Il Gran Ballo vi aspetta', next: 'c_ballo' },
+      { text: '🧊 Ghiaccio del buffet sugli zigomi, prima di entrare in scena', once: true, heal: 2, next: 'c_ballo' },
+    ],
   },
 
   c_ballo: {
@@ -1856,7 +2012,10 @@ Ridacchia dietro il ventaglio e volteggia via.
 
 **(Pettegolezzo cruciale: Vesper è terrorizzato dal pubblico! Il suo passato di bardo è la sua ferita aperta.)**`,
     sets: { sa_passato_bardo: true },
-    choices: [{ text: 'Verso la scala della torre, ballando fino al palco', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Verso la scala della torre, ballando fino al palco', next: 'c_gerbold' },
+      { text: '💃 Un ultimo giro di valzer, adesso che nessuno vi guarda più', once: true, heal: 1, next: 'c_gerbold' },
+    ],
   },
 
   c_ballo_pesta: {
@@ -1873,7 +2032,10 @@ La sala si volta a guardarvi. L'orchestra si ferma. Un valletto scheletrico si a
 > Valletto: "Gli ospiti *vivaci* sono pregati di accomodarsi al buffet. LONTANO dalla pista."
 
 Ok. Poteva andare peggio. Al buffet si origlia benissimo, tra l'altro.`,
-    choices: [{ text: 'Al buffet, con dignità ferita', next: 'c_ballo_buffet' }],
+    choices: [
+      { text: 'Al buffet, con dignità ferita', next: 'c_ballo_buffet' },
+      { text: '🥂 Brindare alla propria goffaggine: il buffet non giudica', once: true, heal: 1, next: 'c_ballo_buffet' },
+    ],
   },
 
   c_ballo_buffet: {
@@ -1889,7 +2051,10 @@ Ok. Poteva andare peggio. Al buffet si origlia benissimo, tra l'altro.`,
 
 **(Informazioni preziose: la Corona domina Vesper... e il maggiordomo Gerbold è sull'orlo di una crisi di nervi.)**`,
     sets: { sa_corona: true, sa_gerbold: true },
-    choices: [{ text: 'Verso la scala della torre — è quasi ora', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Verso la scala della torre — è quasi ora', next: 'c_gerbold' },
+      { text: '🥪 Riempirsi le tasche di tartine per il viaggio (con classe)', once: true, heal: 2, next: 'c_gerbold' },
+    ],
   },
 
   /* ---------- ingresso: cantine ---------- */
@@ -1907,7 +2072,10 @@ Da una scala in fondo filtrano musica e risate: sopra c'è una FESTA, a quanto p
 Uno scheletro. In **livrea da maggiordomo**. Impeccabile. Vi dà le spalle, ma vi ha già sentiti:
 
 > Scheletro: *(senza voltarsi)* "Gli ospiti della festa hanno sbagliato strada, o gli intrusi hanno trovato quella giusta. In entrambi i casi: benvenuti. Io sono **Gerbold**. Datemi un istante, devo finire il cucchiaino 4.712."`,
-    choices: [{ text: 'Parlate con Gerbold', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Parlate con Gerbold', next: 'c_gerbold' },
+      { text: '🥄 Aspettare in silenzio il cucchiaino 4.712: il rispetto prima di tutto', once: true, gold: 1, next: 'c_gerbold' },
+    ],
   },
 
   /* ---------- ingresso: giardino ---------- */
@@ -1924,7 +2092,10 @@ Il giardino di Vesper è... in realtà molto curato. Rose nere potate a forma di
 Un cartello scritto in bella grafia: *"Si prega di non calpestare le aiuole. Le aiuole ricambieranno. — la Direzione"*
 
 Attraversate il giardino fino a una porta di servizio, che si apre sulle **cucine** e poi giù verso le cantine. Nessuna guardia: sono tutte alla festa che si sente pulsare di sopra. Solo, in una cripta attigua alle cantine, uno scheletro in livrea che lucida argenteria...`,
-    choices: [{ text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' },
+      { text: '🌙 Un momento per il giardino notturno: non lo rivedrete mai più così', once: true, heal: 1, next: 'c_gerbold' },
+    ],
   },
 
   /* ---------- ingresso: mura ---------- */
@@ -1939,7 +2110,10 @@ Venti minuti di muscoli urlanti dopo, vi issate su un camminamento deserto: le g
 Da qui, una scala a chiocciola scende verso le cucine e le **cantine**. Passando davanti a una feritoia, intravedete il salone: centinaia di ospiti mascherati, e un vampiro drammaticissimo che scende uno scalone a mantello spiegato.
 
 Nelle cantine, in una cripta silenziosa, uno scheletro in livrea da maggiordomo lucida cucchiaini e sospira il sospiro più stanco che abbiate mai sentito.`,
-    choices: [{ text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' },
+      { text: '🧗 Recuperare il rampino con torsione da manuale: attrezzatura salva', once: true, gold: 1, next: 'c_gerbold' },
+    ],
   },
 
   c_mura_ko: {
@@ -1966,7 +2140,10 @@ Peggio: lo stridio! Due **guardie pipistrello** calano dalle torri!`,
     text: `I pipistrelli battono in ritirata verso le guglie, e stavolta la scalata riesce: raggiungete il camminamento deserto e, da lì, una scala a chiocciola che scende verso le cucine e le cantine.
 
 In una cripta attigua, uno scheletro in livrea da maggiordomo sta lucidando cucchiaini alla luce di una candela verde, sospirando ogni sette secondi esatti.`,
-    choices: [{ text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' }],
+    choices: [
+      { text: 'Avvicinatevi allo scheletro maggiordomo', next: 'c_gerbold' },
+      { text: '🩹 Controllare i lividi della scalata prima di proseguire', once: true, heal: 2, next: 'c_gerbold' },
+    ],
   },
 
   /* ---------- GERBOLD ---------- */
@@ -2009,7 +2186,10 @@ Vi consegna una chiave nera lucidata a specchio. **(Chiave della Torre + Gerbold
 > Gerbold: "Io intanto annaffierò le piante. Con l'ACQUA SBAGLIATA. *(pausa)* Scherzo. Forse."`,
     sets: { gerbold_alleato: true },
     item: 'chiave_torre',
-    choices: [{ text: 'Alla scala privata della torre!', next: 'c_scala' }],
+    choices: [
+      { text: 'Alla scala privata della torre!', next: 'c_scala' },
+      { text: '🥄 Chiedere a Gerbold UN cucchiaino in prestito, come pegno d\'alleanza', once: true, gold: 1, next: 'c_scala' },
+    ],
   },
 
   c_gerbold_fight: {
@@ -2040,7 +2220,10 @@ Le sue falangi indicano un gancio vicino alla porta: una chiave nera lucidata a 
 
 *(Una vocina in fondo alle orbite di Gerbold vi assicura che gli scheletri si "riassemblano" col tempo. Vi sentite solo il 70% in colpa.)*`,
     item: 'chiave_torre',
-    choices: [{ text: 'Alla scala della torre', next: 'c_scala' }],
+    choices: [
+      { text: 'Alla scala della torre', next: 'c_scala' },
+      { text: '🦴 Impilare le ossa di Gerbold con ordine: si riassemblerà più comodo', once: true, heal: 1, next: 'c_scala' },
+    ],
   },
 
   /* ---------- LA SCALA ---------- */
@@ -2642,7 +2825,10 @@ Rotolate tutti insieme fino al pianerottolo successivo in una composizione umana
 Il gatto travolto non sembra essersene accorto più di tanto: si sposta di dieci centimetri e si riaddormenta, come se fosse una procedura ormai collaudata da anni di rotolamenti altrui.
 
 Vi rialzate, doloranti nell'orgoglio più che nel corpo — **nessun danno, solo dignità** — e riprendete la salita un gradino alla volta, con la grazia di chi ha appena imparato, a proprie spese, dove NON mettere i piedi.`,
-    choices: [{ text: 'Riprendete la salita, più cauti', next: 't3' }],
+    choices: [
+      { text: 'Riprendete la salita, più cauti', next: 't3' },
+      { text: '🪜 Contare i gradini ad alta voce, stavolta (Ottavia approva il metodo)', once: true, heal: 1, next: 't3' },
+    ],
   },
 
   t3: {
@@ -2677,7 +2863,10 @@ Uno dei gatti, disturbato dal vapore, si sposta pigramente di una mappa e vi gua
 Ottavia vi raggiunge e, con due gesti rapidi e competenti, corregge lei stessa la messa a fuoco del telescopio giusto.
 
 > Ottavia: "Ecco. Visto? Non è difficile, se non ci si fa distrarre dal tè gratis. Su, andiamo, la biblioteca ci aspetta — ed è anche peggio di qui, ve lo dico subito."`,
-    choices: [{ text: 'Verso la biblioteca', next: 't4' }],
+    choices: [
+      { text: 'Verso la biblioteca', next: 't4' },
+      { text: '🫖 Un sorso del tè gratis, VELOCE, prima di seguirla', once: true, heal: 1, next: 't4' },
+    ],
   },
 
   t4: {
@@ -2711,7 +2900,10 @@ Recupera dalla frana esattamente il volume dalla copertina blu (o verde) che cer
 > Ottavia: "Visto? Il metodo Monte Sapere funziona sempre, prima o poi. Bisogna solo avere pazienza e un margine di tolleranza per il caos strutturale. Su, verso il piano successivo — l'ultima rampa, promesso."
 
 **(Nessun danno: solo polvere, orgoglio ammaccato e una vaga fragranza di torta alle mele.)**`,
-    choices: [{ text: 'Verso l\'ultima rampa', next: 't5' }],
+    choices: [
+      { text: 'Verso l\'ultima rampa', next: 't5' },
+      { text: '📖 Salvare dal crollo il libro con la copertina più bella, per Ottavia', once: true, gold: 1, next: 't5' },
+    ],
   },
 
 
@@ -2797,7 +2989,10 @@ Attraverso il telescopio, per un attimo, l'immagine mostra tutt'altro: Gastone P
 > Ottavia: "Ecco, questo è il rischio di un telescopio troppo potente puntato nella direzione sbagliata. Riprovate. Con calma, stavolta — non c'è fretta. O meglio, c'è moltissima fretta, ma gridarvelo addosso non aiuta nessuno dei due."
 
 Nessun danno, nessun rimprovero vero: solo un indice puntato, gentile, verso l'oculare.`,
-    choices: [{ text: 'Riguardate con attenzione', next: 't7' }],
+    choices: [
+      { text: 'Riguardate con attenzione', next: 't7' },
+      { text: '🔭 Pulire la lente dell\'oculare prima di riprovare: metodo', once: true, heal: 1, next: 't7' },
+    ],
   },
 
   t7: {
@@ -2819,7 +3014,10 @@ Si scuote, si alza, ritrova in un lampo tutta la sua energia stralunata.
     sets: { sa_rituale: true },
     item: 'mappa_stellare',
     item2: 'lente_di_ottavia',
-    choices: [{ text: 'Ringraziatela e scendete', next: 't8' }],
+    choices: [
+      { text: 'Ringraziatela e scendete', next: 't8' },
+      { text: '⭐ La previsione n°49 di Ottavia: \"Domani, alba. GARANTITA.\" Rassicurante, in effetti', once: true, gold: 1, next: 't8' },
+    ],
   },
 
   t8: {
@@ -2838,7 +3036,10 @@ Un gatto le si struscia contro la caviglia. Lei lo solleva con una mano sola, se
 Il sentiero laterale vi riporta, in pochi minuti, sotto la vecchia quercia del **Bivio della Civetta**, dove la civetta vi osserva con la stessa aria di sempre — forse, se è possibile per un uccello, con un filo di approvazione in più.
 
 L'anello rosso, sopra di voi, continua a stringersi. Ma ora avete una mappa, una lente, e una certezza in più su cosa affrontate stanotte. Resta solo da scegliere, davvero, quale strada prendere.`,
-    choices: [{ text: 'Tornate al Bivio della Civetta', next: 'v3' }],
+    choices: [
+      { text: 'Tornate al Bivio della Civetta', next: 'v3' },
+      { text: '🧭 Ripiegare la mappa con cura da cartografi: servirà stanotte', once: true, heal: 1, next: 'v3' },
+    ],
   },
 
 
@@ -2863,7 +3064,10 @@ Qualcosa — o qualcuno — piange. Una salsa che piange è un'informazione che 
 
 Vi guardate. Il **Gran Ballo** pulsa lontano, sopra le vostre teste; qui sotto, in questo silenzio pieno di odori meravigliosi e nessun ospite, sembra di essere entrati in un segreto che il castello custodisce da molto più tempo della festa.`,
     sets: { via_cucine: true },
-    choices: [{ text: 'Avvicinatevi alla porta e alla voce furente', next: 'k2' }],
+    choices: [
+      { text: 'Avvicinatevi alla porta e alla voce furente', next: 'k2' },
+      { text: '👃 Seguire gli odori meravigliosi un istante, a occhi chiusi', once: true, heal: 1, next: 'k2' },
+    ],
   },
 
   /* ---------- k2: Monsieur Ragoût ---------- */
@@ -2920,7 +3124,10 @@ Girate pagina. 1841: la stessa ricetta, riscritta. Nota a margine, più fitta: *
 Richiude il libro con delicatezza, come si richiude qualcosa di fragile.
 
 > Ragoût: "Comunque! Non siete qui per la mia autobiografia gastronomica. Che altro serve?"`,
-    choices: [{ text: 'Tornate da Ragoût', next: 'k5' }],
+    choices: [
+      { text: 'Tornate da Ragoût', next: 'k5' },
+      { text: '📖 Una pagina a caso del Ricettario: \"Zuppa di sassi per ospiti sgraditi\". Notata', once: true, gold: 1, next: 'k5' },
+    ],
   },
 
   /* ---------- k4: la dispensa (gag + Ossobuco) ---------- */
@@ -2945,7 +3152,10 @@ Un rumore di masticazione attira la vostra attenzione: in un angolo, uno schelet
 > Ossobuco: *(offeso)* "Non serve la lingua. Serve il **DOVERE**. Assaggio per dovere. SOLO per dovere." *(assaggia una terza volta, identica alle prime due)* "Buonissimo. Come sempre. Come SEMPRE."
 
 Ragoût annuisce, commosso a modo suo: è l'unico, in duecento anni, che ha continuato a fingere di avere un palato solo per fargli compagnia.`,
-    choices: [{ text: 'Tornate su, da Ragoût', next: 'k5' }],
+    choices: [
+      { text: 'Tornate su, da Ragoût', next: 'k5' },
+      { text: '🧀 Assaggiare qualcosa dalla Dispensa Eterna, sotto lo sguardo di Ragoût', once: true, heal: 2, next: 'k5' },
+    ],
   },
 
   /* ---------- k_torvald: scena speciale (requires torvald_presente) ---------- */
@@ -2972,7 +3182,10 @@ Per la prima volta da quando siete arrivati, il fantasma sembra dimenticarsi di 
 I due parlano di riduzioni e temperature per un tempo che sembra sia troppo poco che troppo lungo. Alla fine Ragoût si scuote, ricomponendosi nella sua dignità professionale.
 
 > Ragoût: "Bene. BENE. Abbastanza sentimentalismo per un secolo. Vediamo se il resto della vostra compagnia è utile quanto il vostro cuoco."`,
-    choices: [{ text: 'Tornate agli altri, da Ragoût', next: 'k5' }],
+    choices: [
+      { text: 'Tornate agli altri, da Ragoût', next: 'k5' },
+      { text: '👨‍🍳 Lasciare che i due cuochi si scambino UNA ricetta, da pari a pari', once: true, heal: 1, next: 'k5' },
+    ],
   },
 
   /* ---------- k5: la prova — ricostruire la ricetta ---------- */
@@ -3129,7 +3342,10 @@ Non finisce la frase. Non ne ha bisogno. Vi impacchetta, con mani tremanti ma ve
 
 > Ragoût: "Portatelo con voi. E se dovete rimettere in piedi qualcuno, lassù... che sia con QUESTO."`,
     item: 'banchetto_ragout',
-    choices: [{ text: 'Ringraziate Monsieur Ragoût e tornate alla scala della torre', next: 'k10' }],
+    choices: [
+      { text: 'Ringraziate Monsieur Ragoût e tornate alla scala della torre', next: 'k10' },
+      { text: '🍷 Ragoût sceglie il vino per il Banchetto in tre secondi netti: rosso, del 1841', once: true, gold: 1, next: 'k10' },
+    ],
   },
 
   /* ---------- k10: commiato ---------- */
@@ -3150,7 +3366,10 @@ Vi guarda salire i primi gradini, poi aggiunge, quasi controvoglia:
 Nella sua voce, sotto l'orgoglio ferito di due secoli, c'è qualcosa che assomiglia pericolosamente alla speranza.
 
 Dietro di voi, la cucina torna al suo brontolio sommesso di pentole e fornelli — meno solo, adesso, di quanto lo fosse un'ora fa. Davanti a voi, la scala sale buia verso la torre, e verso mezzanotte.`,
-    choices: [{ text: 'Alla scala della torre', next: 'c_scala' }],
+    choices: [
+      { text: 'Alla scala della torre', next: 'c_scala' },
+      { text: '🫡 Voltarsi un\'ultima volta: Ragoût sta già canticchiando ai fornelli', once: true, heal: 1, next: 'c_scala' },
+    ],
   },
 
   /* ==================== EPILOGHI ==================== */
