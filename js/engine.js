@@ -485,6 +485,11 @@ const Engine = (() => {
       const i = G.inventory.indexOf(c.removeItem);
       if (i >= 0) G.inventory.splice(i, 1);
     }
+    // effetti meccanici della SCELTA (non solo della scena): heal/damage/goldLoss.
+    // Erano chiavi morte silenziose: decine di scelte le usavano senza effetto (ago 2026).
+    if (c.heal) { for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + c.heal); }
+    if (c.damage) { for (const h of G.party) if (!h.down) h.hp = Math.max(1, h.hp - c.damage); }
+    if (c.goldLoss) G.gold = Math.max(0, G.gold - c.goldLoss);
     if (c.sets) Object.assign(G.flags, c.sets);
     if (c.rep) G.flags.reputazione = (G.flags.reputazione || 0) + c.rep;
     saveGame();
