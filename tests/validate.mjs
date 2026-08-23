@@ -559,6 +559,27 @@ function testFlagRichiestiMaiImpostati() {
 }
 testFlagRichiestiMaiImpostati();
 
+/* ---------- il link a Pages nel README ----------
+   Regola del committente, 23 agosto 2026: «nei README delle varie repo ci deve
+   sempre essere il link a Pages, perché da mobile altrimenti non lo riesco a
+   trovare facilmente». Da telefono la scheda di una repo mostra il README e non
+   il pannello di destra: se il link non sta nelle prime righe, il gioco non si
+   raggiunge. Pandataria era il caso peggiore — linkava gli altri quattro giochi
+   e non sé stessa. Deve stare in alto, non solo esistere. */
+function testLinkPagesNelReadme() {
+  const REPO = 'dnd-corona-di-mezzanotte';
+  let righe;
+  try { righe = readFileSync(join(root, 'README.md'), 'utf8').split('\n'); }
+  catch { fail('manca il README'); return; }
+  const atteso = `https://galiv04.github.io/${REPO}/`;
+  const dove = righe.findIndex(r => r.includes(atteso));
+  if (dove < 0) fail(`il README non contiene il link a Pages (${atteso})`);
+  else if (dove > 5) fail(`il link a Pages sta alla riga ${dove + 1} del README: da mobile `
+      + 'non si trova. Va nelle prime righe, subito sotto il titolo.');
+  else { ok(); console.log(`  ✔ link a Pages nel README, riga ${dove + 1}`); }
+}
+testLinkPagesNelReadme();
+
 /* ---------- esito ---------- */
 
 /* ---------- un boss non deve essere invincibile per costruzione ---------- */
