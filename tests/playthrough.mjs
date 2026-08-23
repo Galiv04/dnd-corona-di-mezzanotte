@@ -786,6 +786,8 @@ scenarios.push(scenario('fiume: pescatore, dono della Lacrima di Luna', ['fizzle
   c_vetta: 'BATTAGLIA!', f_boss_fase2_check: 'LACRIMA DI LUNA',
 }, { checkBias: 'best' }));
 
+
+
 /* ==================== ESECUZIONE (con retry adattivo per gli esiti a dado) ====================
    Alcuni contenuti dipendono dal SUCCESSO (o dal FALLIMENTO) di un tiro di dado, che il test
    può orientare scegliendo l'eroe con il modificatore migliore/peggiore (checkBias) ma non
@@ -854,6 +856,18 @@ executeUntil('finale: Lacrima di Luna fino a f_lacrima_win', ['fizzle', 'brunild
     r1_tariffa: 'Pagate le 30 monete', r4: 'cede un ricordo felice',
     c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', f_boss_fase2_check: 'LACRIMA DI LUNA' },
   { checkBias: 'best', seedBase: 650000 }, ['f_lacrima', 'f_lacrima_win']);
+
+/* ---- LA RADURA DEI FUNGHI: b2_sbagliato2, tre funghi da combattere, si raggiunge solo
+   dando la risposta sbagliata a Nonna Ortica — e per arrivare a quella domanda serve una
+   prova di Saggezza CD 11, che un seme sfortunato fa fallire. Quindi executeUntil con
+   Brunilde (SAG +4), che ritenta finché la radura non viene davvero raggiunta. ---- */
+executeUntil('radura dei funghi: la risposta sbagliata a Nonna Ortica', ['brunilde', 'torvald'],
+  { v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'Bosco dei Sussurri',
+    b1: 'tracce del sentiero', b2: 'un altro fungo',
+    b3: 'Tentate di farla ridere', b3_gag: 'Torre di Brindolo',
+    c1: 'Gran Ballo', c_ballo: 'Un giro di valzer', c_gerbold: 'ti meriti una vacanza',
+    c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni' },
+  { checkBias: 'best', seedBase: 606000 }, ['b2_sbagliato2']);
 
 const fatalRuns = results.filter(r => !r.ok);
 for (const r of fatalRuns) fail(`Partita "${r.scenario.name}" (seed ${r.scenario.seed}): ${r.error.split('\n')[0]}`);
