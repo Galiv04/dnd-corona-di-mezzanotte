@@ -566,6 +566,30 @@ scenarios.push(scenario('bivio: imboscata dei due banditi, e poi la strada indic
   c1: 'Gran Ballo', c_ballo: 'Un giro di valzer', c_gerbold: 'ti meriti una vacanza',
   c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
 }, { seed: 424242 }));
+/* ---- Ramo TORRE (t1-t8): l'astronoma Ottavia, il suo scontro e il minigioco del Monte
+   Sapere. Trentatré scene di questo gioco non erano attraversate da nessuno scenario, e
+   due rami interi — la torre e il fiume — non erano provati affatto. ---- */
+scenarios.push(scenario('torre: Ottavia, la valanga di libri e la previsione n°49', ['brunilde', 'kael'], {
+  v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'sentiero laterale',
+  t1: 'Bussate ed entrate', t2: 'Seguite ESATTAMENTE', t3: 'Chiedete direttamente a Ottavia',
+  t4: 'La via della fisica', t5: 'Fatevi largo con decisione',
+  t6: "Quando l'Anello Rosso", t7: 'La previsione n°49', t8: 'Ripiegare la mappa',
+  b1: 'tracce del sentiero', b2: 'ECLISSI!', b3: 'Tentate di farla ridere', b3_gag: 'Torre di Brindolo',
+  c1: 'Gran Ballo', c_ballo: 'Un giro di valzer', c_gerbold: 'ti meriti una vacanza',
+  c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}, { seed: 515151 }));
+
+/* ---- Ramo FIUME (r1-r4): Bertoldo il traghettatore, l'indovinello del Vecchio Salice
+   e le anguille. È la terza strada del Bivio e non era mai stata percorsa. ---- */
+scenarios.push(scenario('fiume: il Vecchio Salice, Bertoldo e la corrente sotto il castello', ['zonk', 'lyra'], {
+  v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'Molo del Vecchio Salice',
+  r1: 'Il Fiume Torbido', r1_tariffa: 'Il Salice si sporge',
+  r1_salice_ok: 'Al barcone di Bertoldo', r1_salice_ko: 'Al barcone di Bertoldo',
+  r2: 'Remate insieme', r3: "Fermatevi ad ascoltare l'acqua",
+  r4: 'Qualcuno del gruppo fa un passo avanti',
+  c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}, { seed: 616161 }));
+
 
 
 
@@ -1015,6 +1039,16 @@ console.log('\n' + '═'.repeat(60));
 })();
 
 if (failures === 0) {
+  {
+    const probeCoperturaIds = Object.keys(buildGame(999999).api.CAMPAIGN);
+    const maiViste = probeCoperturaIds.filter(id => !allScenesSeen.has(id));
+    const pct = Math.round((allScenesSeen.size / probeCoperturaIds.length) * 100);
+    console.log(`\nℹ️ Copertura della campagna: ${allScenesSeen.size}/${probeCoperturaIds.length} scene (${pct}%)`);
+    if (maiViste.length) {
+      console.log(`   Scene che nessuno scenario attraversa (${maiViste.length}): ${maiViste.join(', ')}`);
+      console.log('   (non è un errore: molte sono rami alternativi. Ma una scena NUOVA in questo elenco è contenuto non finito.)');
+    }
+  }
   console.log(`✅ TUTTE LE PARTITE SIMULATE COMPLETATE SENZA ERRORI (${results.length} run, ${allScenesSeen.size} scene distinte visitate, ${allEndings.size}/3 finali)`);
   process.exit(0);
 } else {
