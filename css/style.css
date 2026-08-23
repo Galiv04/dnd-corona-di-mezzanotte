@@ -450,3 +450,16 @@ html.text-large .title-incipit-close { font-size: 21px; }
   .title-incipit p { margin-bottom: 8px; }
   .title-incipit-close { font-size: 16px; margin-top: 10px; padding-top: 9px; }
 }
+
+/* La schermata del titolo NON si centra verticalmente quando il contenuto è più alto
+   dello schermo: `justify-content: center` su un flex che sfora spinge il contenuto
+   SOPRA l'origine dello scroll, e scorrendo si vede un buco vuoto in cima. È il
+   difetto che il committente ha visto («la schermata iniziale è tutta sbagliata»).
+   `safe center` centra quando c'è spazio e si comporta da flex-start quando non c'è. */
+#screen-title.active {
+  justify-content: safe center;
+  padding-block: 18px;
+}
+@supports not (justify-content: safe center) {
+  #screen-title.active { justify-content: flex-start; }
+}
