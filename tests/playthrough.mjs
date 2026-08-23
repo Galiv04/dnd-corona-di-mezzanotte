@@ -95,7 +95,12 @@ class FakeElement {
       add: (...cls) => { const s = new Set(toks()); cls.forEach(c => s.add(c)); self._className = [...s].join(' '); },
       remove: (...cls) => { const s = new Set(toks()); cls.forEach(c => s.delete(c)); self._className = [...s].join(' '); },
       contains: (c) => toks().includes(c),
-      toggle: (c) => { if (toks().includes(c)) self.classList.remove(c); else self.classList.add(c); },
+      toggle: (c, force) => {
+        const c_e = toks().includes(c);
+        const vuole = force === undefined ? !c_e : !!force;
+        if (vuole && !c_e) self.classList.add(c);
+        else if (!vuole && c_e) self.classList.remove(c);
+      },
     };
   }
   get innerHTML() { return this._innerHTML; }

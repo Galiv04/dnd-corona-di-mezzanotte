@@ -390,9 +390,17 @@ const Engine = (() => {
     showScreen('screen-game');
     if (typeof Sound !== 'undefined') Sound.music(musicForScene(scene));
     if (typeof Scenes.setEclipse === 'function') Scenes.setEclipse(eclipsePhaseFor(G.sceneId));
-    $('hud-location').textContent = '📍 ' + (scene.caption || '');
+    /* Le didascalie sono scritte come "Luogo, ora — frase": il luogo e l'ora vanno
+       nell'HUD (orientamento), la frase sotto il quadro (didascalia dell'immagine).
+       Senza trattino lungo l'HUD prende tutto e la didascalia sotto resta vuota. */
+    const capIntera = scene.caption || '';
+    const tagliaCap = capIntera.indexOf(' — ');
+    const capLuogo = tagliaCap > 0 ? capIntera.slice(0, tagliaCap) : capIntera;
+    const capFrase = tagliaCap > 0 ? capIntera.slice(tagliaCap + 3) : '';
+    $('hud-location').textContent = '📍 ' + capLuogo;
     Scenes.paint('scene-canvas', scene.location, null, scene.npc);
-    $('scene-caption').textContent = scene.caption || '';
+    $('scene-caption').textContent = capFrase;
+    $('scene-caption').classList.toggle('hidden', !capFrase);
 
     const narr = $('narration');
     const choicesEl = $('choices');
