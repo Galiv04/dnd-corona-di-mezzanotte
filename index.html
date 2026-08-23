@@ -141,6 +141,10 @@
   <div class="combat-layout">
     <div class="combat-scene-wrap">
       <canvas id="combat-canvas" width="960" height="380"></canvas>
+      <!-- I nomi dei nemici stanno QUI e non nel canvas: il quadro sul telefono si
+           rimpicciolisce del 63% e il testo dentro diventa illeggibile. Nel quadro
+           restano i numeri; qui numero, nome, punti vita e stato. -->
+      <div id="combat-enemies" class="combat-enemies"></div>
       <div id="combat-banner" class="combat-banner hidden"></div>
     </div>
     <div class="combat-ui">

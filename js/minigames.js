@@ -182,12 +182,14 @@ const Minigames = (() => {
   function scelte(mg, done, titolo, istruzioni, testoHtml, risposte) {
     frame(mg, titolo, istruzioni, (body) => {
       body.appendChild(el('div', 'minigame-testo', testoHtml));
+      const colonna = el('div', 'choices');
       const mix = [...risposte].sort(() => Math.random() - 0.5);
       for (const r of mix) {
         const b = el('button', 'choice-btn', r.t);
         b.onclick = () => finish(mg, done, !!r.ok);
-        body.appendChild(b);
+        colonna.appendChild(b);
       }
+      body.appendChild(colonna);
     });
   }
 
@@ -195,7 +197,7 @@ const Minigames = (() => {
     const c = mg.config || {};
     scelte(mg, done, c.titolo || '🗝 L\'indovinello',
       'Il TAVOLO ragiona insieme, ad alta voce. UNA risposta sola: sceglietela bene.',
-      `<i>${c.testo}</i>`, c.risposte || []);
+      `<i>${(c.testo || '').replace(/^\s*>\s?/gm, '').replace(/\n/g, '<br>')}</i>`, c.risposte || []);
   }
 
   function filastrocca(mg, done) {

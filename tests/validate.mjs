@@ -434,6 +434,42 @@ section('Densità (nodi di decisione, non scene)');
   } else { ok(); console.log('  ✔ nessun corridoio sterile: ogni scena con una sola uscita cambia comunque qualcosa'); }
 }
 
+/* ---------- 44. testo dentro un canvas ----------
+   Un canvas da 960 px mostrato a 355 rende ogni parola scritta dentro un impasto: il
+   testo va in DOM, nel canvas restano numeri, icone e barre. Il controllo cerca ogni
+   ctx.font sotto i 20px e guarda cosa ci si disegna: una stringa fissa (un'emoji, un
+   simbolo) va bene, una stringa CALCOLATA — un nome, un'etichetta — è un errore. */
+function testTestoNelCanvas() {
+  console.log('\n▸ Testo dentro i canvas');
+  /* Solo i canvas a misura FISSA: quelli di index.html (combattimento 960×380, pianta
+     720×480) vengono mostrati a un terzo della loro larghezza e tutto dentro rimpicciolisce.
+     js/minigames.js è escluso di proposito: là il canvas si dimensiona sulla finestra
+     (`Math.min(720, document.body.clientWidth - 60)`), quindi è 1:1 e 12px resta 12px. */
+  const files = ['js/combat.js', 'js/engine.js'];
+  let sospetti = 0;
+  for (const f of files) {
+    let src;
+    try { src = readFileSync(new URL('../' + f, import.meta.url), 'utf8'); } catch { continue; }
+    const righe = src.split('\n');
+    righe.forEach((r, i) => {
+      const m = r.match(/ctx\.font\s*=\s*["'`](\d+)px/);
+      if (!m || Number(m[1]) >= 20) return;
+      const seguito = righe.slice(i, i + 3).join(' ');
+      const dis = seguito.match(/ctx\.fillText\(\s*([^,]+),/);
+      if (!dis) return;
+      const arg = dis[1].trim();
+      const parola = /\.(name|label|short|titolo|nome|testo|caption)\b/.test(arg);
+      if (parola) {
+        fail(`${f}:${i + 1} disegna un NOME a ${m[1]}px dentro un canvas a misura fissa (${arg.slice(0, 40)}): `
+           + 'il canvas si rimpicciolisce sul telefono e la parola diventa illeggibile — va in DOM');
+        sospetti++;
+      }
+    });
+  }
+  if (!sospetti) { ok(); console.log('  ✔ nel canvas solo numeri, icone e simboli: le parole stanno in DOM'); }
+}
+testTestoNelCanvas();
+
 /* ---------- esito ---------- */
 
 /* ---------- un boss non deve essere invincibile per costruzione ---------- */

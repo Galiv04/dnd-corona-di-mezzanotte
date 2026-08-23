@@ -851,10 +851,22 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
 
   /* ---------- mappa ---------- */
 
+  /* La pianta è un canvas da 720 mostrato a 289 sul telefono: il 40%. Un'etichetta da
+     9px arrivava a 3,6px, cioè un impasto. Nella pianta restano i NUMERI, che si leggono
+     anche rimpiccioliti; i nomi stanno qui sotto in testo vero, che non rimpicciolisce
+     con l'immagine. */
+  function legendaMappa() {
+    const cur = WORLD_MAP.find(w => w.scenes && G && w.scenes.includes(G.sceneId));
+    return '<div class="mappa-legenda">' + WORLD_MAP.map((l, i) => {
+      const qui = cur && cur.key === l.key;
+      return `<span class="mappa-voce${qui ? ' qui' : ''}"><b>${i + 1}</b> ${l.label}${qui ? ' ⭐' : ''}</span>`;
+    }).join('') + '</div>';
+  }
+
   function showMap() {
     const box = $('modal-generic-content');
-    box.innerHTML = `<h2>🗺 Regno di Lumelia</h2><canvas id="map-canvas" width="720" height="480"></canvas>
-      <p style="color:var(--text-dim);font-size:19px;margin-top:8px">⭐ = posizione attuale della compagnia</p>
+    box.innerHTML = `<h2>🗺 Regno di Lumelia</h2><canvas id="map-canvas" width="720" height="480"></canvas>${legendaMappa()}
+      <p style="color:var(--text-dim);font-size:19px;margin-top:8px">⭐ = posizione attuale della compagnia. I numeri sulla mappa sono nell'elenco qui sopra.</p>
       <button class="btn" style="margin-top:10px" onclick="document.getElementById('modal-generic').classList.add('hidden')">✔ Chiudi</button>`;
     $('modal-generic').classList.remove('hidden');
     drawMap();
@@ -933,7 +945,8 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
       ctx.fillStyle = cur && cur.key === loc.key ? '#f5c542' : '#a89cc8';
       ctx.font = "10px 'Press Start 2P'";
       ctx.textAlign = 'center';
-      ctx.fillText(loc.label, x, y + 22);
+      ctx.font = "26px 'Press Start 2P'";
+      ctx.fillText(String(WORLD_MAP.indexOf(loc) + 1), x, y + 46);
       if (cur && cur.key === loc.key) {
         ctx.fillStyle = '#f5c542';
         ctx.font = "18px 'Press Start 2P'";

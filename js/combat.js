@@ -137,6 +137,21 @@ const Combat = (() => {
 
   /* ---------- rendering ---------- */
 
+  /* L'elenco dei nemici sotto il quadro: numero, nome, punti vita esatti e stato. È
+     testo vero, quindi non si rimpicciolisce col canvas. Si riscrive solo quando cambia
+     davvero, perché questo gira a ogni fotogramma. */
+  function renderNemici() {
+    const host = document.getElementById('combat-enemies');
+    if (!host || !battle) return;
+    const html = battle.enemies.map((e, i) => {
+      const nome = (e.short || e.name.split(',')[0]);
+      const stato = e.dead ? '✖' : e.stunned ? '💫' : '';
+      return `<span class="nemico-voce${e.dead ? ' morto' : ''}"><b>${i + 1}</b> ${nome} `
+        + (e.dead ? '—' : `${e.hp}/${e.maxHp}`) + (stato ? ' ' + stato : '') + '</span>';
+    }).join('');
+    if (host.dataset.ultimo !== html) { host.innerHTML = html; host.dataset.ultimo = html; }
+  }
+
   function renderCanvas(ts = 0) {
     const canvas = $('combat-canvas');
     const ctx = canvas.getContext('2d');
@@ -183,14 +198,14 @@ const Combat = (() => {
         ctx.fillStyle = frac > 0.5 ? '#5fca6a' : frac > 0.25 ? '#f5c542' : '#e05252';
         ctx.fillRect(x, y - 14, Math.floor(bw * frac), bh);
         // nome
-        ctx.fillStyle = '#fff'; ctx.font = "11px 'Press Start 2P'"; ctx.textAlign = 'center';
-        const etichetta = e.name.split(',')[0].slice(0, 10);
-        const etX = Math.min(W - 4 - etichetta.length * 5.5, Math.max(4 + etichetta.length * 5.5, x + eSize / 2));
-        ctx.fillText(etichetta, etX, Math.max(12, y - 22));
+        ctx.fillStyle = '#fff'; ctx.font = "30px 'Press Start 2P'"; ctx.textAlign = 'center';
+        ctx.fillText(String(i + 1), x + eSize / 2, Math.max(28, y - 18));
         ctx.textAlign = 'left';
         if (e.stunned) { ctx.font = "14px 'Press Start 2P'"; ctx.fillText('💫', x + eSize - 10, y + 4); }
       }
     });
+
+    renderNemici();
   }
 
   const now = () => (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();

@@ -313,9 +313,9 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; display:block
 .rules-section summary { font-family: var(--font-pixel); font-size: 12px; color: var(--blue); cursor:pointer; padding: 8px; background: var(--panel-dark); border: 2px solid var(--border); }
 .rules-section .rules-body { padding: 10px 14px; font-size: 20px; border: 2px solid var(--border); border-top:none; background: rgba(0,0,0,.2); }
 .rules-body b { color: var(--gold); }
-.inv-item { display:flex; justify-content:space-between; align-items:center; gap:10px; background: var(--panel-dark); border:2px solid var(--border); padding: 8px 12px; margin-bottom: 6px; }
+.inv-item { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:4px 10px; background: var(--panel-dark); border:2px solid var(--border); padding: 8px 12px; margin-bottom: 6px; }
 .inv-item .inv-name { color: var(--gold); }
-.inv-item .inv-desc { color: var(--text-dim); font-size: 18px; flex:1; }
+.inv-item .inv-desc { color: var(--text-dim); font-size: 18px; flex:1 1 220px; }
 .gold-display { font-family: var(--font-pixel); font-size: 13px; color: var(--gold); margin-bottom: 12px; }
 
 /* ---------- numeri di danno fluttuanti ---------- */
@@ -465,3 +465,27 @@ html.text-large .title-incipit-close { font-size: 21px; }
 @supports not (justify-content: safe center) {
   #screen-title.active { justify-content: flex-start; }
 }
+
+/* ---------- legenda della pianta ----------
+   I nomi delle stanze stavano dentro il canvas, che sul telefono si rimpicciolisce del
+   60%: illeggibili. Qui sono testo vero e restano della loro misura. */
+.mappa-legenda {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 4px 14px; margin-top: 10px; font-size: 17px; color: var(--text-dim);
+}
+.mappa-voce b { color: var(--text); margin-right: 4px; }
+.mappa-voce.qui { color: var(--gold); }
+
+/* La traduzione sotto un testo in dialetto: si legge, ma non ruba la scena all'originale. */
+.minigame-gloss { display:block; margin-top: 10px; font-size: 17px; color: var(--text-dim); font-style: normal; }
+
+/* ---------- elenco dei nemici sotto il campo di battaglia ----------
+   Sta DENTRO la cornice rossa, come una didascalia del quadro. */
+.combat-enemies {
+  display: flex; flex-wrap: wrap; gap: 2px 14px;
+  padding: 6px 10px; background: #000; border-top: 3px solid var(--border);
+  font-family: var(--font-body); font-size: 17px; color: var(--text);
+}
+.combat-enemies:empty { display: none; }
+.nemico-voce b { color: var(--gold); margin-right: 4px; }
+.nemico-voce.morto { color: var(--text-dim); text-decoration: line-through; }
