@@ -182,7 +182,9 @@ const Combat = (() => {
     const eSize = 16 * eScale;
     alive.forEach((e, i) => {
       const bob = (e.dead || reducedMotion) ? 0 : Math.round(Math.sin(ts / 280 + i * 2.1) * 3);
-      const x = W - 60 - eSize - (i % 3) * (eSize + 26);
+      const inRiga = Math.min(3, alive.length - Math.floor(i / 3) * 3);
+      const posInRiga = inRiga - 1 - (i % 3);   // 0 = il più a sinistra
+      const x = W - 60 - eSize - posInRiga * (eSize + 26);
       const y = 60 + Math.floor(i / 3) * (eSize + 30) + (i % 2) * 18 + bob;
       e._x = x; e._y = y; e._size = eSize;
       if (e.dead) { ctx.globalAlpha = 0.18; }
