@@ -220,6 +220,45 @@ const Luoghi = (() => {
       storia: 'Un’eclissi anulare vera dura al massimo dodici minuti e poi il sole torna da sé: la paura che non torni è più antica dell’astronomia, ed è la ragione per cui ogni civiltà si è messa a calcolare i cicli del cielo. Sapere quando finisce è stata la prima forma di potere.',
       gioco: 'È l’epilogo, e il gioco fa i conti: chi c’è, cosa avete portato, quali imprese avete chiuso e quali no. Da qui si vede anche quello che non avete visitato — ed è fatto per farvi venire voglia di rifarlo per un’altra strada.',
     },
+    castelloEsterno: {
+      titolo: 'Castello Crepuscolo, da fuori',
+      ora: 'Le 22:00',
+      guarda: [
+        ['Il castello', 'Si arrampica sulla montagna come un artiglio di pietra nera, le guglie perse nel cielo senza sole.'],
+        ['Le finestre', 'Pulsa una luce rossastra. Pulsa: non brilla.'],
+        ['La Barriera Notturna', 'Un velo d’ombra liquida che avvolge tutto e ondeggia come acqua verticale.'],
+        ['Il punto che non torna', 'C’è qualcosa che non quadra nella barriera, e si vede solo stando fermi a guardarla.'],
+        ['Gli ospiti in arrivo', 'Arrivano mascherati, e le maschere sono un problema perché voi non ne avete.'],
+      ],
+      storia: 'Una barriera che ondeggia come acqua verticale ha una superficie, e ogni superficie ha un punto in cui è più sottile: è così per il ghiaccio, per il vetro e per la tela di un tamburo. Il modo di trovarlo non è spingere più forte in un punto qualunque — è guardare dove il disegno si muove diversamente.',
+      gioco: 'Entrare al ballo richiede una maschera a testa, e le maschere si procurano: comprate, barattate, chieste, rubacchiate. Il gioco conta come le avete ottenute, perché al ballo qualcuno le riconosce.',
+    },
+
+    torreInterno: {
+      titolo: 'Dentro la Torre Pendente',
+      ora: 'Dal primo rampante in su',
+      guarda: [
+        ['Il pavimento', 'Pende talmente a sinistra che un tavolo intero si è incagliato contro il muro come una nave arenata.'],
+        ['La composizione contro il muro', 'Tre candelabri, due tazze da tè ancora piene, e un gatto che ha smesso di lottare.'],
+        ['La scala', 'Gira, e girando cambia la direzione in cui si cade.'],
+        ['L’Osservatorio', 'In cima, dove il soffitto ha smesso di fidarsi del pavimento.'],
+      ],
+      storia: 'Quindici gradi di pendenza sono più di quanto sembri: la Torre di Pisa ne ha meno di quattro. A quindici gradi un oggetto tondo non sta fermo da nessuna parte, e per camminare bisogna appoggiare il piede di traverso — è per questo che chi ci abita, dentro una torre così, cammina in un modo suo.',
+      gioco: 'La pendenza è una meccanica: alcune azioni riescono peggio e altre meglio, e il gioco lo dice prima. In cima c’è una distrazione astronomica che vale la salita.',
+    },
+
+    torrePendente: {
+      titolo: 'La Torre Pendente, da fuori',
+      ora: 'Oltre il sentiero laterale',
+      guarda: [
+        ['La torre', 'Sembra aver perso una scommessa con la gravità: pende di un buon quindici gradi verso ovest.'],
+        ['La malta', 'A giudicare dai rumori che vengono da dentro, la tiene su più la cocciutaggine che la malta.'],
+        ['La base', 'Ci si arriva dalla strada laterale che si stacca poco prima del Bivio della Civetta.'],
+        ['La porta', 'C’è, ed è sul lato verso cui la torre pende. Naturalmente.'],
+      ],
+      storia: 'Le torri pendono per una ragione sola: fondazioni su terreno che cede da un lato. E continuano a stare in piedi per una ragione altrettanto semplice — la verticale del loro peso cade ancora dentro la base. Il giorno in cui esce, non c’è malta che tenga.',
+      gioco: 'È una delle tre strade del Bivio della Civetta, e la più facile da non vedere. Chi ci va trova qualcuno che non compare da nessun’altra parte del gioco.',
+    },
   };
 
   /* ---------- il rendering: identico in tutti i giochi della serie ---------- */

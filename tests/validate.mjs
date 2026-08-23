@@ -7,6 +7,7 @@ import { readFileSync } from 'fs';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { cercaBuchi } from './buchi-nei-fondali.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -596,11 +597,28 @@ function testSchedeDeiLuoghi() {
   try { vm.runInContext(luoghiSrc + ';globalThis.__L = Luoghi;', ctxL); }
   catch (e) { fail('js/luoghi.js non si carica: ' + e.message); return; }
   const schede = ctxL.__L.LUOGHI;
-  const painters = [...readFileSync(join(root, 'js/scenes.js'), 'utf8')
-    .matchAll(/^    ([a-z_0-9]+)\(ctx, W, H\) \{/gm)].map(m => m[1]);
-  const senza = painters.filter(p => p !== 'titolo' && !schede[p]);
+  /* Le chiavi VERE dei painter, prese dal modulo caricato — non con una regex sul
+     sorgente. La regex che usavo pretendeva un nome tutto minuscolo, e nove painter
+     della serie si chiamano in camelCase (salaDaPranzo, torreInterno, …): il controllo
+     non pretendeva la loro scheda, e in quelle scene il pulsante 🔎 restava spento in
+     silenzio. Cioè esattamente il difetto che questo controllo esiste per impedire. */
+  const cS = {};
+  vm.createContext(cS);
+  let srcS = '';
+  for (const f of ['js/sprites.js', 'js/scenes.js']) {
+    try { srcS += readFileSync(join(root, f), 'utf8') + '\n;\n'; } catch { /* niente */ }
+  }
+  vm.runInContext(srcS + ';globalThis.__S = Scenes;', cS);
+  const painters = Object.keys(cS.__S.painters);
+  /* Un fondale che nessuna scena usa non ha bisogno di scheda: il pulsante non
+     comparirà mai. Ma è contenuto morto — un painter scritto e mai messo in scena —
+     e va detto, non nascosto. In un gioco della serie ce n'era uno. */
+  const usati = new Set(Object.values(CAMPAIGN).map(s => s.location).filter(Boolean));
+  const morti = painters.filter(p => p !== 'titolo' && !usati.has(p));
+  if (morti.length) warn(`fondali dipinti che nessuna scena usa (contenuto morto): ${morti.join(', ')}`);
+  const senza = painters.filter(p => p !== 'titolo' && usati.has(p) && !schede[p]);
   if (senza.length) fail(`fondali senza scheda del luogo (pulsante spento): ${senza.join(', ')}`);
-  else { ok(); console.log(`  ✔ scheda del luogo per tutti i ${painters.length - 1} fondali di gioco`); }
+  else { ok(); console.log(`  ✔ scheda del luogo per tutti i ${painters.length - 1 - morti.length} fondali usati`); }
   const orfane = Object.keys(schede).filter(k => !painters.includes(k));
   if (orfane.length) warn(`schede di luoghi che non hanno un fondale: ${orfane.join(', ')}`);
   const magre = [];
@@ -613,6 +631,38 @@ function testSchedeDeiLuoghi() {
   else { ok(); console.log('  ✔ ogni scheda ha le tre sezioni piene'); }
 }
 testSchedeDeiLuoghi();
+
+/* ---------- buchi nei fondali ----------
+   Nessuno sfondo deve lasciare zone che il riquadro mostra NERE, né perché non le
+   dipinge nessuno né perché ci passano solo colori semitrasparenti che non arrivano a
+   coprire. Sono due difetti diversi e sullo schermo si vedono uguale.
+   Trovati così: una fessura di 52×160 fra due case a Ventotene (rimasta mesi, perché
+   una fessura nera fra due case sembra un vicolo), una striscia di 292×9 fra il mare e
+   la fiancata di una barca, e una fascia di 495×105 in mezzo all'ULTIMA immagine di un
+   altro gioco. L'occhio le aveva lasciate passare tutte e tre. */
+function testBuchiNeiFondali() {
+  const c = {};
+  vm.createContext(c);
+  let src = '';
+  for (const f of ['js/sprites.js', 'js/scenes.js']) {
+    try { src += readFileSync(join(root, f), 'utf8') + '\n;\n'; } catch { /* non tutti i giochi hanno sprites */ }
+  }
+  try { vm.runInContext(src + ';globalThis.__S = Scenes;', c); }
+  catch (e) { fail('non riesco a caricare js/scenes.js per cercare i buchi: ' + e.message); return; }
+  const S = c.__S;
+  const esito = cercaBuchi(S.painters, { setDepth: S.setDepth || S.setEclipse });
+  if (!esito.length) {
+    ok(); console.log(`  ✔ nessuna macchia scoperta in ${Object.keys(S.painters).length - 1} fondali`);
+    return;
+  }
+  for (const e of esito) {
+    if (e.errore) { fail(`il fondale "${e.nome}" esplode: ${e.errore}`); continue; }
+    const dove = e.buchi.map(b => `${b.w}×${b.h} a (${b.x},${b.y})`
+      + (b.maiDipinto ? ' mai dipinto' : ` coperto solo al ${(b.copertura * 100) | 0}%`)).join(', ');
+    fail(`il fondale "${e.nome}" mostra il nero del riquadro: ${dove}`);
+  }
+}
+testBuchiNeiFondali();
 
 /* ---------- esito ---------- */
 
