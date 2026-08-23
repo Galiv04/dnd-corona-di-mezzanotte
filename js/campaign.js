@@ -277,7 +277,6 @@ Si gratta la testa.
     text: `La piazza è illuminata da lanterne accese in pieno "giorno". Avete poco tempo, ma partire impreparati sarebbe da dilettanti. E voi siete professionisti. Più o meno.
 
 Dove andate?`,
-    hub: true,
     choices: [
       { text: '🧪 L\'emporio di Gedeone — pozioni e attrezzatura', next: 'v_emporio', once: true },
       { text: '👵 La vecchia Mirtilla — dicono sappia TUTTO di tutti', next: 'v_mirtilla', once: true },
@@ -356,7 +355,6 @@ Sul bancone: una **corda robusta** (10 oro), delle **torce** (10 oro), e — Ged
 
 Dallo scaffale "ARTICOLI PER LA GUERRA CHIMICA (legalissimi)": **bombe puzzolenti** (12 oro l'una, *"invenzione mia: formaggio dei trolls stagionato in scatola"*) e **fiale d'acqua santa** (15 oro, *"benedette dal piccolo Pipino: potenti, il ragazzo ci crede DAVVERO"*).`,
     onEnterOnce: { itemEach: 'pozione_cura' },
-    hub: true,
     choices: [
       { text: '💰 Comprate la corda (10 oro)', requiresGold: 10, gold: -10, item: 'corda', once: true },
       { text: '💰 Comprate le torce (10 oro)', requiresGold: 10, gold: -10, item: 'torce', once: true },
@@ -707,7 +705,6 @@ Vi squadra con l'occhio buono, valutandovi come merce.
 Scosta il telo. Sul banco: un **corno da guerra nanico**, una **pergamena del fulmine** che frigge da sola, e — in una boccetta che scalda le mani — quella che giura essere **luce di sole imbottigliata**, presa il giorno prima dell'eclissi.
 
 > Fosca: "Prezzi da fine del mondo. In tutti i sensi."`,
-    hub: true,
     choices: [
       { text: '📯 Comprate il Corno da Guerra Nanico (40 oro)', requiresGold: 40, gold: -40, item: 'corno_nanico', once: true },
       { text: '📜 Comprate la Pergamena del Fulmine (35 oro)', requiresGold: 35, gold: -35, item: 'pergamena_fulmine' },

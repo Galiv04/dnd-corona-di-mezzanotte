@@ -30,6 +30,7 @@ const Minigames = (() => {
     if (running) {
       if (running.raf) cancelAnimationFrame(running.raf);
       if (running.keyH) document.removeEventListener('keydown', running.keyH);
+      if (running.keyU) document.removeEventListener('keyup', running.keyU);
       if (running.timer) clearInterval(running.timer);
       if (running.watchdog) clearTimeout(running.watchdog);
       running = null;
@@ -154,6 +155,14 @@ const Minigames = (() => {
           }
           const bob = st.onGround ? Math.sin(st.t * 18) * 2 : 0;
           if (def) Sprites.drawSprite(ctx, def.map, def.palette, st.x, st.y + bob, SIZE / (def.map.length >= 32 ? 32 : 16), true);
+          /* Anche qui i contatori vanno DENTRO il canvas: sotto, su uno schermo
+             basso, non si vedono mentre si corre (vedi l'apnea). */
+          ctx.fillStyle = 'rgba(4,10,16,.62)'; ctx.fillRect(6, 6, 250, 24);
+          ctx.font = "12px 'Press Start 2P', monospace";
+          ctx.fillStyle = '#eef4f3';
+          ctx.fillText(`${st.passed}/${TOT}`, 12, 23);
+          ctx.fillStyle = st.hits ? '#cf3d4d' : '#93aeb4';
+          ctx.fillText(`inciampi ${st.hits}/3`, 78, 23);
           hud.innerHTML = `Superati: <b>${st.passed}/${TOT}</b> · Inciampi: <b style="color:${st.hits ? 'var(--red)' : 'inherit'}">${st.hits}/3</b>`;
 
           // esiti
@@ -290,6 +299,190 @@ const Minigames = (() => {
       });
   }
 
+
+  /* ==================== APNEA — la discesa (minigioco firma di Pandataria) ==================== */
+  /* config: { profondita: 18, oggetto: 'chiave', extra: 8, extraFlag: 'x', fiato: 100,
+               titolo, cosa: 'la cosa che luccica' }
+     UN comando: TIENI PREMUTO = scendi, LASCI = risali (il corpo galleggia).
+     Il fiato scende sempre, e più sei profondo più scende in fretta.
+     A profondità c'è l'oggetto. Più giù (extra) c'è QUALCOSA CHE NON TI SERVE — e che vorrai vedere:
+     `cosaExtra` è la riga che descrive quel qualcosa nel briefing, in modo che il giocatore SAPPIA
+     cosa si sta giocando quando decide di scendere ancora cinque metri. */
+  function apnea(mg, hero, done) {
+    const cfg = mg.config || {};
+    const TARGET = cfg.profondita || 18;
+    const EXTRA = cfg.extra ? TARGET + cfg.extra : null;
+    /* Il fiato iniziale NON è un numero fisso della scena: è la risorsa del gruppo.
+       Con poco Fiato certe profondità sono fisicamente fuori portata, e il gioco
+       lo dice PRIMA di far scendere qualcuno. Vedi Engine.apneaFiato(). */
+    const FIATO0 = cfg.fiato || (typeof Engine !== 'undefined' && Engine.apneaFiato ? Engine.apneaFiato() : 100);
+    const ARRIVO = (typeof Engine !== 'undefined' && Engine.metriPossibili) ? Engine.metriPossibili() : 99;
+    frame(mg, cfg.titolo || `🫁 L'apnea di ${hero.name}`,
+      `${hero.name} scende da sola. <b>TIENI PREMUTO</b> (spazio / dito / mouse) per <b>scendere</b>, lascia per <b>risalire</b>: il corpo galleggia da solo.<br>
+       Il <b>fiato</b> scende sempre, e più giù sei, più in fretta se ne va. ${cfg.cosa ? `A <b>${TARGET} metri</b> c'è ${cfg.cosa}.` : `Quello che vi serve è a <b>${TARGET} metri</b>.`}<br>
+       <span style="color:var(--red)">Torna su col fiato ancora in petto. Non fare l'eroe.</span><br>
+       <span style="color:${ARRIVO < TARGET ? 'var(--red)' : 'var(--green)'}">🫁 Con il fiato che avete adesso (${FIATO0}) arrivate a circa <b>${ARRIVO} metri</b>${ARRIVO < TARGET ? ` — e quella cosa sta a ${TARGET}. <b>Non ce la fate.</b> Andate a mangiare, a dormire, o riparate la bombola, e tornate.` : '. Ce la fate, se non vi fermate a guardare.'}</span>${EXTRA ? `<br><span style="color:var(--text-dim)">E cinque metri più giù, a <b>${EXTRA}</b>, ${cfg.cosaExtra || 'c\'è qualcosa che non vi serve'}. Non vi serve. Nessuno vi obbliga.</span>` : ''}`,
+      (body) => {
+        const W = Math.min(420, Math.max(280, document.body.clientWidth - 80)), H = 320;
+        const cv = el('canvas', 'minigame-canvas');
+        cv.width = W; cv.height = H;
+        body.appendChild(cv);
+        const hud = el('div', 'minigame-hud', '');
+        const bar = el('div', 'minigame-timerbar', '<div></div>');
+        body.appendChild(bar); body.appendChild(hud);
+        const ctx = cv.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+
+        const def = Sprites.registry[hero.sprite];
+        const MAXD = (EXTRA || TARGET) + 6;           // metri rappresentati sul canvas
+        const st = {
+          d: 0, v: 0, giu: false, fiato: FIATO0, t: 0, last: null,
+          preso: false, visto: false, risalito: false, morto: false,
+          bolle: [], neve: Array.from({ length: 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, s: 0.2 + Math.random() * 0.6 })),
+        };
+        const y = m => 26 + (m / MAXD) * (H - 52);     // metri -> pixel
+
+        const giuOn = () => { st.giu = true; };
+        const giuOff = () => { st.giu = false; };
+        const keyD = e => { if (e.code === 'Space' || e.code === 'ArrowDown') { e.preventDefault(); giuOn(); } };
+        const keyU = e => { if (e.code === 'Space' || e.code === 'ArrowDown') { e.preventDefault(); giuOff(); } };
+        document.addEventListener('keydown', keyD);
+        document.addEventListener('keyup', keyU);
+        cv.addEventListener('pointerdown', giuOn);
+        cv.addEventListener('pointerup', giuOff);
+        cv.addEventListener('pointerleave', giuOff);
+        running = { keyH: keyD, keyU };
+
+        let ticked = false;
+        function schedule() {
+          if (!running) return;
+          running.raf = requestAnimationFrame(loop);
+          if (!running.watchdog) running.watchdog = setTimeout(() => {
+            if (!ticked && running) running.timer = setInterval(() => loop(performance.now()), 33);
+          }, 500);
+        }
+
+        function loop(ts) {
+          if (!running) return;
+          ticked = true;
+          if (st.last == null) st.last = ts;
+          const dt = Math.min(0.033, (ts - st.last) / 1000);
+          st.last = ts; st.t += dt;
+
+          // movimento verticale: spinta giù, galleggiamento su
+          const target = st.giu ? 3.4 : -2.4;
+          st.v += (target - st.v) * Math.min(1, dt * 5);
+          st.d = Math.max(0, Math.min(MAXD, st.d + st.v * dt));
+
+          // il fiato: costo base + costo della profondità (la pressione)
+          st.fiato -= dt * (4.8 + st.d * 0.28);
+          if (st.giu) st.fiato -= dt * 1.4;
+
+          // eventi di profondità
+          if (!st.preso && st.d >= TARGET) {
+            st.preso = true;
+            if (typeof Sound !== 'undefined') Sound.play('item');
+          }
+          if (EXTRA && !st.visto && st.d >= EXTRA) {
+            st.visto = true;
+            if (typeof Sound !== 'undefined') Sound.play('coro');
+          }
+          if (st.preso && st.d <= 0.4) st.risalito = true;
+          if (st.fiato <= 0) st.morto = true;
+
+          // bolle
+          if (Math.random() < dt * 6) st.bolle.push({ x: W / 2 + (Math.random() - 0.5) * 22, m: st.d, r: 1 + Math.random() * 2 });
+          st.bolle.forEach(b => { b.m -= dt * 6; });
+          st.bolle = st.bolle.filter(b => b.m > -1);
+
+          /* ---- disegno: più giù = più buio, più stretto, più vuoto ---- */
+          const prof = st.d / MAXD;
+          ctx.fillStyle = '#071019'; ctx.fillRect(0, 0, W, H);
+          // gradiente d'acqua
+          const g = ctx.createLinearGradient(0, 0, 0, H);
+          g.addColorStop(0, '#16455e'); g.addColorStop(0.35, '#0b2537'); g.addColorStop(1, '#03070c');
+          ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+          // superficie che tremola
+          ctx.fillStyle = 'rgba(180,230,255,.30)';
+          for (let x = 0; x < W; x += 6) ctx.fillRect(x, 20 + Math.sin(st.t * 3 + x * 0.12) * 3, 5, 3);
+          // marine snow (l'unica cosa che si muove nel buio)
+          ctx.fillStyle = 'rgba(220,235,255,.5)';
+          for (const n of st.neve) {
+            n.y -= n.s * 22 * dt * 60 * 0.02;
+            if (n.y < 24) { n.y = H; n.x = Math.random() * W; }
+            ctx.fillRect(n.x, n.y, 2, 2);
+          }
+          // tacche dei metri
+          ctx.fillStyle = 'rgba(255,255,255,.13)';
+          for (let m = 5; m < MAXD; m += 5) { ctx.fillRect(4, y(m), 12, 1); }
+          // l'oggetto
+          if (!st.preso) {
+            const pulse = 0.6 + Math.sin(st.t * 4) * 0.4;
+            ctx.fillStyle = `rgba(255,210,127,${pulse})`;
+            ctx.fillRect(W / 2 - 5, y(TARGET) - 4, 10, 8);
+            ctx.fillStyle = 'rgba(255,210,127,.18)';
+            ctx.fillRect(W / 2 - 14, y(TARGET) - 13, 28, 26);
+          }
+          // la cosa più giù: si vede solo se ci arrivi
+          if (EXTRA && st.d > EXTRA - 5) {
+            const al = Math.min(1, (st.d - (EXTRA - 5)) / 4);
+            ctx.fillStyle = `rgba(143,29,44,${0.30 * al})`;
+            ctx.fillRect(0, y(EXTRA) - 16, W, 44);
+            ctx.fillStyle = `rgba(220,200,205,${0.5 * al})`;
+            ctx.fillRect(W / 2 - 3, y(EXTRA), 6, 14);
+            ctx.fillRect(W / 2 - 9, y(EXTRA) + 3, 18, 3);
+          }
+          // bolle
+          ctx.fillStyle = 'rgba(210,240,255,.55)';
+          for (const b of st.bolle) ctx.fillRect(b.x, y(Math.max(0, b.m)), b.r, b.r);
+          // l'eroe
+          const hy = y(st.d) - 18;
+          if (def) Sprites.drawSprite(ctx, def.map, def.palette, W / 2 - 18, hy, 36 / (def.map.length >= 32 ? 32 : 16), true);
+          // il buio che stringe
+          const vign = ctx.createRadialGradient(W / 2, hy + 18, 10, W / 2, hy + 18, Math.max(40, W * (1 - prof * 0.72)));
+          vign.addColorStop(0, 'rgba(0,0,0,0)');
+          vign.addColorStop(1, `rgba(0,0,0,${0.35 + prof * 0.6})`);
+          ctx.fillStyle = vign; ctx.fillRect(0, 0, W, H);
+
+          const f = Math.max(0, st.fiato / FIATO0);
+          /* IL FIATO E I METRI, DENTRO IL CANVAS. La barra HTML sotto il canvas, su
+             uno schermo da 720 px, finisce a 812: fuori dallo schermo. Chi gioca
+             l'apnea deve vedere quanto fiato gli resta SENZA scorrere, sennò la
+             meccanica non esiste. Verificato guardando il gioco vero, 23 ago 2026. */
+          const pad = 10, bw = Math.min(240, W * 0.42), bh = 12;
+          ctx.fillStyle = 'rgba(4,10,16,.62)';
+          ctx.fillRect(pad - 4, pad - 4, bw + 8, bh + 30);
+          ctx.fillStyle = 'rgba(255,255,255,.14)';
+          ctx.fillRect(pad, pad, bw, bh);
+          ctx.fillStyle = f > 0.5 ? '#ffd27f' : f > 0.22 ? '#d08a2a' : '#cf3d4d';
+          ctx.fillRect(pad, pad, Math.max(0, bw * f), bh);
+          ctx.fillStyle = 'rgba(0,0,0,.5)';
+          for (let i = 1; i < 4; i++) ctx.fillRect(pad + bw * i / 4, pad, 1, bh);
+          ctx.font = "12px 'Press Start 2P', monospace";
+          ctx.fillStyle = f > 0.22 ? '#eef4f3' : '#ff9aa4';
+          ctx.fillText(`${st.d.toFixed(1)}m  fiato ${Math.ceil(f * 100)}%`, pad, pad + bh + 16);
+          if (st.preso) { ctx.fillStyle = '#57c08f'; ctx.fillText('PRESO - RISALI', pad, pad + bh + 32); }
+          bar.firstChild.style.width = (f * 100) + '%';
+          bar.firstChild.style.background = f > 0.5 ? 'var(--gold)' : f > 0.22 ? '#d08a2a' : 'var(--red)';
+          hud.innerHTML = `<b>${st.d.toFixed(1)} m</b> · fiato <b>${Math.ceil(f * 100)}%</b>` +
+            (st.preso ? ' · <span style="color:var(--green)">PRESO — RISALI</span>' : '') +
+            (st.visto ? ' · <span style="color:var(--red)">l\'hai visto</span>' : '');
+
+          if (st.morto) {
+            if (st.visto) G.flags[cfg.extraFlag || 'ha_visto_giu'] = true;
+            return finish(mg, done, false);
+          }
+          if (st.risalito) {
+            if (cfg.oggetto && !G.inventory.includes(cfg.oggetto)) G.inventory.push(cfg.oggetto);
+            if (st.visto) G.flags[cfg.extraFlag || 'ha_visto_giu'] = true;
+            return finish(mg, done, true);
+          }
+          if (!running.timer) schedule();
+        }
+        schedule();
+      });
+  }
+
   /* ==================== avvio ==================== */
 
   function pickHero(mg, then) {
@@ -315,6 +508,7 @@ const Minigames = (() => {
     const go = ok => done(ok);
     switch (mg.type) {
       case 'corsa': return pickHero(mg, h => corsa(mg, h, go));
+      case 'apnea': return pickHero(mg, h => apnea(mg, h, go));
       case 'indovinello': return indovinello(mg, go);
       case 'filastrocca': return filastrocca(mg, go);
       case 'memoria': return memoria(mg, go);

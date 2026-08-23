@@ -279,6 +279,161 @@ for (const sid of bersagliRitorno) {
 }
 if (!proveRipetibili) { ok(); console.log(`  ✔ ${bersagliRitorno.size} scene rivisitabili, nessuna prova ripetibile`); }
 
+
+/* ---------- Chiavi dei dati: whitelist + CONTROPROVA (ago 2026) ----------
+   Un campo dichiarato nei dati e mai letto dal motore è una bugia silenziosa
+   (LESSONS-LEARNED #8 e #16: `heal`/`damage`/`goldLoss` sulle scelte non
+   esistevano, e `c.item2` dava un oggetto invece di due). Si controlla nelle
+   DUE direzioni, perché la whitelist da sola si limiterebbe a legittimare i
+   campi morti invece di scoprirli:
+     1) FAIL  se i dati usano una chiave FUORI whitelist (typo o campo inventato);
+     2) WARN  se una chiave IN whitelist non risulta consumata dal codice. */
+section('Chiavi dei dati (whitelist + controprova nel motore)');
+
+const CHIAVI_SCENA = new Set(['location','caption','text','choices','npc','sets','rep','gold','goldLoss',
+  'item','item2','heal','damage','fullHeal','recharge','onEnterOnce','combat','minigame','ending']);
+const CHIAVI_SCELTA = new Set(['text','next','tag','once','requires','requiresGold','item','item2',
+  'removeItem','sets','rep','gold','goldLoss','heal','damage','check']);
+const CHIAVI_REQUIRES = new Set(['flag','notFlag','item','notItem']);
+const CHIAVI_CHECK = new Set(['stat','dc','success','fail','successHeal','failDamage']);
+
+const codice = ['js/engine.js','js/combat.js','js/main.js','js/scenes.js','js/minigames.js','js/epilogues.js']
+  .map(f => { try { return readFileSync(join(root, f), 'utf8'); } catch (e) { return ''; } }).join('\n');
+
+let chiaviIgnote = 0;
+for (const [id, scene] of Object.entries(CAMPAIGN)) {
+  for (const k of Object.keys(scene)) {
+    if (!CHIAVI_SCENA.has(k)) { fail(`scena "${id}": chiave sconosciuta "${k}" (typo o campo mai implementato)`); chiaviIgnote++; }
+  }
+  for (const c of scene.choices || []) {
+    for (const k of Object.keys(c)) {
+      if (!CHIAVI_SCELTA.has(k)) { fail(`scena "${id}", scelta "${String(c.text).slice(0, 30)}…": chiave sconosciuta "${k}"`); chiaviIgnote++; }
+    }
+    for (const k of Object.keys(c.requires || {})) {
+      if (!CHIAVI_REQUIRES.has(k)) { fail(`scena "${id}": requires.${k} sconosciuto`); chiaviIgnote++; }
+    }
+    for (const k of Object.keys(c.check || {})) {
+      if (!CHIAVI_CHECK.has(k)) { fail(`scena "${id}": check.${k} sconosciuto`); chiaviIgnote++; }
+    }
+  }
+}
+if (!chiaviIgnote) { ok(); console.log(`  ✔ nessuna chiave fuori whitelist (${CHIAVI_SCENA.size} di scena, ${CHIAVI_SCELTA.size} di scelta, ${CHIAVI_REQUIRES.size} requires, ${CHIAVI_CHECK.size} check)`); }
+
+// CONTROPROVA: ogni chiave ammessa deve risultare LETTA da qualche parte nel codice
+const usata = (pref, k) => new RegExp(`\\b${pref}\\.${k}\\b`).test(codice);
+let morte = 0;
+for (const k of CHIAVI_SCENA) if (!usata('scene', k) && !usata('s', k) && !usata('sc', k)) { warn(`chiave di SCENA "${k}" ammessa dal validatore ma mai letta dal codice (campo morto?)`); morte++; }
+for (const k of CHIAVI_SCELTA) if (!usata('c', k) && !usata('choice', k)) { warn(`chiave di SCELTA "${k}" ammessa ma mai letta dal codice (campo morto?)`); morte++; }
+for (const k of CHIAVI_REQUIRES) if (!usata('requires', k)) { warn(`requires.${k} ammesso ma mai letto dal codice`); morte++; }
+for (const k of CHIAVI_CHECK) if (!usata('check', k)) { warn(`check.${k} ammesso ma mai letto dal codice`); morte++; }
+if (!morte) { ok(); console.log('  ✔ controprova: tutte le chiavi ammesse sono consumate dal motore'); }
+
+/* ---------- se cadete tutti: ripartenza dal checkpoint (ago 2026) ----------
+   Il motore promette due cose: (1) ogni sconfitta finisce in una scena che
+   RIMETTE IN PIEDI il gruppo, (2) dalla seconda caduta nello stesso scontro
+   compare la scelta di tornare all'ultimo checkpoint. Se una delle due non è
+   implementata, la promessa è una bugia: qui si verifica staticamente. */
+section('Ripartenza dal checkpoint (se cadete tutti)');
+
+const engineTxt = readFileSync(join(root, 'js/engine.js'), 'utf8');
+const combatTxt = readFileSync(join(root, 'js/combat.js'), 'utf8');
+let cpProblemi = 0;
+
+// 1. ogni destinazione di sconfitta esiste ed è una scena di recupero (fullHeal)
+const destSconfitta = new Set(Object.values(CAMPAIGN).filter(s => s.combat && s.combat.defeat).map(s => s.combat.defeat));
+for (const d of destSconfitta) {
+  if (!CAMPAIGN[d]) { fail(`scena di sconfitta "${d}" inesistente`); cpProblemi++; continue; }
+  if (!CAMPAIGN[d].fullHeal) {
+    fail(`scena di sconfitta "${d}" non rimette in piedi il gruppo (manca fullHeal: true): il gruppo resterebbe a terra`);
+    cpProblemi++;
+  }
+}
+
+// 2. il motore implementa DAVVERO la ripartenza e la espone
+for (const [frammento, cosa] of [
+  ['function riprendiDaCheckpoint', 'la funzione riprendiDaCheckpoint()'],
+  ['lastCheckpoint', 'lo snapshot G.lastCheckpoint'],
+  ['function registraCaduta', 'il contatore delle cadute registraCaduta()'],
+  ['btn-checkpoint-return', 'la SCELTA visibile di ritorno al checkpoint nelle scene di sconfitta'],
+  ['riprendiDaCheckpoint, registraCaduta, haCheckpoint', 'l\'export di riprendiDaCheckpoint/registraCaduta/haCheckpoint'],
+]) {
+  if (!engineTxt.includes(frammento)) { fail(`js/engine.js: manca ${cosa}`); cpProblemi++; }
+}
+if (!combatTxt.includes('Engine.registraCaduta')) { fail('js/combat.js: defeat() non registra la caduta (Engine.registraCaduta)'); cpProblemi++; }
+
+// 3. lo snapshot deve riavvolgere anche le scene VISITATE, o i flag one-shot si perdono
+if (!/enteredScenes:\s*G\.enteredScenes/.test(engineTxt)) {
+  fail('js/engine.js: lo snapshot del checkpoint non salva enteredScenes → i flag one-shot delle scene già viste non si rimetterebbero mai (soft-lock)');
+  cpProblemi++;
+}
+
+// 4. i flag di CHECKPOINT_FLAGS devono essere impostabili da una scena RAGGIUNGIBILE
+const cpFlags = (readFileSync(join(root, 'js/campaign.js'), 'utf8').match(/const CHECKPOINT_FLAGS\s*=\s*\[([^\]]*)\]/) || [])[1];
+if (cpFlags) {
+  const lista = [...cpFlags.matchAll(/'([a-z_0-9]+)'/g)].map(m => m[1]);
+  for (const f of lista) {
+    const sorgenti = Object.entries(CAMPAIGN).filter(([, s]) => s.sets && s.sets[f]).map(([id]) => id);
+    if (!sorgenti.length) { fail(`CHECKPOINT_FLAGS: "${f}" non è impostato da NESSUNA scena (checkpoint morto)`); cpProblemi++; }
+    else if (!sorgenti.some(id => reachable.has(id))) { fail(`CHECKPOINT_FLAGS: "${f}" è impostato solo da scene irraggiungibili`); cpProblemi++; }
+  }
+  console.log(`  ✔ ${lista.length} checkpoint (CHECKPOINT_FLAGS), tutti impostabili da scene raggiungibili`);
+} else {
+  console.log('  ℹ nessun CHECKPOINT_FLAGS: il punto di ripartenza è l\'ultima scena di riposo (fullHeal/recharge) visitata');
+}
+
+if (!cpProblemi) { ok(); console.log(`  ✔ ${destSconfitta.size} scene di sconfitta valide (tutte rimettono in piedi il gruppo) e ripartenza dal checkpoint implementata ed esposta`); }
+
+
+/* ---------- densità: la metrica GIUSTA ---------- */
+section('Densità (nodi di decisione, non scene)');
+
+/* Storia di questa sezione: la soglia della serie era "corridoi ≤15%", dove corridoio
+   = scena con una sola scelta. Misurandola sui cinque giochi è venuto fuori che
+   Casa stava al 27% e Relais al 20% — ma leggendo le scene, quasi tutte erano BATTUTE:
+   sotto-scene che chiudono un momento, cioè buona scrittura. Inseguire quel numero
+   porta ad aggiungere seconde scelte finte, che è esattamente il difetto peggiore
+   della serie. Quindi la metrica è cambiata, e misura due cose che contano davvero:
+
+   1. SCELTE PER NODO DI DECISIONE: la media sulle sole scene con ≥2 scelte. È quanto
+      è ricca una decisione quando il gioco te ne offre una. Soglia: ≥2.2.
+   2. CORRIDOI STERILI: scene con una sola scelta E nessun effetto (niente item, sets,
+      check, cure, danni, valuta, combat, minigioco, finale). Quelle sì sono
+      riempitivo. Soglia: 0, o pochissime e giustificate.
+
+   Il numero grezzo di corridoi resta stampato, ma come informazione, non come voto. */
+{
+  const idsTot = Object.keys(CAMPAIGN);
+  const CAMBIA_SCENA = ['item', 'item2', 'sets', 'heal', 'damage', 'gold', 'goldLoss',
+    'fullHeal', 'recharge', 'attenzione', 'unlockHero', 'freeAll', 'reviveAll',
+    'killRoller', 'poisonRoller', 'captureRoller'];
+  const CAMBIA_SCELTA = ['item', 'item2', 'sets', 'check', 'heal', 'damage', 'gold',
+    'goldLoss', 'removeItem', 'removeItem2', 'sacrifice', 'requiresGold'];
+  let scelteTot = 0, nodi = 0, scelteNodi = 0, corridoi = 0;
+  const sterili = [];
+  for (const [id, s] of Object.entries(CAMPAIGN)) {
+    const ch = s.choices || [];
+    scelteTot += ch.length;
+    if (ch.length >= 2) { nodi++; scelteNodi += ch.length; continue; }
+    if (ch.length !== 1) continue;
+    corridoi++;
+    const cambiaScena = CAMBIA_SCENA.some(k => s[k] !== undefined && s[k] !== false && s[k] !== 0);
+    const c = ch[0] || {};
+    const cambiaScelta = CAMBIA_SCELTA.some(k => c[k] !== undefined && c[k] !== false && c[k] !== 0);
+    if (!cambiaScena && !cambiaScelta && !s.combat && !s.minigame && !s.ending) sterili.push(id);
+  }
+  const perNodo = nodi ? scelteNodi / nodi : 0;
+  console.log(`  ℹ ${idsTot.length} scene · ${nodi} nodi di decisione (${Math.round(nodi / idsTot.length * 100)}%) · ${corridoi} scene-battuta con una sola uscita`);
+  console.log(`  ℹ scelte per scena: ${(scelteTot / idsTot.length).toFixed(2)} (numero diluito dalle battute) · scelte per NODO: ${perNodo.toFixed(2)}`);
+  if (perNodo < 2.2) fail(`solo ${perNodo.toFixed(2)} scelte per nodo di decisione: quando il gioco offre una scelta, deve offrirne almeno 2,2 in media`);
+  else ok();
+  if (sterili.length) {
+    for (const id of sterili) warn(`corridoio STERILE "${id}": una sola uscita e nessun effetto — o gli si dà un effetto, o gli si dà una seconda azione vera, o si fonde con la scena accanto`);
+    if (sterili.length > Math.max(3, Math.round(idsTot.length * 0.02))) {
+      fail(`${sterili.length} corridoi sterili su ${idsTot.length} scene: è riempitivo, non ritmo`);
+    }
+  } else { ok(); console.log('  ✔ nessun corridoio sterile: ogni scena con una sola uscita cambia comunque qualcosa'); }
+}
+
 /* ---------- esito ---------- */
 console.log('\n' + '═'.repeat(50));
 if (failures === 0) {

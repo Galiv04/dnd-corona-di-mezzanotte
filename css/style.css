@@ -415,3 +415,38 @@ html.text-large .rules-body, html.text-large .backstory, html.text-large .abilit
 .minigame-simon-btn:disabled { opacity: .8; cursor: default; }
 .minigame-timerbar { height: 10px; background: #221a2a; border: 2px solid var(--border, #3a2f40); margin: 8px 0 14px; }
 .minigame-timerbar > div { height: 100%; width: 100%; background: var(--gold, #c9a227); transition: width .1s linear; }
+
+/* INCIPIT sulla schermata del titolo: la storia si presenta subito, senza spoiler.
+   Sta SOTTO i bottoni, perché il pulsante per giocare deve stare sopra la piega. */
+.title-incipit {
+  max-width: 640px;
+  margin: 4px auto 18px;
+  padding: 14px 18px 12px;
+  text-align: left;
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  background: rgba(0,0,0,.55);
+  border: 2px solid var(--border);
+  border-left: 5px solid var(--gold-dark, var(--gold));
+  box-shadow: 0 0 0 3px #000, 0 10px 30px rgba(0,0,0,.6);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+.title-incipit p { margin-bottom: 10px; }
+.title-incipit p:last-child { margin-bottom: 0; }
+.title-incipit b { color: var(--text); }
+.title-incipit-close {
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 2px solid var(--border);
+  font-size: 18px;
+  color: var(--gold);
+}
+html.text-large .title-incipit { font-size: 23px; }
+html.text-large .title-incipit-close { font-size: 21px; }
+@media (max-width: 600px) {
+  .title-incipit { font-size: 18px; line-height: 1.42; padding: 12px 14px 11px; margin-bottom: 16px; border-left-width: 4px; }
+  .title-incipit p { margin-bottom: 8px; }
+  .title-incipit-close { font-size: 16px; margin-top: 10px; padding-top: 9px; }
+}

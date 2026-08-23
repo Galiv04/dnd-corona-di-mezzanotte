@@ -837,6 +837,55 @@ if (allEndings.size < 3) {
 
 /* ==================== ESITO FINALE ==================== */
 
+
+/* ==================== SCHEDA DEL PERSONAGGIO ====================
+   Nessuna partita simulata clicca su un eroe, quindi per mesi la scheda ha potuto
+   crashare senza che nessun test lo notasse: `conditions` era dichiarata dentro il
+   ciclo delle abilità e il template la cercava fuori — ReferenceError a ogni click,
+   proprio sulla schermata che il committente aveva chiesto per vedere gli stati.
+   Questa prova apre la scheda di OGNI eroe in OGNI combinazione di stati. */
+(function testSchedaPersonaggio() {
+  section('Scheda del personaggio: si apre sempre, in ogni stato');
+  const game = buildGame(424242);
+  const E = game.api.Engine;
+  const tuttiGliEroi = game.api.HEROES;
+  game.act(() => E.newGame(tuttiGliEroi.filter(h => !h.locked).slice(0, 2).map(h => ({ heroId: h.id, player: '' }))));
+  /* Solo gli stati che QUESTO motore conosce: cercare un blocco "Condizioni attive"
+     per uno stato che il gioco non ha mai sarebbe un test che chiede l'impossibile.
+     La lista si deduce dal codice del motore, non si scrive a memoria. */
+  const engineSrc = readFileSync(join(root, 'js/engine.js'), 'utf8');
+  const STATI_NOTI = ['veleno', 'down', 'preso', 'morto', 'rimasto']
+    .filter(s => new RegExp(`h\\.${s}\\b`).test(engineSrc) && new RegExp(`if \\(h\\.${s}\\) conditions\\.push`).test(engineSrc));
+  const STATI = [{}, ...STATI_NOTI.map(s => ({ [s]: true }))];
+  if (STATI_NOTI.length >= 2) STATI.push({ [STATI_NOTI[0]]: true, [STATI_NOTI[1]]: true });
+  let rotte = 0, aperte = 0;
+  for (const base of tuttiGliEroi) {
+    for (const stato of STATI) {
+      // una copia dell'eroe con lo stato addosso, come lo vedrebbe il giocatore
+      const h = Object.assign(JSON.parse(JSON.stringify(base)), { hp: 3, player: 'Gali' }, stato);
+      try {
+        const html = E.heroSheetHTML(h);
+        aperte++;
+        if (typeof html !== 'string' || html.length < 200) { fail(`scheda di "${base.id}" con stato ${JSON.stringify(stato)}: HTML vuoto o troppo corto`); rotte++; }
+        const conStato = Object.keys(stato).length > 0;
+        if (conStato && !/Condizioni attive/.test(html)) { fail(`scheda di "${base.id}" con stato ${JSON.stringify(stato)}: nessun blocco "Condizioni attive" — lo stato è invisibile al giocatore`); rotte++; }
+        if (/undefined|\[object Object\]|NaN/.test(html)) { fail(`scheda di "${base.id}" con stato ${JSON.stringify(stato)}: contiene "undefined"/"NaN" nel testo mostrato`); rotte++; }
+      } catch (e) {
+        fail(`scheda di "${base.id}" con stato ${JSON.stringify(stato)} ESPLODE: ${e.message}`);
+        rotte++;
+      }
+    }
+  }
+  // e la modale vera, quella che si apre cliccando nella barra del gruppo
+  try {
+    game.act(() => E.showHeroSheetIdx(0));
+    const box = game.doc.getElementById('modal-generic-content');
+    if (!box.innerHTML || box.innerHTML.length < 200) { fail('showHeroSheetIdx(0): la modale resta vuota'); rotte++; }
+    if (game.doc.getElementById('modal-generic').classList.contains('hidden')) { fail('showHeroSheetIdx(0): la modale non si apre'); rotte++; }
+  } catch (e) { fail(`showHeroSheetIdx(0) esplode: ${e.message}`); rotte++; }
+  if (!rotte) console.log(`  ✅ ${aperte} schede aperte (${tuttiGliEroi.length} eroi × ${STATI.length} stati), tutte complete e con le condizioni visibili`);
+})();
+
 console.log('\n' + '═'.repeat(60));
 (function testRigheCondizionate() {
   section('Verifica diretta: le righe [[eroe:id]] appaiono solo se l\'eroe gioca');
@@ -854,6 +903,73 @@ console.log('\n' + '═'.repeat(60));
   const t2 = g2.doc.getElementById('narration').innerHTML;
   if (!/Le due cose non si escludono/.test(t2)) fail('testRigheCondizionate: battuta di Torvald ASSENTE con Torvald in gioco');
   console.log('  ✅ Righe condizionate: nascoste senza l\'eroe, presenti con, nessun marcatore grezzo');
+})();
+
+/* Se cadete tutti: la ripartenza dal checkpoint deve essere VERA e RAGGIUNGIBILE.
+   Non basta che la funzione esista (LESSONS-LEARNED #7-ter: una funzione che
+   dall'interfaccia non si raggiunge è un bug anche se il codice è giusto). */
+(function testRipartenzaDalCheckpoint() {
+  section('Se cadete tutti: ripartenza dall\'ultimo riposo');
+  const g = buildGame(9317);
+  g.act(() => g.api.Engine.newGame([{ heroId: 'torvald', player: '' }, { heroId: 'lyra', player: '' }]));
+
+  // 1. una scena di riposo vero registra il checkpoint con lo snapshot
+  g.act(() => g.api.Engine.gotoScene('c_scala_riposo'));
+  let G = g.getG();
+  if (!G.lastCheckpoint || !G.lastCheckpoint.snapshot) {
+    fail('testRipartenzaDalCheckpoint: la scena di riposo non ha registrato G.lastCheckpoint');
+    return;
+  }
+  if (G.lastCheckpoint.sceneId !== 'c_scala_riposo') {
+    fail(`testRipartenzaDalCheckpoint: checkpoint sulla scena sbagliata (${G.lastCheckpoint.sceneId})`);
+    return;
+  }
+  if (!g.api.Engine.haCheckpoint()) { fail('testRipartenzaDalCheckpoint: haCheckpoint() dice false con un checkpoint salvato'); return; }
+
+  // 2. le scene di sconfitta NON possono essere checkpoint (sarebbe un cerchio)
+  g.act(() => g.api.Engine.gotoScene('sconfitta_generica'));
+  if (g.getG().lastCheckpoint.sceneId !== 'c_scala_riposo') {
+    fail('testRipartenzaDalCheckpoint: una scena di sconfitta si è registrata come checkpoint');
+    return;
+  }
+
+  // 3. dopo il riposo si raccoglie roba: tornando indietro la si deve PERDERE
+  g.act(() => { const s = g.getG(); s.gold += 40; s.inventory.push('gemma_nanica'); });
+  const oroPrima = g.getG().gold;
+
+  // 4. la SCELTA di tornare indietro compare solo dalla SECONDA caduta nello
+  //    stesso scontro: la prima volta valgono le scene di sconfitta scritte
+  g.act(() => { g.getG().lastCombatSceneId = 'f_boss'; });
+  g.act(() => g.api.Engine.registraCaduta('f_boss'));
+  g.act(() => g.api.Engine.gotoScene('sconfitta_generica'));
+  // NB: nello stub del DOM getElementById() FABBRICA l'elemento se non c'è, quindi
+  // "il bottone esiste?" si verifica solo tra i figli veri di #choices.
+  const bottoneCheckpoint = () => buttons(g.doc.getElementById('choices'))
+    .find(b => b.id === 'btn-checkpoint-return');
+  if (bottoneCheckpoint()) {
+    fail('testRipartenzaDalCheckpoint: il ritorno al checkpoint è offerto già alla PRIMA caduta');
+    return;
+  }
+  g.act(() => g.api.Engine.registraCaduta('f_boss'));
+  g.act(() => g.api.Engine.gotoScene('sconfitta_generica'));
+  const btn = bottoneCheckpoint();
+  if (!btn || typeof btn.onclick !== 'function') {
+    fail('testRipartenzaDalCheckpoint: alla seconda caduta manca la scelta di tornare al checkpoint');
+    return;
+  }
+
+  // 5. il ritorno ripristina lo stato di allora, cura tutti e NAVIGA davvero
+  g.act(() => btn.onclick());
+  G = g.getG();
+  if (G.sceneId !== 'c_scala_riposo') { fail(`testRipartenzaDalCheckpoint: dopo il ritorno siamo in "${G.sceneId}" invece che al checkpoint`); return; }
+  if (G.inventory.includes('gemma_nanica')) { fail('testRipartenzaDalCheckpoint: la gemma raccolta DOPO il checkpoint è ancora nello zaino'); return; }
+  if (G.gold >= oroPrima) { fail(`testRipartenzaDalCheckpoint: l'oro non è tornato a quello del checkpoint (${G.gold} vs ${oroPrima})`); return; }
+  if (G.party.some(h => h.hp !== h.maxHp || h.down)) { fail('testRipartenzaDalCheckpoint: il gruppo non è tornato in piedi a PV pieni'); return; }
+  // la modale deve DIRE cosa si è perso, per nome (mai testo generico)
+  const modale = g.doc.getElementById('modal-generic-content').innerHTML;
+  if (!/Gemma Nanica/.test(modale)) { fail('testRipartenzaDalCheckpoint: la modale non nomina gli oggetti perduti'); return; }
+  if (g.doc.getElementById('modal-generic').classList.contains('hidden')) { fail('testRipartenzaDalCheckpoint: la modale del ritorno non è visibile'); return; }
+  console.log('  ✅ Checkpoint: registrato al riposo, mai sulle sconfitte, offerto dalla 2ª caduta, ripristino con perdite nominate');
 })();
 
 if (failures === 0) {

@@ -80,6 +80,8 @@ const Engine = (() => {
       usedChoices: {},   // sceneId -> [testi scelti "once"]
       enteredScenes: {}, // sceneId -> true (per effetti one-shot)
       lastCombatSceneId: null,
+      lastCheckpoint: null, // { sceneId, snapshot } — l'ultimo riposo vero
+      koCount: {},          // sceneId del combattimento -> quante volte ci siete caduti
       history: [],       // tappe della storia (per il riepilogo alla ripresa)
       seenEnemies: [],   // nemici incontrati (per il bestiario)
       slot,
@@ -322,6 +324,22 @@ const Engine = (() => {
       }
       if (!firstVisit && scene.goldLoss) G.gold = Math.max(0, G.gold - scene.goldLoss);
     }
+
+    /* CHECKPOINT — La Corona non ha CHECKPOINT_FLAGS (e non se ne inventano):
+       il punto di ripartenza è l'ultima scena di RIPOSO VERO visitata (fullHeal
+       o recharge) che NON sia la destinazione di sconfitta di un combattimento.
+       Quelle rimandano già allo scontro con PV pieni: usarle come checkpoint
+       sarebbe un cerchio. Snapshot dello stato di ADESSO: se cadete due volte
+       nello stesso punto si riparte da qui (vedi riprendiDaCheckpoint). */
+    if ((scene.fullHeal || scene.recharge) && !isSceneDiSconfitta(id)) {
+      try {
+        G.lastCheckpoint = { sceneId: id, flag: null, snapshot: JSON.stringify({
+          party: G.party, uses: G.uses, gold: G.gold, inventory: G.inventory,
+          flags: G.flags, koCount: G.koCount || {},
+          enteredScenes: G.enteredScenes, usedChoices: G.usedChoices,
+        }) };
+      } catch (e) {}
+    }
     if (scene.recharge) {
       for (const h of G.party) for (const ab of h.abilities) G.uses[h.id][ab.id] = ab.uses;
     }
@@ -471,6 +489,23 @@ const Engine = (() => {
       b.onclick = () => resolveChoice(scene, c);
       choicesEl.appendChild(b);
     }
+
+    /* ↩ SI RIPARTE DAL CHECKPOINT — offerta ESPLICITA nelle scene di sconfitta,
+       dalla SECONDA caduta nello stesso scontro (la prima volta il gioco vi
+       raccoglie e basta). È una scelta vera, non una punizione: tornare indietro
+       vi restituisce il pezzo di storia che la sconfitta vi fa saltare, e vi costa
+       tutto quello che avete raccolto da lì in poi (la modale lo dice per nome). */
+    if (haCheckpoint() && isSceneDiSconfitta(G.sceneId) &&
+        (G.koCount || {})[G.lastCombatSceneId] > 1) {
+      const nodo = (CAMPAIGN[G.lastCheckpoint.sceneId] || {}).caption || 'l\'ultimo checkpoint';
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.id = 'btn-checkpoint-return';
+      b.innerHTML = `↩ <b>🌒 Tornare indietro</b>: l'eclisse vi rimanda a «${nodo}»` +
+        ` <span class="choice-tag">Riprendete da lì: PV pieni e abilità cariche, la strada di nuovo intera — ma quello che avete raccolto dopo non lo avete più</span>`;
+      b.onclick = () => riprendiDaCheckpoint();
+      choicesEl.appendChild(b);
+    }
   }
 
   function resolveChoice(scene, c) {
@@ -481,6 +516,9 @@ const Engine = (() => {
     }
     if (c.gold) G.gold = Math.max(0, G.gold + c.gold);
     if (c.item) G.inventory.push(c.item);
+    // c.item2: era una chiave MORTA (solo scene.item2 veniva applicato), quindi ogni
+    // scelta che dava due oggetti ne dava uno solo, in silenzio.
+    if (c.item2) G.inventory.push(c.item2);
     if (c.removeItem) {
       const i = G.inventory.indexOf(c.removeItem);
       if (i >= 0) G.inventory.splice(i, 1);
@@ -569,6 +607,89 @@ const Engine = (() => {
     $('btn-reroll-no').onclick = () => { $('modal-generic').classList.add('hidden'); onNo(); };
   }
 
+  /* ---------- se cadete tutti: si riparte dal checkpoint ---------- */
+
+  // le scene che un combattimento usa come sconfitta: non possono essere checkpoint
+  let _sconfitte = null;
+  function isSceneDiSconfitta(id) {
+    if (!_sconfitte) {
+      _sconfitte = new Set();
+      for (const s of Object.values(CAMPAIGN)) {
+        if (s.combat && s.combat.defeat) _sconfitte.add(s.combat.defeat);
+      }
+    }
+    return _sconfitte.has(id);
+  }
+
+  /* Quante volte siete già caduti in QUESTO scontro: la prima volta valgono le
+     scene di sconfitta scritte (Gerbold, il "soccorritore"), dalla seconda si
+     torna al checkpoint. */
+  function registraCaduta(sceneId) {
+    if (!G) return 1;
+    if (!G.koCount) G.koCount = {};
+    const k = sceneId || G.sceneId || '?';
+    G.koCount[k] = (G.koCount[k] || 0) + 1;
+    return G.koCount[k];
+  }
+
+  function haCheckpoint() { return !!(G && G.lastCheckpoint && G.lastCheckpoint.snapshot); }
+
+  /* Si riparte dall'ultimo riposo vero, con lo stato di ALLORA: quello che avevate
+     raccolto dopo l'avete perso, e la modale lo dice PER NOME. Torna false se non
+     c'è nessun checkpoint: in quel caso vale la scena di sconfitta scritta. */
+  function riprendiDaCheckpoint() {
+    const cp = G && G.lastCheckpoint;
+    if (!cp || !cp.snapshot) return false;
+    let s;
+    try { s = JSON.parse(cp.snapshot); } catch (e) { return false; }
+    if (!s || !s.party || !s.party.length) return false;
+
+    const restanti = [...(s.inventory || [])];
+    const perse = [];
+    for (const it of (G.inventory || [])) {
+      const i = restanti.indexOf(it);
+      if (i >= 0) restanti.splice(i, 1); else perse.push(it);
+    }
+    const nomiPersi = perse.map(i => (ITEMS[i] ? ITEMS[i].name : i));
+    const oroPerso = Math.max(0, (G.gold || 0) - (s.gold || 0));
+
+    G.party = s.party;
+    G.uses = s.uses;
+    G.gold = s.gold;
+    G.inventory = s.inventory;
+    G.flags = s.flags;
+    G.koCount = s.koCount || {};
+    // si riavvolge ANCHE cosa è stato visitato: senza questo i flag one-shot
+    // delle scene già entrate non si rimettono più e il contenuto si soft-locka.
+    if (s.enteredScenes) G.enteredScenes = s.enteredScenes;
+    if (s.usedChoices) G.usedChoices = s.usedChoices;
+    for (const h of G.party) { h.hp = h.maxHp; h.down = false; h.luckUsed = false; }
+    G.stats = G.stats || {};
+    G.stats.checkpointRitorni = (G.stats.checkpointRitorni || 0) + 1;
+
+    // prima si NAVIGA, poi si racconta: la modale è informativa, non un cancello
+    // (un onclick inline non lo esegue né lo stub dei test né chi chiude con Esc).
+    gotoScene(cp.sceneId);
+
+    const nodo = CAMPAIGN[cp.sceneId] ? CAMPAIGN[cp.sceneId].caption : 'l\'ultimo riposo';
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2 style="color:var(--red)">🌒 L'ECLISSE VI RIMANDA INDIETRO</h2>
+      <div class="backstory" style="white-space:pre-wrap">Un attimo il buio, e poi la sensazione più strana di tutta la vostra vita: il <b>sapore del pasto di prima</b>, ancora in bocca.
+
+Siete di nuovo a <i>${nodo}</i>. Le bende sono nuove, le abilità cariche, il fiato in ordine. La luna, sopra di voi, è tornata di qualche dito indietro.
+
+*(L'eclisse mangia il tempo. Di solito lo mangia in avanti. Stanotte, per voi, ha fatto un'eccezione — e le eccezioni si pagano.)*
+
+Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.length ? `\n\n<span style="color:var(--red)">Vi manca:</span> ${nomiPersi.join(', ')}.` : `\n\n<span style="color:var(--text-dim)">Gli zaini, almeno, sono come li avevate lasciati.</span>`}${oroPerso ? `\n<span style="color:var(--red)">💰 Oro:</span> ne avevate ${oroPerso} in più. Si riparte da ${G.gold}.` : ''}
+
+<span style="color:var(--green)">PV al massimo, abilità ricaricate.</span> Mezzanotte, però, non torna indietro con voi.</div>
+      <button class="btn btn-gold" style="margin-top:14px" onclick="document.getElementById('modal-generic').classList.add('hidden')">⚔ Rifarlo meglio</button>`;
+    $('modal-generic').classList.remove('hidden');
+    if (typeof Sound !== 'undefined') Sound.play('defeat');
+    saveGame();
+    return true;
+  }
+
   /* ---------- barra del gruppo ---------- */
 
   function renderPartyBar(containerId, activeIdx = -1) {
@@ -598,6 +719,15 @@ const Engine = (() => {
   /* ---------- schede e modali ---------- */
 
   function heroSheetHTML(h, withUses = true) {
+    /* LE CONDIZIONI ATTIVE. Richiesta del committente dopo aver giocato: «siamo
+       avvelenati ma non sembra succeda niente, e se clicchi il personaggio non si
+       vede e non dà info al riguardo». Ogni stato va scritto qui, con l'effetto
+       numerico E il modo di togliersela. */
+    const conditions = [];
+    if (h.veleno) conditions.push(`<div class="ability-box" style="border-left:5px solid var(--red)"><span class="ability-name">🤢 AVVELENATO</span><div class="ability-desc"><b>−2 a TUTTE le prove e agli attacchi</b>, finché il veleno gira. Si cura con un antidoto, con una cura del chierico, o dormendo una notte intera al sicuro.</div></div>`);
+    if (h.down) conditions.push(`<div class="ability-box" style="border-left:5px solid var(--red)"><span class="ability-name">💀 A TERRA</span><div class="ability-desc">A zero punti vita: non agisce e non tira. Serve una cura, una pozione o che qualcuno lo rialzi — e in combattimento rialzarlo costa un turno a chi lo fa.</div></div>`);
+    if (h.preso) conditions.push(`<div class="ability-box" style="border-left:5px solid var(--red)"><span class="ability-name">🕸 TRATTENUTO</span><div class="ability-desc">Qualcosa lo tiene e non lo lascia: fuori gioco finché non lo strappate via.</div></div>`);
+    if (h.morto) conditions.push(`<div class="ability-box" style="border-left:5px solid var(--red)"><span class="ability-name">⚰️ CADUTO</span><div class="ability-desc">Non respira più. Torna solo con una resurrezione vera — o in uno dei finali che se lo meritano.</div></div>`);
     const stats = Object.entries(h.stats).map(([k, v]) =>
       `<div class="stat-chip"><span class="stat-label">${k}</span><span class="stat-val">${v >= 0 ? '+' + v : v}</span></div>`).join('');
     const abilities = h.abilities.map(ab => {
@@ -608,6 +738,7 @@ const Engine = (() => {
       <h2>${h.name}</h2>
       <p style="color:var(--blue);font-size:20px">${h.class} — <i>${h.tagline}</i></p>
       ${h.player ? `<p style="color:var(--text-dim)">Giocato da: <b>${h.player}</b></p>` : ''}
+      ${conditions.length ? `<h3>⚠️ Condizioni attive</h3>${conditions.join('')}` : ''}
       <div class="stat-row">
         <div class="stat-chip"><span class="stat-label">PV</span><span class="stat-val">${G ? h.hp + '/' + h.maxHp : h.maxHp}</span></div>
         <div class="stat-chip"><span class="stat-label">CA</span><span class="stat-val">${h.ac}</span></div>
@@ -922,6 +1053,7 @@ const Engine = (() => {
     showScreen, gotoScene, currentScene, renderPartyBar,
     showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu, showDiary, showBestiary,
     usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,
+    riprendiDaCheckpoint, registraCaduta, haCheckpoint,
     heroSheetHTML, formatText,
   };
 })();

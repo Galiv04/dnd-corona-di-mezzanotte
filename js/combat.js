@@ -717,8 +717,20 @@ const Combat = (() => {
     if (typeof Sound !== 'undefined') Sound.play('defeat');
     $('combat-actions').innerHTML = '';
     const next = battle.def.defeat;
+
+    /* SE CADETE TUTTI (richiesta ago 2026).
+       1ª caduta in questo scontro → la scena di sconfitta SCRITTA (il "soccorritore"
+          che si paga il disturbo, Gerbold e la candela verde): PV pieni e si riprova.
+       2ª caduta nello stesso punto → si riparte dall'ULTIMO RIPOSO VERO, con lo stato
+          di allora: perdere due volte lo stesso scontro COSTA il tratto in mezzo.
+       Nessun checkpoint registrato → resta la sconfitta scritta (comportamento storico). */
+    Engine.registraCaduta(G.lastCombatSceneId || G.sceneId);
+
     setTimeout(() => {
       banner.classList.add('hidden');
+      // rete di sicurezza: se la scena di sconfitta non esistesse, il checkpoint
+      // evita il vicolo cieco invece di lasciare la partita appesa.
+      if (!CAMPAIGN[next] && Engine.riprendiDaCheckpoint()) return;
       Engine.gotoScene(next);
     }, 2000);
   }
