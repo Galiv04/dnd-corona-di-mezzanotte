@@ -806,6 +806,16 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
 
   function showHeroSheetIdx(i) { showHeroSheet(G.party[i]); }
 
+  function inspectItem(itemId) {
+    const item = ITEMS[itemId];
+    if (!item || !item.lore) return;
+    const box = $('modal-generic-content');
+    box.innerHTML = `<h2>📖 ${item.name}</h2>
+      <div class="backstory" style="white-space:pre-wrap">${item.lore}</div>
+      <button class="btn" style="margin-top:14px" onclick="Engine.showInventory()">↩ Allo zaino</button>`;
+    $('modal-generic').classList.remove('hidden');
+  }
+
   function showInventory() {
     const box = $('modal-generic-content');
     const counts = {};
@@ -813,7 +823,10 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
     let itemsHtml = Object.entries(counts).map(([it, n]) => {
       const item = ITEMS[it];
       const useBtn = item.usable ? `<button class="btn btn-small" onclick="Engine.usePotionOutside('${it}')">🧪 Bevi</button>` : '';
-      return `<div class="inv-item"><span class="inv-name">${item.name}${n > 1 ? ' ×' + n : ''}</span><span class="inv-desc">${item.desc}</span>${useBtn}</div>`;
+      /* Gli oggetti che portano un pezzo di storia hanno un secondo strato: il bottone
+         compare SOLO se c'è qualcosa da leggere, così non promette niente a vuoto. */
+      const loreBtn = item.lore ? `<button class="btn btn-small" onclick="Engine.inspectItem('${it}')">📖 Ispeziona</button>` : '';
+      return `<div class="inv-item"><span class="inv-name">${item.name}${n > 1 ? ' ×' + n : ''}</span><span class="inv-desc">${item.desc}</span>${useBtn}${loreBtn}</div>`;
     }).join('') || '<p style="color:var(--text-dim)">Lo zaino è vuoto. Succede ai migliori.</p>';
     box.innerHTML = `<h2>🎒 Zaino del Gruppo</h2>
       <div class="gold-display">💰 ${G.gold} monete d'oro</div>
@@ -1096,7 +1109,7 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
     newGame, saveGame, loadGame, hasSave, clearSave, listSaves, firstFreeSlot,
     listProfiles, currentProfile, setCurrentProfile, deleteProfile, renameProfile, exportCode, importCode,
     showScreen, gotoScene, currentScene, renderPartyBar,
-    showParty, showHeroSheet, showHeroSheetIdx, showInventory, showRules, showMap, showMenu, showDiary, showBestiary,
+    showParty, showHeroSheet, showHeroSheetIdx, showInventory, inspectItem, showRules, showMap, showMenu, showDiary, showBestiary,
     usePotionOutside, applyPotion, backToTitle, confirmRestart, doRestart,
     riprendiDaCheckpoint, registraCaduta, haCheckpoint,
     heroSheetHTML, formatText,

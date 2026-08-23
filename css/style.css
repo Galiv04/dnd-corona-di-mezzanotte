@@ -489,3 +489,20 @@ html.text-large .title-incipit-close { font-size: 21px; }
 .combat-enemies:empty { display: none; }
 .nemico-voce b { color: var(--gold); margin-right: 4px; }
 .nemico-voce.morto { color: var(--text-dim); text-decoration: line-through; }
+
+/* ---------- respiro nelle pagine di sola lettura ----------
+   Il reset azzera i margini di <p>: nelle schermate La Storia e Come si Gioca erano
+   diciassette paragrafi attaccati, un muro di testo. Nelle scene di gioco lo spazio
+   c'era già; qui mancava. */
+#screen-story p, #screen-howto p { margin-bottom: 10px; }
+#screen-story p:last-child, #screen-howto p:last-child { margin-bottom: 0; }
+#screen-story h3, #screen-howto h3 { margin-top: 18px; }
+
+/* ---------- scelte dentro le modali ----------
+   Un <button> è inline-block: appeso direttamente al corpo della modale si dimensiona
+   sul proprio testo, e due scelte di lunghezza diversa avevano bordi disallineati (272
+   e 289 px nel selettore dell'eroe per una prova). Nelle scene le scelte stanno in un
+   contenitore a colonna; qui la stessa larghezza per tutte, senza toccare i punti in
+   cui vengono create. */
+.modal-box > .choice-btn { display: block; width: 100%; }
+.modal-box > .choice-btn + .choice-btn { margin-top: 8px; }

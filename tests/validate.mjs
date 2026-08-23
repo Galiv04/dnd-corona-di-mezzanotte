@@ -470,6 +470,47 @@ function testTestoNelCanvas() {
 }
 testTestoNelCanvas();
 
+/* ---------- 45. il retro degli oggetti ----------
+   Il bottone «Ispeziona» compare solo se l'oggetto ha un `lore`. Prima di agosto 2026 il
+   bottone c'era in quattro giochi su cinque e quasi nessun oggetto aveva qualcosa da
+   leggere: una funzione costruita e vuota, cioè la stessa bugia di una valuta che non
+   compra niente. Il controllo tiene insieme le due metà — la funzione e il contenuto —
+   e rifiuta i retro-stub da una riga. NON pretende un lore su ogni oggetto: un pezzo di
+   nastro isolante che serve solo a costruire altro non ha un secondo strato, e inventarlo
+   sarebbe riempitivo. */
+function testRetroOggetti() {
+  console.log('\n▸ Il retro degli oggetti');
+  const chiavi = Object.keys(ITEMS);
+  const conLore = chiavi.filter(k => ITEMS[k].lore);
+  let motore = '';
+  try { motore = readFileSync(new URL('../js/engine.js', import.meta.url), 'utf8'); } catch {}
+  const haFunzione = /function inspectItem/.test(motore);
+  const haBottone = /Engine\.inspectItem\(/.test(motore);
+
+  if (conLore.length && !(haFunzione && haBottone)) {
+    fail(`${conLore.length} oggetti hanno un retro ma l'interfaccia non lo mostra `
+       + `(inspectItem: ${haFunzione ? 'sì' : 'NO'}, bottone nello zaino: ${haBottone ? 'sì' : 'NO'})`);
+  } else if (haBottone) {
+    const quota = conLore.length / chiavi.length;
+    if (conLore.length < 8 || quota < 0.20) {
+      fail(`il bottone Ispeziona esiste ma solo ${conLore.length} oggetti su ${chiavi.length} `
+         + `(${Math.round(quota * 100)}%) hanno qualcosa da leggere: una funzione quasi vuota `
+         + 'promette e non mantiene');
+    } else {
+      ok(); console.log(`  ✔ ${conLore.length}/${chiavi.length} oggetti (${Math.round(quota * 100)}%) hanno un retro leggibile`);
+    }
+  } else { ok(); console.log('  ✔ nessun retro e nessun bottone: coerente'); }
+
+  const corti = conLore.filter(k => ITEMS[k].lore.trim().split(/\s+/).length < 35);
+  if (corti.length) fail(`retro troppo corti (sotto le 35 parole), sono stub: ${corti.join(', ')}`);
+  else if (conLore.length) { ok(); console.log('  ✔ nessun retro da una riga'); }
+
+  const vietate = conLore.filter(k => /inquietant|misterios|agghiacciant|raccapricciant|indicibil/i.test(ITEMS[k].lore));
+  if (vietate.length) fail(`parole vietate nel retro di: ${vietate.join(', ')} (l'orrore sta nel dettaglio, non nell'aggettivo)`);
+  else if (conLore.length) { ok(); console.log('  ✔ nessun aggettivo che fa il lavoro al posto del dettaglio'); }
+}
+testRetroOggetti();
+
 /* ---------- esito ---------- */
 
 /* ---------- un boss non deve essere invincibile per costruzione ---------- */
