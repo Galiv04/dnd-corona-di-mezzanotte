@@ -543,6 +543,31 @@ scenarios.push(scenario('bosco -> maschere -> danza -> attacco diretto -> finale
   c1: 'Gran Ballo', c_ballo: 'Un giro di valzer', c_gerbold: 'ti meriti una vacanza', c_scala: 'Riposo breve',
   c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
 }));
+/* ---- Ramo CUCINA: 12 scene che nessuno scenario visitava (k1-k10 + k_torvald).
+   La scena k_torvald era chiusa dietro un flag che nessuno impostava: adesso chiede
+   requires.hero torvald, e questo scenario è la prova che con Torvald in squadra
+   compare e si attraversa. ---- */
+scenarios.push(scenario('cucina: da cuoco a cuoco con Monsieur Ragoût (Torvald in squadra)', ['torvald', 'brunilde'], {
+  v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'Bosco dei Sussurri',
+  b1: 'tracce del sentiero', b2: 'ECLISSI!', b3: 'Tentate di farla ridere', b3_gag: 'Torre di Brindolo',
+  c1: 'Gran Ballo', c_ballo: 'porta di servizio',
+  k1: 'Avvicinatevi alla porta', k2: 'Da cuoco a cuoco', k_torvald: 'due cuochi',
+  k5: 'Ricostruite la sequenza', k6a: 'controllare quel rumore', k6b: 'controllare quel rumore',
+  k8: 'Duecento anni di ferie', k9: 'sceglie il vino', k10: "Voltarsi un'ultima volta",
+  c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}));
+/* ---- Imboscata del Bivio: il Bandito Mascherato era una scheda completa che nessuna
+   scena faceva comparire. Questo scenario garantisce che lo scontro venga giocato —
+   contenuto aggiunto e non attraversato da nessun test è contenuto non finito. ---- */
+scenarios.push(scenario('bivio: imboscata dei due banditi, e poi la strada indicata', ['lyra', 'fizzle'], {
+  v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'Dietro il muretto',
+  v3_bandito_ok: 'Indicare la direzione',
+  b1: 'tracce del sentiero', b2: 'ECLISSI!', b3: 'Tentate di farla ridere', b3_gag: 'Torre di Brindolo',
+  c1: 'Gran Ballo', c_ballo: 'Un giro di valzer', c_gerbold: 'ti meriti una vacanza',
+  c_scala: 'Riposo breve', c_vetta: 'BATTAGLIA!', e_alba: 'Niente esecuzioni',
+}, { seed: 424242 }));
+
+
 
 scenarios.push(scenario('bosco -> giardino -> tenzone bardica (round1 INT) -> finale bardo?', ['lyra', 'brunilde'], {
   v1: 'vecchia Mirtilla', v2: 'LEGNATE', v3: 'Bosco dei Sussurri',

@@ -697,6 +697,65 @@ Sopra di voi, l'anello rosso dell'eclissi si sta stringendo. Mezzanotte si avvic
       { text: '🛶 Verso il Molo del Vecchio Salice, sul Fiume Torbido', next: 'r1', sets: { via_fiume: true } },
       { text: '🔭 Un sentiero laterale sale a una torre pendente: l\'astronoma che aveva PREVISTO l\'eclissi', tag: 'Deviazione: costa tempo, ma...', next: 't1', once: true },
       { text: '🛒 Prima però: quel carro con la lanterna, fermo sotto la quercia...', next: 'v3_mercante', once: true },
+      { text: '🎭 Dietro il muretto qualcosa si è mosso. Due volte, e non era vento', next: 'v3_bandito', once: true },
+    ],
+  },
+
+  /* Il Bandito Mascherato era una scheda completa — sprite, sciabola, perfino la
+     battuta «approfitta del buio perenne, il buio non approva» — che nessuna scena
+     faceva comparire. Danno della sciabola portato da 1d8+1 a 1d6+1: due banditi
+     fanno 9 al round, ed è la metà dei punti vita di Lyra, la più fragile con 18. */
+  v3_bandito: {
+    location: 'strada',
+    caption: 'Dietro il muretto — ore 18:10',
+    text: `Il muretto è di pietra a secco, alto quanto un ginocchio, e dietro ci stanno accucciati due uomini con un fazzoletto sul viso e la sciabola in mano.
+
+Si alzano insieme, e si vede subito che l'hanno provato: il gesto è coordinato, la posa è studiata, il fazzoletto è pulito.
+
+> Il primo bandito: "La borsa o la vita!"
+
+> Il secondo bandito: *(a voce bassa, al collega)* "Sono in sei, Nunzio."
+
+> Il primo bandito: "L'ho visto, Peppino."
+
+> Il secondo bandito: "E allora perché l'hai detto?"
+
+> Il primo bandito: "Perché si dice così."
+
+Restano lì, con le sciabole alzate e l'aria di due che avevano fatto un altro conto. Poi il primo guarda il cielo — l'anello rosso che si stringe — e la faccia gli cambia, e non per voi.
+
+> Il primo bandito: "Senti, amico. Noi stiamo qua fuori da tre giorni al buio, e il buio... il buio non ci vuole. Ci abbiamo provato tre volte a tornare a casa e tre volte ci siamo ritrovati a questo muretto." *(alza la sciabola di un dito)* "Quindi facciamo presto, che a me questo posto non piace."
+
+**(⚔ Due sciabole, e due uomini che preferirebbero essere altrove.)**`,
+    combat: {
+      enemies: ['bandito', 'bandito'],
+      victory: 'v3_bandito_ok',
+      defeat: 'sconfitta_generica',
+      loot: { gold: 12 },
+    },
+  },
+
+  v3_bandito_ok: {
+    location: 'strada',
+    caption: 'Dietro il muretto — dopo',
+    gold: 0,
+    sets: { banditi_battuti: true },
+    text: `Nunzio si siede sul muretto e si toglie il fazzoletto dal viso senza che nessuno gliel'abbia chiesto. Sotto c'è una faccia da trentacinque anni, con la barba di tre giorni e due occhiaie da chi non dorme perché ha paura del buio come i bambini, solo che ha ragione.
+
+> Nunzio: "Ci arrestate?"
+
+> Peppino: "Ce lo meritiamo."
+
+> Nunzio: "Peppino, non stiamo negoziando, sto CHIEDENDO."
+
+Il fatto è questo: la strada per Brindolo è lunga tre miglia e loro, in tre giorni, non ce l'hanno fatta. Ogni volta che provavano a scendere si ritrovavano qui. Non è una punizione: è che al buio, senza stelle, un uomo cammina in cerchio e non lo sa.
+
+Se qualcuno di voi ha una lanterna, o anche solo la voglia di indicare la direzione con un braccio e tenerlo fermo un momento, la questione si risolve in dieci secondi.
+
+**(💰 12 monete d'oro dalla borsa che avevano già preparato per consegnarsi. E due uomini che scendono verso Brindolo camminando dritti, per la prima volta da tre giorni.)**`,
+    choices: [
+      { text: '🗺 Indicare la direzione e tenere il braccio fermo finché non l\'hanno capita', next: 'v3', sets: { banditi_a_casa: true } },
+      { text: '⏳ Non c\'è tempo: mezzanotte si stringe. Tornare al bivio', next: 'v3' },
     ],
   },
 
@@ -3148,7 +3207,7 @@ Si riprende, dignitosissimo, e si passa la manica sugli occhi che non ha più.
     choices: [
       { text: '📖 "Cosa sono TUTTI questi appunti sul ricettario?"', next: 'k3' },
       { text: '🥫 "Possiamo dare un\'occhiata alla dispensa?"', next: 'k4' },
-      { text: '🍳 Torvald si fa avanti: "Da cuoco a cuoco... posso vedere la vostra cucina?"', requires: { flag: 'torvald_presente' }, next: 'k_torvald' },
+      { text: '🍳 Torvald si fa avanti: "Da cuoco a cuoco... posso vedere la vostra cucina?"', requires: { hero: 'torvald' }, next: 'k_torvald' },
       { text: '⏩ "Non abbiamo tempo, Monsieur. Ci serve il vostro aiuto contro Vesper."', next: 'k5' },
     ],
   },
@@ -3211,7 +3270,7 @@ Ragoût annuisce, commosso a modo suo: è l'unico, in duecento anni, che ha cont
     ],
   },
 
-  /* ---------- k_torvald: scena speciale (requires torvald_presente) ---------- */
+  /* ---------- k_torvald: scena speciale (requires.hero torvald) ---------- */
 
   k_torvald: {
     location: 'cucine',
@@ -3397,7 +3456,8 @@ Non finisce la frase. Non ne ha bisogno. Vi impacchetta, con mani tremanti ma ve
     item: 'banchetto_ragout',
     choices: [
       { text: 'Ringraziate Monsieur Ragoût e tornate alla scala della torre', next: 'k10' },
-      { text: '🍷 Ragoût sceglie il vino per il Banchetto in tre secondi netti: rosso, del 1841', once: true, heal: 1, next: 'k10' },
+      { text: '🍷 Ragoût sceglie il vino per il Banchetto in tre secondi netti: rosso, del 1841',
+        once: true, heal: 1, item: 'coltello_da_cuoco', next: 'k10' },
     ],
   },
 
@@ -3527,7 +3587,7 @@ const CAMPAIGN_START = 'p1';
 const WORLD_MAP = [
   { key: 'brindolo',  label: 'Brindolo',              x: 0.18, y: 0.72, scenes: ['p1','p1b','p2','p2_calma_ok','p2_calma_ko','p2_studio_ok','p2_studio_ko','p2_stufato','p3','p3_nego_ok','p3_nego_ko','p3_info','v1','v_emporio','v_mirtilla','v_tempio','q_capra1','q_capra1_tracce_ko','q_capra2','q_capra2_ko','q_capra_salvata','q_corvo1','q_corvo_ok','q_corvo_ko'] },
   { key: 'ponte',     label: 'Ponte dei Goblin',      x: 0.38, y: 0.60, scenes: ['v2','v2_fight','v2_fight_insulted','v2_vittoria','v2_paga','v2_sindacato','v2_paura','v2_guide'] },
-  { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3','v3_mercante','v3_fosca_parla','v3_fosca_tace'] },
+  { key: 'bivio',     label: 'Bivio della Civetta',   x: 0.50, y: 0.50, scenes: ['v3','v3_mercante','v3_fosca_parla','v3_fosca_tace','v3_bandito','v3_bandito_ok'] },
   { key: 'bosco',     label: 'Bosco dei Sussurri',    x: 0.30, y: 0.30, scenes: ['b1','b1_alberi','b1_persi','b1_ragni_vinti','b2','b2_giusto','b2_sbagliato','b2_sbagliato2','b2_funghi_vinti','b3_arrivo','b3','b3_gag','b3_riso_ok','b3_riso_meh','b3_lupi','b3_lupi_vinti','b4'] },
   { key: 'miniere',   label: 'Miniere di Ferrovecchio', x: 0.70, y: 0.34, scenes: ['m1','m1_test','m1_apre_test','m1_apre_test2','m1_sbaglio','m1_caduta','m2_condotto','m2_condotto_corda','m1_apre','m2','m2_deposito','m2_carrello_ok','m2_carrello_ko','m2_piedi','m3','m3_modulo_ok','m3_modulo_ko','m3_fight','m3_fight_win','m4'] },
   { key: 'molo',      label: 'Fiume Torbido',         x: 0.76, y: 0.58, scenes: ['r1','mg_salice','r1_salice_ok','r1_salice_ko','r1_sbagliato','r1_tariffa','r1_commosso','r1_offeso','r1_remo','r1_remo_fail','r1_anguille','r1_remo_riaffiora','r2','r2_ko','r3','r3_ascolto','r4','r4_dono','r4_rifiuta','r5','r5_ko','r6','r7'] },

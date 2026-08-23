@@ -450,6 +450,10 @@ const Engine = (() => {
       if (c.requires.notFlag && G.flags[c.requires.notFlag]) return false;
       if (c.requires.item && !G.inventory.includes(c.requires.item)) return false;
       if (c.requires.notItem && G.inventory.includes(c.requires.notItem)) return false;
+      /* requires.hero: la scelta compare solo se quell'eroe è in squadra e in piedi.
+         Serve per le scene che appartengono a un personaggio: Torvald che chiede a
+         Monsieur Ragoût di vedergli la cucina non ha senso se Torvald non c'è. */
+      if (c.requires.hero && !G.party.some(h => h.id === c.requires.hero && !h.down)) return false;
     }
     if (c.once && (G.usedChoices[G.sceneId] || []).includes(c.text)) return false;
     return true;

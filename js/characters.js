@@ -172,7 +172,7 @@ const BESTIARY = {
   bandito: {
     name: 'Bandito Mascherato', sprite: 'bandito',
     maxHp: 16, ac: 13, ai: 'random',
-    attack: { name: 'Sciabola', bonus: 4, dice: [1, 8], plus: 1 },
+    attack: { name: 'Sciabola', bonus: 4, dice: [1, 6], plus: 1 },
     flavor: 'Approfitta del buio perenne. Il buio non approva.',
   },
   pipistrello: {

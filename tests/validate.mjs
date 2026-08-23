@@ -103,7 +103,6 @@ for (const scene of Object.values(CAMPAIGN)) {
 let flagProblems = 0;
 for (const [id, scene] of Object.entries(CAMPAIGN)) {
   for (const c of scene.choices || []) {
-    if (c.requires?.flag && !knownFlags.has(c.requires.flag) && !/^[a-z]+_presente$/.test(c.requires.flag)) { fail(`scena "${id}": richiede flag mai impostato "${c.requires.flag}"`); flagProblems++; }
     for (const itemRef of [c.item, c.removeItem, c.requires?.item]) {
       if (itemRef && !ITEMS[itemRef]) { fail(`scena "${id}": oggetto inesistente "${itemRef}"`); flagProblems++; }
     }
@@ -294,7 +293,7 @@ const CHIAVI_SCENA = new Set(['location','caption','text','choices','npc','sets'
   'item','item2','heal','damage','fullHeal','recharge','onEnterOnce','combat','minigame','ending']);
 const CHIAVI_SCELTA = new Set(['text','next','tag','once','requires','requiresGold','item','item2',
   'removeItem','sets','rep','gold','goldLoss','heal','damage','check']);
-const CHIAVI_REQUIRES = new Set(['flag','notFlag','item','notItem']);
+const CHIAVI_REQUIRES = new Set(['flag','notFlag','item','notItem','hero']);
 const CHIAVI_CHECK = new Set(['stat','dc','success','fail','successHeal','failDamage']);
 
 const codice = ['js/engine.js','js/combat.js','js/main.js','js/scenes.js','js/minigames.js','js/epilogues.js']
@@ -510,6 +509,55 @@ function testRetroOggetti() {
   else if (conLore.length) { ok(); console.log('  ✔ nessun aggettivo che fa il lavoro al posto del dettaglio'); }
 }
 testRetroOggetti();
+
+/* ---------- 46. scelte chiuse dietro un flag che nessuno imposta ----------
+   Trovato così (agosto 2026) un'intera scena di Corona — k_torvald, «da cuoco a cuoco»
+   con Monsieur Ragoût — chiusa dietro `torvald_presente`, un flag che nessuna scena e
+   nessun modulo impostava mai: scritta, testata, e invisibile a chiunque abbia giocato.
+   Il controllo guarda anche fuori da campaign.js, perché i premi dei misteri e delle
+   ricette sono flag impostati dai loro moduli. */
+function testFlagRichiestiMaiImpostati() {
+  console.log('\n▸ Scelte chiuse dietro flag inesistenti');
+  const impostati = new Set();
+  for (const s of Object.values(CAMPAIGN)) {
+    for (const f of Object.keys(s.sets || {})) impostati.add(f);
+    for (const c of (s.choices || [])) {
+      for (const f of Object.keys(c.sets || {})) impostati.add(f);
+      for (const f of Object.keys(c.sacrificeSets || {})) impostati.add(f);
+    }
+  }
+  if (typeof RECIPES !== 'undefined') for (const r of RECIPES) if (r.flag) impostati.add(r.flag);
+  if (typeof MISTERI !== 'undefined') for (const m of MISTERI) if (m.premio && m.premio.flag) impostati.add(m.premio.flag);
+  for (const f of ['js/misteri.js', 'js/crafting.js', 'js/engine.js', 'js/combat.js', 'js/minigames.js']) {
+    let src = '';
+    try { src = readFileSync(new URL('../' + f, import.meta.url), 'utf8'); } catch { continue; }
+    for (const m of src.matchAll(/G\.flags\[['"]([a-z0-9_]+)['"]\]\s*=/gi)) impostati.add(m[1]);
+  }
+  const morti = new Map(), inutili = new Map();
+  for (const [id, s] of Object.entries(CAMPAIGN)) for (const c of (s.choices || [])) {
+    const r = c.requires; if (!r) continue;
+    for (const f of [r.flag, r.flag2, ...(r.flagAny || [])]) {
+      if (!f || impostati.has(f)) continue;
+      if (!morti.has(f)) morti.set(f, []);
+      morti.get(f).push(id);
+    }
+    if (r.notFlag && !impostati.has(r.notFlag)) {
+      if (!inutili.has(r.notFlag)) inutili.set(r.notFlag, []);
+      inutili.get(r.notFlag).push(id);
+    }
+  }
+  if (morti.size) {
+    for (const [f, scene] of morti) {
+      fail(`flag "${f}" richiesto da una scelta ma MAI impostato da nessuna scena né da nessun modulo: `
+         + `contenuto irraggiungibile in ${scene.join(', ')}`);
+    }
+  } else { ok(); console.log('  ✔ ogni scelta condizionata può davvero comparire'); }
+  for (const [f, scene] of inutili) {
+    warn(`notFlag "${f}" non è mai impostato da nessuno: la condizione è sempre vera `
+       + `(intenzione morta in ${scene.join(', ')})`);
+  }
+}
+testFlagRichiestiMaiImpostati();
 
 /* ---------- esito ---------- */
 
