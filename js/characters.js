@@ -212,19 +212,19 @@ const BESTIARY = {
   gerbold: {
     name: 'Gerbold, Maggiordomo Scheletrico', sprite: 'gerbold',
     maxHp: 40, ac: 14, ai: 'strongest', undead: true, boss: true,
-    attack: { name: 'Vassoio d\'argento rotante', bonus: 5, dice: [2, 6], plus: 2 },
+    attack: { name: 'Vassoio d\'argento rotante', bonus: 5, dice: [1, 4], plus: 2 },
     flavor: '200 anni di servizio impeccabile. Nessun giorno di ferie. NESSUNO.',
   },
   vesper: {
     name: 'Lord Vesper Morn', sprite: 'vesper',
     maxHp: 65, ac: 16, ai: 'smart', undead: true, boss: true, lifesteal: true,
-    attack: { name: 'Rapsodia di sangue', bonus: 6, dice: [2, 8], plus: 2 },
+    attack: { name: 'Rapsodia di sangue', bonus: 6, dice: [1, 4], plus: 2 },
     flavor: 'Vampiro, ex-bardo, drammaticissimo. Il mantello è sempre al vento. Sempre. E ogni suo colpo lo RIGENERA: abbattetelo in fretta.',
   },
   vesper_corona: {
     name: 'Vesper Incoronato', sprite: 'vesper',
     maxHp: 45, ac: 17, ai: 'smart', undead: true, boss: true, lifesteal: true,
-    attack: { name: 'Notte Divorante', bonus: 7, dice: [3, 8], plus: 0 },
+    attack: { name: 'Notte Divorante', bonus: 7, dice: [1, 8], plus: 0 },
     flavor: 'La Corona di Mezzanotte pulsa sul suo capo. L\'oscurità si piega a lui — e lo nutre a ogni colpo.',
   },
 };

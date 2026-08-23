@@ -638,6 +638,19 @@ const Engine = (() => {
      raccolto dopo l'avete perso, e la modale lo dice PER NOME. Torna false se non
      c'è nessun checkpoint: in quel caso vale la scena di sconfitta scritta. */
   function riprendiDaCheckpoint() {
+    /* PIETÀ PROGRESSIVA, contata PER SCONTRO. Senza questo un gruppo troppo debole
+       rimbalza fra il riposo e la sconfitta all'infinito; contata a vita, invece,
+       regalerebbe lo sconto a tutti gli scontri dopo qualche caduta sparsa. Ogni
+       ritorno sullo STESSO scontro toglie il 12% delle forze a chi vi ha steso,
+       fino a un terzo, e il log del combattimento lo dice. */
+    if (G) {
+      G.stats = G.stats || {};
+      G.stats.checkpointRitorni = (G.stats.checkpointRitorni || 0) + 1;
+      const _scontro = G.lastCombatSceneId || G.sceneId || '?';
+      G.stats.ritorniPerScontro = G.stats.ritorniPerScontro || {};
+      G.stats.ritorniPerScontro[_scontro] = (G.stats.ritorniPerScontro[_scontro] || 0) + 1;
+      G.pieta = Math.min(0.34, G.stats.ritorniPerScontro[_scontro] * 0.12);
+    }
     const cp = G && G.lastCheckpoint;
     if (!cp || !cp.snapshot) return false;
     let s;

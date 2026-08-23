@@ -35,6 +35,14 @@ const Combat = (() => {
         const b = BESTIARY[key];
         const e = { ...b, key, hp: b.maxHp, idx: i, stunned: false, distracted: false, dead: false,
           attack: { ...b.attack } };
+        /* PIETÀ: impostata da Engine.riprendiDaCheckpoint e contata per SCONTRO.
+           Ogni ritorno sullo stesso punto stanca anche chi vi ha steso. */
+        if (G.pieta) {
+          e.maxHp = Math.max(1, Math.round(e.maxHp * (1 - G.pieta)));
+          e.hp = e.maxHp;
+          e.attack.bonus = Math.max(0, e.attack.bonus - (G.pieta >= 0.24 ? 2 : 1));
+          e.attack.plus = Math.max(0, (e.attack.plus || 0) - (G.pieta >= 0.24 ? 2 : 1));
+        }
         if (G.difficulty === 'facile') {
           e.maxHp = Math.max(1, Math.round(e.maxHp * 0.8));
           e.hp = e.maxHp;
@@ -61,6 +69,9 @@ const Combat = (() => {
     const brun = G.party.find(h => h.id === 'brunilde' && !h.down);
     // bonus stufato: +2 PV primo combattimento
     let openLines = [];
+    if (G.pieta) {
+      openLines.push(`🕯 <b>Anche la notte si stanca</b>: siete già tornati indietro su questo punto, e chi vi ha steso è più stanco di allora (<b>−${Math.round(G.pieta * 100)}% PV e ai suoi colpi</b>).`);
+    }
     if (brun) {
       for (const h of G.party) if (!h.down) h.hp = Math.min(h.maxHp, h.hp + 3);
       openLines.push(`✨ <b>Benedizione dell'Alba</b> di Brunilde: +3 PV a tutto il gruppo!`);

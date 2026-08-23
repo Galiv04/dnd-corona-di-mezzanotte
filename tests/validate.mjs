@@ -435,6 +435,41 @@ section('Densità (nodi di decisione, non scene)');
 }
 
 /* ---------- esito ---------- */
+
+/* ---------- un boss non deve essere invincibile per costruzione ---------- */
+section('Bilanciamento: nessuno uccide più veloce di quanto muoia');
+
+/* Il numero che rende un nemico invincibile è il DANNO, non i punti vita: se
+   uccide l'eroe più fragile in due colpi e ne servono otto per abbatterlo, la
+   partita non si può vincere — e nei test il sintomo è un «loop di checkpoint»,
+   cioè sembra un problema di struttura e non di numeri. (Lezione 27.) */
+{
+  const pvMin = Math.min(...HEROES.map(h => h.maxHp));
+  let squilibrati = 0;
+  for (const [key, b] of Object.entries(BESTIARY)) {
+    if (!b.attack || !b.attack.dice) continue;
+    const [n, facce] = b.attack.dice;
+    const danno = n * (facce + 1) / 2 + (b.attack.plus || 0);
+    const colpi = Math.ceil(pvMin / danno);
+    if (colpi < 3) {
+      const msg = `nemico "${key}": ${danno.toFixed(1)} danni medi uccidono l'eroe più fragile (${pvMin} PV) in ${colpi} colpi`;
+      if (b.boss || b.isBoss) { fail(msg + ' — e è un BOSS, quindi ci vogliono molti turni per abbatterlo: invincibile per costruzione'); squilibrati++; }
+      else warn(msg);
+    }
+  }
+  /* e i gruppi: due nemici da 6 danni sono 12 al round */
+  for (const [id, scene] of combats) {
+    const vivi = (scene.combat.enemies || []).filter(e => BESTIARY[e]);
+    if (vivi.length < 2) continue;
+    const dprTot = vivi.reduce((t, e) => {
+      const b = BESTIARY[e], [n, facce] = b.attack.dice;
+      return t + n * (facce + 1) / 2 + (b.attack.plus || 0);
+    }, 0);
+    if (dprTot > pvMin / 2) warn(`combattimento "${id}": ${vivi.length} nemici per ${dprTot.toFixed(1)} danni potenziali al round contro ${pvMin} PV — un eroe cade in ${Math.ceil(pvMin / dprTot)} round`);
+  }
+  if (!squilibrati) { ok(); console.log(`  ✔ nessun boss uccide l'eroe più fragile in meno di 3 colpi (il più fragile ha ${pvMin} PV)`); }
+}
+
 console.log('\n' + '═'.repeat(50));
 if (failures === 0) {
   console.log(`✅ TUTTI I TEST SUPERATI (${passed} controlli, ${warnings} avvisi non bloccanti)`);

@@ -432,6 +432,18 @@ function runGame(scenario) {
       steps++;
       if (steps > STEP_LIMIT) throw new Error(`LOOP INFINITO sospetto nella navigazione (> ${STEP_LIMIT} passi totali)`);
 
+      /* Se il gruppo rimbalza fra checkpoint e sconfitta, la partita non finisce mai:
+         è un loop, non una partita difficile. Va scoperto qui, con un messaggio
+         chiaro, invece di bruciare i passi della guardia generica. */
+      {
+        const Gc = getG();
+        const _perScontro = (Gc && Gc.stats && Gc.stats.ritorniPerScontro) || {};
+        const _peggio = Object.entries(_perScontro).sort((a, b) => b[1] - a[1])[0];
+        if (_peggio && _peggio[1] > 3) {
+          throw new Error(`LOOP DI CHECKPOINT: ${_peggio[1]} ritorni sullo STESSO scontro ("${_peggio[0]}") — il gruppo non lo supera e il gioco non offre una via d'uscita`);
+        }
+      }
+
       const G = getG();
       const sceneId = G.sceneId;
       const scene = api.CAMPAIGN[sceneId];
