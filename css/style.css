@@ -532,3 +532,27 @@ html.text-large .title-incipit-close { font-size: 21px; }
   .btn-scena span { display: none; }
   .btn-scena { padding: 6px 8px; font-size: 17px; }
 }
+
+
+/* ---------- 🪟 LE FINESTRE DI CONFERMA (js/dialoghi.js) ----------
+   Erano confirm(), alert() e prompt() del browser: finestre di sistema in mezzo a un
+   gioco di pixel. Queste stanno nello stesso mondo del resto. Sulle azioni distruttive
+   il pulsante rosso NON è quello a fuoco: il cancello resta un cancello. */
+.dialogo-box { max-width: 30rem; }
+.dialogo-testo { margin: 0 0 16px; line-height: 1.55; }
+.dialogo-campo {
+  display: block; width: 100%; box-sizing: border-box;
+  margin: 0 0 16px; padding: 9px 10px;
+  font-family: inherit; font-size: 1em;
+  color: var(--text); background: rgba(0, 0, 0, .35);
+  border: 2px solid var(--border); border-radius: 2px;
+}
+.dialogo-campo:focus { outline: none; border-color: var(--green, #6a9); }
+.dialogo-pulsanti { display: flex; flex-wrap: wrap; gap: 10px; }
+.dialogo-pulsanti .btn { flex: 1 1 auto; min-width: 9rem; }
+.btn-pericolo {
+  color: #ffd9d2; border-color: #8a3a30; background: rgba(120, 36, 28, .34);
+}
+.btn-pericolo:hover, .btn-pericolo:focus-visible {
+  background: rgba(160, 44, 34, .52); border-color: #c04a3c;
+}

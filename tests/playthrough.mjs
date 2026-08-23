@@ -20,7 +20,7 @@ const root = join(__dirname, '..');
 
 const FILES = [
   'js/sound.js', 'js/sprites.js', 'js/scenes.js', 'js/characters.js', 'js/campaign.js',
-  'js/epilogues.js', 'js/rules.js', 'js/dice.js', 'js/combat.js', 'js/minigames.js', 'js/luoghi.js', 'js/engine.js',
+  'js/epilogues.js', 'js/rules.js', 'js/dice.js', 'js/combat.js', 'js/minigames.js', 'js/luoghi.js', 'js/dialoghi.js', 'js/engine.js',
 ];
 const SOURCES = FILES.map(f => ({ name: f, code: readFileSync(join(root, f), 'utf8') }));
 
@@ -1018,6 +1018,34 @@ if (allEndings.size < 3) {
   if (!rotte) console.log(`  ✅ ${aperte} schede aperte (${tuttiGliEroi.length} eroi × ${STATI.length} stati), tutte complete e con le condizioni visibili`);
 })();
 
+(function testFinestreDiConferma() {
+  section('Le finestre di conferma si aprono e rispondono');
+  const game = buildGame(515151);
+  const D = game.context.Dialoghi;
+  if (!D) { fail('Dialoghi non è caricato nel banco di prova'); return; }
+  let aperte = 0;
+  const prove = [
+    ['chiedi', () => D.chiedi('Titolo', 'Testo di prova', 'Conferma', true)],
+    ['avvisa', () => D.avvisa('Titolo', 'Testo di prova')],
+    ['chiediTesto', () => D.chiediTesto('Titolo', 'Testo di prova', 'valore')],
+  ];
+  for (const [nome, fn] of prove) {
+    try {
+      let p;
+      game.act(() => { p = fn(); });
+      if (!p || typeof p.then !== 'function') { fail(`Dialoghi.${nome}() non ritorna una Promise`); continue; }
+      const el = game.doc.getElementById('modal-dialogo');
+      if (!el) { fail(`Dialoghi.${nome}() non crea la finestra`); continue; }
+      if (el.classList && el.classList.contains && el.classList.contains('hidden')) {
+        fail(`Dialoghi.${nome}() lascia la finestra nascosta: non si vedrebbe`);
+        continue;
+      }
+      aperte++;
+    } catch (e) { fail(`Dialoghi.${nome}() esplode: ${(e && e.message) || e}`); }
+  }
+  if (aperte === prove.length) { console.log(`  ✔ ${aperte} finestre di conferma aperte senza errori`); }
+})();
+
 console.log('\n' + '═'.repeat(60));
 (function testRigheCondizionate() {
   section('Verifica diretta: le righe [[eroe:id]] appaiono solo se l\'eroe gioca');
@@ -1121,3 +1149,9 @@ if (failures === 0) {
   console.log(`❌ ${failures} PROBLEMI RILEVATI su ${results.length} partite simulate`);
   process.exit(1);
 }
+
+/* ---------- le finestre di conferma in stile (js/dialoghi.js) ----------
+   Hanno preso il posto di confirm(), alert() e prompt() del browser, e sono le uniche
+   finestre che il giocatore vede prima di perdere qualcosa: la partita che si sovrascrive,
+   l'utente che si cancella con tutti i suoi salvataggi. Un template rotto qui non si vede
+   giocando — si vede solo il giorno in cui uno prova a cancellare un utente. */

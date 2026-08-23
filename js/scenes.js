@@ -11,9 +11,21 @@ const Scenes = (() => {
     };
   }
 
-  function shade(hex, f) {
-    const n = parseInt(hex.slice(1), 16);
-    let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  /* shade(colore, fattore) — schiarisce o scurisce.
+     Accetta ANCHE 'rgb(r,g,b)', non solo '#rrggbb': mix() restituisce 'rgb(...)' e
+     blocks() chiama shade() sul colore che riceve, quindi bastava passare un colore
+     mescolato a blocks() per far fare a parseInt un NaN, e NaN>>16&255 vale 0 — cioè
+     un nero perfettamente valido che nessun controllo intercetta. Leggere le due
+     notazioni qui sana tutti i punti di chiamata in una volta. */
+  function shade(col, f) {
+    let r, g, b;
+    if (col[0] === '#') {
+      const n = parseInt(col.slice(1), 16);
+      r = (n >> 16) & 255; g = (n >> 8) & 255; b = n & 255;
+    } else {
+      const m = col.match(/-?\d+/g) || [0, 0, 0];
+      r = +m[0]; g = +m[1]; b = +m[2];
+    }
     r = Math.max(0, Math.min(255, Math.round(r * f)));
     g = Math.max(0, Math.min(255, Math.round(g * f)));
     b = Math.max(0, Math.min(255, Math.round(b * f)));
@@ -204,7 +216,7 @@ const Scenes = (() => {
     ctx.fillStyle = '#c8a032'; ctx.fillRect(x + w / 2 + 4, groundY - 16, 3, 3); // maniglia
     if (windowLit) {
       for (const wx of [x + 10, x + w - 24]) {
-        ctx.fillStyle = 'rgba(245,197,66,.16)'; ctx.fillRect(wx - 6, groundY - h + 6, 26, 26);
+        glow(ctx, wx + 7, groundY - h + 19, 40, 40, '245,197,66');
         ctx.fillStyle = '#f5c542'; ctx.fillRect(wx, groundY - h + 12, 14, 14);
         ctx.fillStyle = '#5a4530'; ctx.fillRect(wx + 6, groundY - h + 12, 2, 14);
       }
@@ -215,9 +227,8 @@ const Scenes = (() => {
   function torch(ctx, x, y, bracket = true) {
     if (bracket) { ctx.fillStyle = '#3a3a45'; ctx.fillRect(x - 5, y + 4, 16, 4); ctx.fillRect(x - 5, y + 4, 4, 12); }
     ctx.fillStyle = '#6e4a2a'; ctx.fillRect(x, y, 6, 22);
-    ctx.fillStyle = 'rgba(245,166,35,.16)'; ctx.fillRect(x - 14, y - 22, 34, 34);
-    ctx.fillStyle = '#f5a623'; ctx.fillRect(x - 3, y - 10, 12, 12);
-    ctx.fillStyle = '#f5e042'; ctx.fillRect(x, y - 7, 6, 6);
+    glow(ctx, x + 3, y - 6, 54, 54, '245,166,35');
+    flame(ctx, x + 3, y + 3, 16, 22, rng(x * 7 + y)); // una lingua, non un quadratino
   }
 
   // Cartello di legno con righe di "scritta"
@@ -254,21 +265,185 @@ const Scenes = (() => {
     blocks(ctx, x - 8, ceilY, 100, 14, '#5a4530', 10, rand, 0.12);
   }
 
-  // Alone luminoso morbido (fasce concentriche): evita il rettangolo squadrato
-  function glow(ctx, x, y, w, h, rgb) {
-    for (let i = 3; i >= 1; i--) {
-      ctx.fillStyle = `rgba(${rgb},${0.05 * i})`;
-      ctx.fillRect(x - w * i / 2, y - h * i / 2, w * i, h * i);
+  // Ellisse a pixel, simmetrica come pixelDisc ma con raggi diversi sui due assi
+  function pixelEllipse(ctx, cx, cy, rx, ry, px = 3) {
+    const CX = Math.round(cx / px) * px, CY = Math.round(cy / px) * px;
+    const RX = Math.max(px, Math.round(rx / px) * px), RY = Math.max(px, Math.round(ry / px) * px);
+    for (let dy = -RY; dy < RY; dy += px) {
+      const yy = dy + px / 2;
+      const k = 1 - (yy * yy) / (RY * RY);
+      if (k <= 0) continue;
+      const w = Math.max(px, Math.round(RX * Math.sqrt(k) / px) * px);
+      ctx.fillRect(CX - w, CY + dy, w * 2, px);
     }
   }
 
-  function crystalVein(ctx, x, y, n, rand) {
+  /* ALONE LUMINOSO — a ellissi concentriche, non a rettangoli.
+     Prima erano tre fillRect concentrici: attorno a una candela, a un fungo o a un
+     lampadario si vedeva la SCATOLA, e l'occhio la legge come un cartellino, una
+     piastrella o una cornice — cioè come contenuto, non come luce. La luce non ha
+     spigoli, quindi nemmeno il suo alone: quattro ellissi di raggio calante e alpha
+     crescente verso il centro, e il bordo sfuma invece di tagliare.
+     w e h restano la LARGHEZZA e l'ALTEZZA nominali dell'alone (come prima), così
+     tutti i punti di chiamata non cambiano. */
+  function glow(ctx, x, y, w, h, rgb) {
+    for (const [k, a] of [[1.15, 0.045], [0.86, 0.05], [0.60, 0.06], [0.36, 0.075]]) {
+      ctx.fillStyle = `rgba(${rgb},${a})`;
+      pixelEllipse(ctx, x, y, Math.max(4, w * k * 0.5), Math.max(4, h * k * 0.5), 3);
+    }
+  }
+
+  /* FIAMMA — una lingua sola: larga in basso, strozzata verso la punta.
+     Il fuoco si riconosce dal PROFILO. Due fillRect concentrici a spigolo vivo (com'era
+     nel focolare della taverna e in quello delle cucine) leggono come un pannello
+     luminoso acceso, non come una fiamma. E la temperatura va messa nel posto giusto:
+     il cuore bianco-giallo sta in BASSO, dove il fuoco è più caldo, e la punta si
+     raffredda verso il rosso. */
+  function flame(ctx, cx, baseY, w, h, rand, px = 4) {
+    const rows = Math.max(3, Math.round(h / px));
+    const lean = (rand() - 0.5) * w * 0.5;
+    for (let i = 0; i < rows; i++) {
+      const u = i / (rows - 1);
+      const y = baseY - px - i * px;
+      const hw = Math.max(px, Math.round((w / 2) * Math.pow(1 - u, 0.6) / px) * px);
+      const x = Math.round((cx + lean * u * u) / px) * px;
+      ctx.fillStyle = u > 0.8 ? '#c8451c' : (u > 0.5 ? '#e8722a' : '#f5a623');
+      ctx.fillRect(x - hw, y, hw * 2, px);
+      if (u < 0.6) {
+        const cw = Math.max(px, Math.round(hw * 0.5 / px) * px);
+        ctx.fillStyle = u < 0.3 ? '#fff2c0' : '#f5e042';
+        ctx.fillRect(x - cw, y, cw * 2, px);
+      }
+    }
+  }
+
+  // Fuoco di legna: ceppi incrociati, brace fra loro e tre-quattro lingue di altezza diversa
+  function fire(ctx, cx, baseY, w, h, rand) {
+    glow(ctx, cx, baseY - h * 0.42, w * 2.4, h * 2.1, '245,166,35');
+    ctx.fillStyle = '#3a2a18'; ctx.fillRect(cx - w * 0.5, baseY - 9, w, 11);
+    ctx.fillStyle = '#4a3524';
+    ctx.fillRect(cx - w * 0.46, baseY - 17, w * 0.52, 9);
+    ctx.fillRect(cx - w * 0.02, baseY - 19, w * 0.5, 9);
+    ctx.fillStyle = '#c8341c'; ctx.fillRect(cx - w * 0.3, baseY - 7, w * 0.6, 6);
+    ctx.fillStyle = '#f5701c'; ctx.fillRect(cx - w * 0.18, baseY - 6, w * 0.34, 4);
+    for (const [dx, k] of [[-0.32, 0.52], [-0.11, 0.84], [0.13, 1], [0.33, 0.64]]) {
+      flame(ctx, cx + dx * w, baseY - 12, w * 0.44, h * k, rand);
+    }
+  }
+
+  /* Vena di cristalli. `scale` serve dove i cristalli devono FARSI VEDERE (la grotta
+     della cisterna, il cui testo li nomina come sorgente di luce): a scala 1 un
+     grappolo sta in 34x26 px, sotto la soglia oltre la quale un oggetto dice cosa è. */
+  function crystalVein(ctx, x, y, n, rand, scale = 1) {
     for (let i = 0; i < n; i++) {
-      const cx = x + (rand() - 0.5) * 34, cy = y + (rand() - 0.5) * 26;
-      const s = 6 + Math.round(rand() * 5);
-      ctx.fillStyle = 'rgba(90,216,224,.16)'; ctx.fillRect(cx - 5, cy - 5, s + 10, s + 10);
-      ctx.fillStyle = '#5ad8e0'; ctx.fillRect(cx, cy, s, s);
-      ctx.fillStyle = '#a0f0f5'; ctx.fillRect(cx + 1, cy + 1, Math.max(2, s - 4), Math.max(2, s - 4));
+      const cx = x + (rand() - 0.5) * 34 * scale, cy = y + (rand() - 0.5) * 26 * scale;
+      const s = Math.round((6 + rand() * 5) * scale);
+      glow(ctx, cx + s / 2, cy + s / 2, s * 3.4, s * 3.4, '90,216,224');
+      ctx.fillStyle = '#3aa8b4'; ctx.fillRect(cx, cy, s, s);
+      ctx.fillStyle = '#5ad8e0'; ctx.fillRect(cx, cy, s, Math.max(2, Math.round(s * 0.55)));
+      ctx.fillStyle = '#a0f0f5'; ctx.fillRect(cx + 1, cy + 1, Math.max(2, s - 4), Math.max(2, Math.round(s * 0.34)));
+    }
+  }
+
+  /* LA CORONA DI MEZZANOTTE — un solo disegno, per il titolo e per la vetta.
+     Prima erano due francobolli diversi: 28 px d'oro sulla schermata del titolo e 40 px
+     d'oro sull'altare della vetta. Due errori in uno. Il primo è la taglia: sotto i
+     sessanta pixel un oggetto non dice cosa è, dice solo che c'è — e questo è l'oggetto
+     che dà il nome al gioco, quindi deve essere il SOGGETTO, un terzo dell'inquadratura.
+     Il secondo è il colore: il testo di c_vetta non lascia margini, «un cerchio di
+     metallo NERO con una gemma rossa che pulsa come un cuore», e il quadro si adegua al
+     testo. Metallo nero in tre fasce (alta più chiara, media base, bassa in ombra) più
+     il filo di luce viola sul bordo dove prende il bagliore dell'eclissi: è la
+     convenzione che trasforma una sagoma di cartone in metallo.
+     Il cerchietto è disegnato come un'ELLISSE vista di tre quarti — arco vicino in
+     basso, arco lontano in alto, punte che salgono da tutto il giro — perché è quello
+     che fa leggere «cerchio» invece di «barra».
+     cx = centro, baseY = punto più basso del cerchietto, w = larghezza totale. */
+  function crown(ctx, cx, baseY, w, rand) {
+    const px = w >= 200 ? 4 : 3;    // sulla schermata del titolo la corona è più piccola
+    const q = v => Math.round(v / px) * px;
+    const half = q(w / 2), band = q(w * 0.18), d = q(w * 0.07);
+    const yE = baseY - d;                                  // centro dell'ellisse
+    const arc = t => Math.sqrt(Math.max(0, 1 - t * t));
+    const nearY = t => q(yE + d * arc(t));                 // arco vicino (in basso)
+    const farY = t => q(yE - d * arc(t));                  // arco lontano (in alto)
+    const BASE = '#1a1420', HI = '#332a44', DARK = '#0d0912', RIM = '#a06ae0';
+
+    // un velo viola dietro tutto: il metallo nero su cielo notturno ha bisogno di
+    // qualcosa che gli stacchi la sagoma, e l'eclissi gliela dà
+    glow(ctx, cx, yE - w * 0.14, w * 1.5, w * 1.05, '140,80,220');
+
+    // punte del lato lontano: si vedono dietro il cerchietto e sono ciò che dice "giro"
+    for (const t of [-0.55, 0.55]) {
+      const bw = q(w * 0.07), h = q(w * 0.2), x = q(cx + t * half);
+      for (let i = 0; i * px < h; i++) {
+        const k = 1 - (i * px) / h;
+        const hw = Math.max(px, q(bw * Math.pow(k, 0.55)));
+        ctx.fillStyle = DARK;
+        ctx.fillRect(x - hw, farY(t) - i * px - px, hw * 2, px);
+      }
+    }
+    // l'arco lontano del cerchietto: una fascia scura che si inarca verso l'alto
+    for (let x = -half; x < half; x += px) {
+      const t = x / half;
+      ctx.fillStyle = DARK;
+      ctx.fillRect(q(cx + x), farY(t), px, band * 0.5);
+    }
+    // punte del lato vicino: cinque, la centrale la più alta
+    for (const [t, k] of [[-0.86, 0.44], [-0.45, 0.62], [0, 1], [0.45, 0.62], [0.86, 0.44]]) {
+      const bw = q(w * (t === 0 ? 0.105 : 0.085)), h = q(w * 0.38 * k);
+      const x = q(cx + t * half), top = nearY(t) - band;
+      for (let i = 0; i * px < h; i++) {
+        const u = (i * px) / h;
+        const hw = Math.max(px, q(bw * Math.pow(1 - u, 0.5)));
+        const y = top - i * px - px;
+        ctx.fillStyle = BASE; ctx.fillRect(x - hw, y, hw * 2, px);
+        ctx.fillStyle = HI; ctx.fillRect(x - hw + px, y, px, px);
+        // il filo di luce solo sul bordo SINISTRO: la luce viene da una parte sola, e
+        // due bordi accesi su una punta larga tre pixel la coloravano tutta di viola
+        if (hw >= px * 2) { ctx.fillStyle = RIM; ctx.fillRect(x - hw, y, px, px); }
+      }
+      // sferetta sulla punta: le corone finiscono con una perla, non con uno spillo
+      ctx.fillStyle = HI; ctx.fillRect(x - px * 1.5, top - h - px, px * 3, px * 2);
+      ctx.fillStyle = RIM; ctx.fillRect(x - px, top - h - px, px * 2, px);
+    }
+    // il cerchietto vicino, in tre fasce di tono + filo di luce sul bordo alto
+    for (let x = -half; x < half; x += px) {
+      const t = x / half, X = q(cx + x), top = nearY(t) - band;
+      ctx.fillStyle = HI; ctx.fillRect(X, top, px, q(band * 0.3));
+      ctx.fillStyle = BASE; ctx.fillRect(X, top + q(band * 0.3), px, q(band * 0.42));
+      ctx.fillStyle = DARK; ctx.fillRect(X, top + q(band * 0.72), px, band - q(band * 0.72));
+      ctx.fillStyle = RIM; ctx.fillRect(X, top, px, px);
+    }
+    // borchie sul cerchietto, fra le punte
+    for (const t of [-0.66, -0.24, 0.24, 0.66]) {
+      const X = q(cx + t * half), Y = nearY(t) - q(band * 0.55);
+      ctx.fillStyle = '#6e3a5a'; ctx.fillRect(X - px, Y, px * 2, px * 2);
+      ctx.fillStyle = '#c85a6e'; ctx.fillRect(X - px, Y, px, px);
+    }
+    // LA GEMMA: il punto più chiaro del quadro, perché è lei che canta
+    const gr = q(w * 0.115), gy = nearY(0) - q(band * 0.52);
+    glow(ctx, cx, gy, gr * 6, gr * 6, '232,74,90');
+    ctx.fillStyle = '#5a0c18'; pixelEllipse(ctx, cx, gy, gr + px, gr * 0.95 + px, px);
+    ctx.fillStyle = '#c81c2e'; pixelEllipse(ctx, cx, gy, gr, gr * 0.9, px);
+    ctx.fillStyle = '#f04a4a'; pixelEllipse(ctx, cx, gy, gr * 0.62, gr * 0.56, px);
+    ctx.fillStyle = '#ffb0a0'; ctx.fillRect(cx - q(gr * 0.3), gy - q(gr * 0.42), q(gr * 0.4), q(gr * 0.3));
+    // lampi viola che l'avvolgono (il testo: «avvolta da lampi viola»): salgono verso
+    // l'esterno, come scariche. Prima puntavano in giù e sembravano gocciolare.
+    // Scariche CORTE, appiccicate al metallo. I lampi lunghi li ho provati due volte —
+    // in giù sembravano gocciolare, in su sembravano due ali — e la lezione 60 dice
+    // cosa si fa la terza volta: qui restano solo le scintille, che si leggono.
+    const k = w / 230;                    // le scintille scalano con la corona
+    for (const t of [-0.66, -0.23, 0.23, 0.66]) {   // nei vuoti FRA le punte
+      const X = cx + t * half, Y = nearY(t) - band - 4 * k;
+      const jx = (rand() - 0.5) * 10 * k;
+      for (const [wd, col] of [[6, 'rgba(120,60,190,.5)'], [3, 'rgba(214,170,255,.95)']]) {
+        ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, wd * k);
+        ctx.beginPath();
+        ctx.moveTo(X - 7 * k, Y); ctx.lineTo(X + 2 * k + jx, Y - 9 * k);
+        ctx.lineTo(X - 3 * k + jx, Y - 11 * k); ctx.lineTo(X + 8 * k, Y - 20 * k);
+        ctx.stroke();
+      }
     }
   }
 
@@ -289,24 +464,44 @@ const Scenes = (() => {
 
     titolo(ctx, W, H) {
       const r = rng(42);
+      // ATTENZIONE: questo painter gira su un canvas 480x270 (index.html), non sui
+      // 960x360 degli altri. Tutte le misure passano da S, altrimenti la corona che
+      // sta bene nel provino diventa un cartellone sulla schermata vera.
+      const S = W / 960;
       skyGradient(ctx, W, H, '#0d0a1a', '#3a1545', 10);
       stars(ctx, W, H, r, 50);
-      moon(ctx, W * 0.5, H * 0.3, 40, '#c8b8e8', true);
-      const g = H * 0.82;
-      hills(ctx, W, g, 40, '#150d20', r, 40);
-      blocks(ctx, W * 0.32, g - 90, W * 0.36, 90, '#1a1028', 8, r, 0.1);
-      blocks(ctx, W * 0.28, g - 130, 30, 130, '#150d20', 8, r, 0.1);
-      blocks(ctx, W * 0.66, g - 130, 30, 130, '#150d20', 8, r, 0.1);
-      blocks(ctx, W * 0.46, g - 160, 38, 160, '#1d1230', 8, r, 0.1);
-      ctx.fillStyle = '#e84a5a';
-      ctx.fillRect(W * 0.48, g - 140, 8, 10); ctx.fillRect(W * 0.51, g - 120, 8, 10);
-      ctx.fillRect(W * 0.30, g - 110, 6, 8); ctx.fillRect(W * 0.68, g - 110, 6, 8);
-      blocks(ctx, 0, g, W, H - g, '#1d1830', 10, r, 0.2);
-      const cx = W * 0.5 - 14, cy = g - 185;
-      ctx.fillStyle = 'rgba(245,197,66,.16)'; ctx.fillRect(cx - 12, cy - 14, 52, 44);
-      ctx.fillStyle = '#f5c542';
-      ctx.fillRect(cx, cy + 8, 28, 8);
-      ctx.fillRect(cx, cy, 6, 8); ctx.fillRect(cx + 11, cy - 4, 6, 12); ctx.fillRect(cx + 22, cy, 6, 8);
+      // l'eclissi si sposta di lato: al centro, come soggetto, ci va la Corona
+      moon(ctx, W * 0.19, H * 0.20, 32 * S, '#c8b8e8', true);
+      const g = H * 0.88;
+      hills(ctx, W, g, 40 * S, '#150d20', r, 40 * S);
+      /* IL CASTELLO — prima erano cinque rettangoli piatti con varianza 0,1: leggeva
+         come cartone ritagliato. Adesso ogni corpo ha le tre fasce della muratura
+         (cresta più chiara, dove batte la luna; base più scura, in ombra), i MERLI in
+         cima e un filo di luce sul filo verticale che guarda la luna, a sinistra. */
+      const bs = Math.max(4, Math.round(8 * S));
+      const torre = (x, w, h, col) => {
+        const y = g - h;
+        blocks(ctx, x, y, w, h, col, bs, r, 0.14);
+        blocks(ctx, x, y, w, Math.round(h * 0.22), shade(col, 1.35), bs, r, 0.1);
+        blocks(ctx, x, g - Math.round(h * 0.3), w, Math.round(h * 0.3), shade(col, 0.72), bs, r, 0.12);
+        for (let mx = x; mx < x + w - 8 * S; mx += 22 * S) {                // merli
+          blocks(ctx, mx, y - 16 * S, 13 * S, 17 * S, shade(col, 1.2), bs, r, 0.1);
+        }
+        ctx.fillStyle = 'rgba(200,184,232,.16)'; ctx.fillRect(x, y, Math.max(2, 3 * S), h);
+      };
+      torre(W * 0.30, W * 0.40, 84 * S, '#1a1028');   // corpo centrale con le mura
+      torre(W * 0.24, 44 * S, 132 * S, '#150d20');    // torri laterali
+      torre(W * 0.68, 44 * S, 132 * S, '#150d20');
+      torre(W * 0.455, 60 * S, 140 * S, '#231637');   // il mastio
+      // finestre accese: poche e grandi, così si vedono
+      for (const [fx, fy] of [[0.472, 106], [0.472, 68], [0.253, 96], [0.695, 96]]) {
+        glow(ctx, W * fx + 8 * S, g - fy * S + 9 * S, 44 * S, 44 * S, '232,74,90');
+        ctx.fillStyle = '#e84a5a'; ctx.fillRect(W * fx, g - fy * S, 16 * S, 19 * S);
+        ctx.fillStyle = '#2a0d18'; ctx.fillRect(W * fx + 7 * S, g - fy * S, Math.max(2, 3 * S), 19 * S);
+      }
+      blocks(ctx, 0, g, W, H - g, '#1d1830', Math.max(5, 10 * S), r, 0.2);
+      // LA CORONA sopra il castello: è il titolo del gioco, quindi è il soggetto
+      crown(ctx, W * 0.5, g - 170 * S, 230 * S, r);
     },
 
     taverna(ctx, W, H) {
@@ -415,12 +610,67 @@ const Scenes = (() => {
       hills(ctx, W, g + 4, 40, '#152515', r, 30);
       for (let i = 0; i < 5; i++) tree(ctx, 40 + i * (W / 4.5) + (r() * 30 - 15), g + 8, 56 + r() * 24, '#1d3a22', '#3a2a18', r);
       ground(ctx, W, H, g, '#26402a', r, 12, 10);
-      // ruscello sotto il ponte
-      blocks(ctx, W * 0.30, H - 74, W * 0.40, 74, '#12304a', 12, r, 0.24);
+      /* LA GOLA — prima il ruscello era un rettangolo blu incassato nel prato trentasei
+         pixel SOTTO l'impalcato, con i bordi tagliati a squadra: il ponte non scavalcava
+         niente e il giardino aveva una piscina. E la scena è tutta un pedaggio per
+         passare, quindi il passaggio deve esserci. Adesso il terreno è APERTO fra le due
+         sponde: si vede la parete di terra in ombra con gli strati, le due sponde che
+         scendono di sbieco verso l'acqua, e due pile di legno che dall'impalcato
+         arrivano nell'acqua col loro riflesso. */
+      const xL = Math.round(W * 0.24), xR = Math.round(W * 0.76), wl = H - 46;
+      const lip = [];
+      for (let x = xL; x < xR; x += 8) lip.push(g + 2 + Math.round(r() * 3) * 5);
+      // la parete di fondo della gola, dal ciglio irregolare fino in basso
+      lip.forEach((ly, i) => {
+        const x = xL + i * 8;
+        blocks(ctx, x, ly, 8, H - ly, '#241a12', 8, r, 0.26);
+        ctx.fillStyle = '#12100c'; ctx.fillRect(x, ly, 8, 5);   // il ciglio sporge e fa ombra
+      });
+      // strati di terra e sassi: una parete tutta di un tono è un fondale, non una parete
+      for (const [dy, col, hh] of [[24, '#33261a', 7], [44, '#1c1510', 9], [62, '#2e2418', 6]]) {
+        for (let x = xL; x < xR; x += 12) {
+          ctx.fillStyle = col;
+          ctx.fillRect(x, g + dy + Math.round(r() * 2) * 4, 12, hh);
+        }
+      }
+      for (let i = 0; i < 7; i++) {                                // sassi incastrati
+        const sx = xL + 20 + r() * (xR - xL - 60), sy = g + 20 + r() * 60;
+        blocks(ctx, sx, sy, 14 + r() * 16, 10 + r() * 8, '#3d3226', 6, r, 0.22);
+      }
+      // l'acqua, che ora passa DAVVERO sotto l'impalcato
+      blocks(ctx, xL, wl, xR - xL, H - wl, '#12304a', 10, r, 0.24);
       ctx.fillStyle = 'rgba(150,190,230,.18)';
-      for (let i = 0; i < 10; i++) ctx.fillRect(W * 0.31 + r() * W * 0.37, H - 70 + r() * 50, 16 + r() * 20, 3);
-      // il ponticello, all'altezza del terreno
-      bridge(ctx, W * 0.28, g - 4, W * 0.44, r);
+      for (let i = 0; i < 12; i++) ctx.fillRect(xL + 10 + r() * (xR - xL - 40), wl + 4 + r() * 46, 16 + r() * 22, 3);
+      // le due sponde che scendono di sbieco: sono loro a dire «gola» e non «buca»
+      /* LE SPONDE VICINE: due cunei d'erba che dal ciglio scendono nell'acqua e finiscono
+         a punta in basso. Sono loro a dire «gola» invece di «buca»: l'erba scavalca il
+         bordo e continua in pendenza, e la punta in basso evita il taglio verticale. */
+      for (const side of [-1, 1]) {
+        const x0 = side < 0 ? xL : xR, wd = 138;
+        for (let k = 0; k < wd; k += 5) {
+          const x = side < 0 ? x0 + k : x0 - k - 5;
+          const top = g + 2 + (k / wd) * (H - g) + Math.round(r() * 2) * 4;
+          if (top >= H - 4) continue;
+          blocks(ctx, x, top, 5, H - top, '#332617', 5, r, 0.2);
+          blocks(ctx, x, top, 5, Math.min(9, H - top), '#2c4a30', 5, r, 0.18);
+          ctx.fillStyle = '#3d6a3a'; ctx.fillRect(x, top, 5, 3);
+        }
+        // qualche sasso sulla battigia, dove la sponda entra in acqua
+        for (let i = 0; i < 3; i++) {
+          const t = 0.55 + r() * 0.3, x = side < 0 ? x0 + t * wd : x0 - t * wd;
+          blocks(ctx, x, g + 2 + t * (H - g) - 6, 12 + r() * 10, 8, '#4a4438', 6, r, 0.2);
+        }
+      }
+      // il ponticello: gli estremi poggiano sulle sponde, non sul prato
+      bridge(ctx, W * 0.21, g - 4, W * 0.58, r);
+      // le pile: dall'impalcato giù nell'acqua, col riflesso sotto
+      for (const px of [W * 0.36, W * 0.62]) {
+        ctx.fillStyle = 'rgba(10,26,42,.55)'; ctx.fillRect(px + 1, wl, 16, H - wl);
+        blocks(ctx, px, g + 8, 18, wl - g + 4, '#4a3524', 9, r, 0.16);
+        ctx.fillStyle = '#6e5238'; ctx.fillRect(px, g + 8, 3, wl - g + 4);
+        ctx.strokeStyle = '#3a2a18'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(px + 9, g + 26); ctx.lineTo(px + 9 + (px < W / 2 ? -34 : 34), g + 6); ctx.stroke();
+      }
       // cartello dello sciopero, piantato accanto al ponte
       sign(ctx, W * 0.17, g + 14, 92, 34, 3);
       // fagotti e cassetta del "sindacato"
@@ -716,29 +966,91 @@ const Scenes = (() => {
         for (let st = 0; st < 8; st++) ctx.fillRect(wx + 6 + ((st * 17) % 44), wy + 20 + ((st * 29) % 62), 2, 2);
         ctx.fillStyle = '#4a4258'; ctx.fillRect(wx - 4, wy + 90, 60, 6);
       }
-      // la scala a chiocciola che sale verso destra
-      for (let g = 0; g < 9; g++) {
-        const gx = W * 0.06 + g * W * 0.1, gy = H * 0.82 - g * H * 0.055;
-        blocks(ctx, gx, gy, W * 0.12, 12, '#4a4258', 8, r, 0.12);
-        ctx.fillStyle = '#332e44'; ctx.fillRect(gx, gy + 12, W * 0.12, 5);
-      }
-      // il corrimano di corda, che non si fida
-      ctx.strokeStyle = '#6a5a3a'; ctx.lineWidth = 3; ctx.beginPath();
-      ctx.moveTo(W * 0.08, H * 0.72);
-      for (let g = 1; g < 9; g++) ctx.lineTo(W * 0.12 + g * W * 0.1, H * 0.72 - g * H * 0.055 + Math.sin(g) * 5);
-      ctx.stroke();
-      // pile di libri e pergamene sui gradini
-      for (const [bx, by, n] of [[0.18, 0.76, 3], [0.47, 0.60, 2], [0.76, 0.44, 4]]) {
-        for (let k = 0; k < n; k++) {
-          ctx.fillStyle = ['#7a2432', '#3d5a80', '#8a6a2d', '#3d8a80'][k % 4];
-          ctx.fillRect(W * bx + (r() * 6 - 3), H * by - k * 7, 34, 6);
+      /* IL PIANTERRENO. Il testo di t2 lo descrive: «il pavimento del pianterreno pende
+         talmente a sinistra che un tavolo intero si è incagliato contro il muro come una
+         nave arenata. Contro lo stesso muro, tre candelabri, due tazze da tè e un gatto
+         profondamente addormentato». Prima il quarto in basso a sinistra era muro vuoto —
+         e la scala non poggiava su niente. */
+      const floorY = H - 30;
+      ctx.save();                                       // il tavolo arenato, di sbieco
+      ctx.translate(W * 0.10, floorY - 30); ctx.rotate(0.15);
+      blocks(ctx, -84, -14, 156, 15, '#5d4530', 10, r, 0.14);
+      ctx.fillStyle = '#7a5c3d'; ctx.fillRect(-84, -17, 156, 4);
+      ctx.fillStyle = '#4a3524'; ctx.fillRect(-68, 1, 14, 60); ctx.fillRect(48, 1, 14, 60);
+      ctx.restore();
+      // il pavimento si dipinge DOPO le gambe: così le taglia netto invece di lasciarle
+      // spuntare sotto, che è il difetto di prima ma al rovescio
+      // la fascia sfora sotto e ai lati: la pendenza la solleva a sinistra, e senza il
+      // margine resterebbe una striscia di muro scoperta in fondo all'inquadratura
+      blocks(ctx, -20, floorY, W + 40, H - floorY + 42, '#231d31', 12, r, 0.16);
+      ctx.fillStyle = '#3a3350'; ctx.fillRect(-20, floorY, W + 40, 3);
+      for (const [kx, kh] of [[26, 54], [62, 66], [98, 46]]) {   // tre candelabri
+        const ky = floorY - 42 - kx * 0.15;
+        ctx.fillStyle = '#8a7a45'; ctx.fillRect(kx - 11, ky, 24, 5);
+        ctx.fillStyle = '#a89055'; ctx.fillRect(kx - 3, ky - kh, 7, kh);
+        ctx.fillStyle = '#8a7a45'; ctx.fillRect(kx - 15, ky - kh + 8, 34, 5);
+        for (const dx of [-14, 0, 14]) {
+          ctx.fillStyle = '#e8e4dc'; ctx.fillRect(kx + dx, ky - kh - 12, 5, 13);
+          glow(ctx, kx + dx + 2, ky - kh - 16, 30, 34, '232,182,76');
+          flame(ctx, kx + dx + 2, ky - kh - 10, 7, 11, r, 2);
         }
       }
-      // candele nelle nicchie
-      for (const fx of [0.3, 0.66]) {
-        glow(ctx, W * fx, H * 0.5, 22, 16, '232,182,76');
-        ctx.fillStyle = '#e8e4dc'; ctx.fillRect(W * fx - 2, H * 0.5 - 8, 4, 10);
-        ctx.fillStyle = '#f5c542'; ctx.fillRect(W * fx - 1, H * 0.5 - 12, 2, 4);
+      for (const [cx2, cy2] of [[108, 280], [134, 284]]) {         // due tazze da tè
+        ctx.fillStyle = '#e0dcd0'; ctx.fillRect(cx2, cy2, 15, 11);
+        ctx.fillStyle = '#c0bcae'; ctx.fillRect(cx2 + 15, cy2 + 3, 4, 5);
+        ctx.fillStyle = '#7a5a3a'; ctx.fillRect(cx2 + 2, cy2, 11, 3);
+      }
+      // il gatto, profondamente addormentato e del tutto imperturbabile
+      const gtx = 176, gty = floorY - 2;
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(gtx - 4, gty - 5, 66, 6);
+      blocks(ctx, gtx, gty - 22, 56, 22, '#4d4860', 6, r, 0.14);
+      ctx.fillStyle = '#605a76'; ctx.fillRect(gtx + 4, gty - 26, 26, 6);
+      ctx.fillStyle = '#4d4860'; ctx.fillRect(gtx + 44, gty - 34, 17, 14);   // testa
+      ctx.fillRect(gtx + 45, gty - 39, 5, 6); ctx.fillRect(gtx + 55, gty - 39, 5, 6);
+      ctx.fillStyle = '#37334a'; ctx.fillRect(gtx - 14, gty - 9, 18, 6);     // coda
+      /* LA SCALA. Prima erano nove lastre con tre pixel di vuoto fra l'una e l'altra e
+         nessuna alzata: nove rettangoli sfalsati restano nove rettangoli sfalsati. Ogni
+         pedata adesso ha la sua ALZATA piena fino alla pedata di sotto, e sotto tutto
+         corre il cosciale di pietra che regge la rampa: è il pieno che fa leggere «scala». */
+      const NS = 8, sx0 = W * 0.25, sdx = W * 0.085, sy0 = floorY - 30, sdy = 20, sw = W * 0.13;
+      for (let s = 0; s < NS; s++) {
+        const gx = sx0 + s * sdx, gy = sy0 - s * sdy;
+        blocks(ctx, gx, gy + 12, sw, sdy + 26, '#332d45', 9, r, 0.1);         // cosciale
+        blocks(ctx, gx, gy + 12, sw * 0.58, sdy, '#3d3750', 9, r, 0.1);       // alzata
+        blocks(ctx, gx, gy, sw, 12, '#57506e', 8, r, 0.12);                   // pedata
+        ctx.fillStyle = '#6e6688'; ctx.fillRect(gx, gy, sw, 3);               // filo di luce
+        ctx.fillStyle = '#1a1724'; ctx.fillRect(gx, gy + 12, sw, 3);          // ombra sotto il naso
+      }
+      // il pianerottolo in cima, con la porta: la scala deve portare da qualche parte
+      const lx = sx0 + NS * sdx;
+      blocks(ctx, lx - 12, sy0 - NS * sdy, W - lx + 12, 15, '#57506e', 8, r, 0.12);
+      blocks(ctx, lx - 12, sy0 - NS * sdy + 15, W - lx + 12, 30, '#332d45', 9, r, 0.1);
+      ctx.fillStyle = '#0d0a14'; ctx.fillRect(lx + 4, sy0 - NS * sdy - 74, 56, 74);
+      blocks(ctx, lx - 2, sy0 - NS * sdy - 84, 68, 12, '#3d374f', 8, r, 0.1);
+      // il corrimano di corda, che non si fida: parte DAL primo gradino, su paletti
+      const postY = s => sy0 - s * sdy - 44;
+      ctx.fillStyle = '#4a3f2a';
+      for (let s = 0; s < NS; s += 2) ctx.fillRect(sx0 + s * sdx + 10, postY(s), 6, 44);
+      ctx.strokeStyle = '#8a7a4a'; ctx.lineWidth = 4; ctx.beginPath();
+      ctx.moveTo(sx0 + 13, postY(0));
+      for (let s = 2; s < NS; s += 2) ctx.lineTo(sx0 + s * sdx + 13, postY(s) + 4);
+      ctx.lineTo(lx, postY(NS - 1) - 6);
+      ctx.stroke();
+      // pile di libri e pergamene sui gradini
+      for (const [s, n] of [[1, 3], [4, 2], [6, 4]]) {
+        for (let k = 0; k < n; k++) {
+          ctx.fillStyle = ['#7a2432', '#3d5a80', '#8a6a2d', '#3d8a80'][k % 4];
+          ctx.fillRect(sx0 + s * sdx + 40 + (r() * 6 - 3), sy0 - s * sdy - 7 - k * 7, 40, 7);
+        }
+      }
+      // candele nelle nicchie della parete, sopra la rampa
+      for (const [fx, s] of [[0.30, 1], [0.62, 4]]) {
+        const ny = sy0 - s * sdy - 62;
+        blocks(ctx, W * fx - 20, ny - 12, 40, 50, '#221c30', 8, r, 0.12);
+        ctx.fillStyle = '#171320'; ctx.fillRect(W * fx - 15, ny - 8, 30, 42);
+        glow(ctx, W * fx, ny + 16, 74, 74, '232,182,76');
+        ctx.fillStyle = '#e8e4dc'; ctx.fillRect(W * fx - 4, ny + 16, 8, 18);
+        flame(ctx, W * fx, ny + 17, 9, 14, r, 2);
       }
       // un astrolabio d\'ottone appeso
       ctx.strokeStyle = '#c8a032'; ctx.lineWidth = 2;
@@ -901,7 +1213,9 @@ const Scenes = (() => {
       const r = rng(97);
       skyGradient(ctx, W, H, '#0d0a1f', '#4a1540', 12);
       stars(ctx, W, H, r, 70);
-      moon(ctx, W * 0.5, H * 0.36, 40, '#e8e0f0', true);   // abbassata: a mezzanotte la corona è enorme
+      // l'eclissi sta di LATO: al centro c'è la corona, e i due dischi sovrapposti
+      // facevano una cucitura fra il cerchio e la scatola dell'alone
+      moon(ctx, W * 0.20, H * 0.26, 38, '#e8e0f0', true);
       ctx.fillStyle = 'rgba(232,74,90,.12)';
       ctx.fillRect(0, 0, W, H);
       const g = H - 40;
@@ -910,18 +1224,12 @@ const Scenes = (() => {
       for (let i = 0; i < 6; i++) ctx.fillRect(r() * W, g - 40 + r() * 30, 60 + r() * 90, 8);
       blocks(ctx, W * 0.18, g - 30, W * 0.64, 70, '#2e2a3d', 12, r, 0.15);
       for (let x = W * 0.18; x < W * 0.82; x += 40) blocks(ctx, x, g - 48, 22, 18, '#2e2a3d', 8, r, 0.15);
-      blocks(ctx, W * 0.44, g - 80, W * 0.12, 50, '#1d1d28', 8, r, 0.12);
-      blocks(ctx, W * 0.425, g - 88, W * 0.15, 10, '#2a2a38', 8, r, 0.1);
-      const cx = W * 0.5 - 20, cy = g - 134;
-      ctx.fillStyle = 'rgba(245,197,66,.2)'; ctx.fillRect(cx - 18, cy - 24, 76, 58);
-      ctx.fillStyle = '#f5c542';
-      ctx.fillRect(cx, cy + 10, 40, 10);
-      ctx.fillRect(cx, cy, 8, 10); ctx.fillRect(cx + 16, cy - 6, 8, 16); ctx.fillRect(cx + 32, cy, 8, 10);
-      ctx.fillStyle = '#e84a5a'; ctx.fillRect(cx + 18, cy + 12, 5, 5);
-      ctx.strokeStyle = '#a06ae0'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(W * 0.5, cy - 20); ctx.lineTo(W * 0.44, H * 0.2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W * 0.5, cy - 20); ctx.lineTo(W * 0.58, H * 0.15); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W * 0.5, cy - 20); ctx.lineTo(W * 0.52, H * 0.1); ctx.stroke();
+      // l'altare di ossidiana, largo e basso: è un piedistallo, non un piedino
+      blocks(ctx, W * 0.40, g - 74, W * 0.20, 46, '#161620', 8, r, 0.12);
+      blocks(ctx, W * 0.375, g - 86, W * 0.25, 14, '#22222e', 8, r, 0.1);
+      ctx.fillStyle = '#3a3a4a'; ctx.fillRect(W * 0.375, g - 86, W * 0.25, 3);
+      // LA CORONA: sospesa a mezz'aria sopra l'altare, 230 px — il soggetto della scena
+      crown(ctx, W * 0.5, g - 106, 230, r);
     },
 
     fiume(ctx, W, H) {
@@ -974,24 +1282,62 @@ const Scenes = (() => {
       blocks(ctx, W * 0.28, H - 84, W * 0.44, 38, '#0f2438', 10, r, 0.25);
       ctx.fillStyle = 'rgba(90,216,224,.2)';
       for (let i = 0; i < 9; i++) ctx.fillRect(W * 0.30 + r() * W * 0.4, H - 80 + r() * 30, 12 + r() * 18, 2);
-      // muschio luminescente
-      for (let i = 0; i < 14; i++) {
-        const x = r() * W, y = H * 0.2 + r() * H * 0.5;
-        ctx.fillStyle = 'rgba(95,202,106,.18)'; ctx.fillRect(x - 6, y - 4, 20, 14);
-        ctx.fillStyle = 'rgba(95,202,106,.6)'; ctx.fillRect(x, y, 7 + r() * 7, 4);
+      /* I CRISTALLI AZZURRI. Il testo di r6 dice che la grotta è «illuminata da cristalli
+         azzurri incastonati nella roccia — cugini di quelli visti nelle Miniere di
+         Ferrovecchio»: il giocatore ha appena visto quelli della miniera e cerca questi.
+         Nel quadro non c'era nemmeno uno, e la luce la faceva il muschio verde.
+         Vanno solo dove c'è pietra DIPINTA: fra un arco e l'altro, mai nel vuoto nero. */
+      crystalVein(ctx, 48, H * 0.34, 5, r, 2.1);
+      crystalVein(ctx, 312, H * 0.42, 6, r, 2.3);
+      crystalVein(ctx, 646, H * 0.3, 5, r, 2.2);
+      crystalVein(ctx, 912, H * 0.52, 4, r, 1.9);
+      /* IL MUSCHIO. Prima erano quattordici pastigliette con x = r()*W e y libera: senza
+         vincolo di superficie finivano anche DENTRO gli archi neri, dove non c'è nessuna
+         roccia su cui stare, e venti macchie sotto i venti pixel sono il difetto delle
+         «sette cose piccole» moltiplicato per tre. Adesso sono quattro colonie grandi,
+         ognuna ancorata a una superficie che esiste: il bordo di un pilastro o la linea
+         dell'acqua, dove il muschio cresce per davvero. */
+      const colonia = (cx, cy, w, h) => {
+        glow(ctx, cx, cy, w * 1.7, h * 2.6, '95,202,106');
+        for (let k = 0; k < 16; k++) {
+          const t = k / 15;
+          const hh = Math.max(5, Math.round(h * (0.35 + 0.65 * Math.sin(t * Math.PI)) + r() * 6));
+          const x = Math.round(cx - w / 2 + t * w);
+          ctx.fillStyle = '#2e6a36'; ctx.fillRect(x, cy - hh, Math.ceil(w / 15) + 1, hh);
+          ctx.fillStyle = '#4f9a4a'; ctx.fillRect(x, cy - hh, Math.ceil(w / 15) + 1, Math.max(3, hh * 0.4));
+          if (r() > 0.5) { ctx.fillStyle = '#8ae05a'; ctx.fillRect(x, cy - hh, 3, 3); }
+        }
+      };
+      colonia(W * 0.34, H - 84, 86, 22);          // sul ciglio del canale
+      colonia(W * 0.62, H - 84, 74, 18);
+      colonia(W * 0.16 + 58, H * 0.8, 66, 26);    // al piede del pilastro dell'arco
+      colonia(W * 0.5 - 58, H * 0.8, 62, 22);
+      /* LA SCALA DI SERVIZIO — «la scala sale dritta alle cantine», dice Bertoldo.
+         Prima erano lastre rosa (#3a3548, un colore che non appartiene a niente in questa
+         scena) con quattordici pixel di vuoto fra un gradino e l'altro. Alzate piene e
+         la pietra della cisterna: gli stessi toni dei pilastri. */
+      const sx = W * 0.74;
+      for (let i = 0; i < 7; i++) {
+        const gx = sx + i * 26, gy = H - 46 - i * 24;
+        blocks(ctx, gx, gy + 11, 46, 24 + 16, '#232c36', 8, r, 0.12);   // cosciale
+        blocks(ctx, gx, gy + 11, 28, 24, '#2b3642', 8, r, 0.12);        // alzata
+        blocks(ctx, gx, gy, 46, 11, '#44525f', 8, r, 0.12);             // pedata
+        ctx.fillStyle = '#5a6a78'; ctx.fillRect(gx, gy, 46, 3);
+        ctx.fillStyle = '#101820'; ctx.fillRect(gx, gy + 11, 46, 3);
       }
-      // scala di servizio che sale
-      const sx = W * 0.76;
-      for (let i = 0; i < 8; i++) blocks(ctx, sx + i * 14, H - 56 - i * 26, 56, 12, '#3a3548', 8, r, 0.12);
-      ctx.fillStyle = '#2a2a35';
-      for (let i = 0; i < 8; i++) ctx.fillRect(sx + i * 14 + 50, H - 56 - i * 26, 6, 26);
       // botti dimenticate
       blocks(ctx, W * 0.07, H - 92, 46, 46, '#4a3524', 8, r, 0.15);
       ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.07, H - 80, 46, 5); ctx.fillRect(W * 0.07, H - 60, 46, 5);
       blocks(ctx, W * 0.13, H - 74, 44, 28, '#3a2a18', 8, r, 0.15);
-      // stalattiti gocciolanti
-      ctx.fillStyle = '#4a6a7a';
-      for (let i = 0; i < 10; i++) { const x = 30 + r() * (W - 60); ctx.fillRect(x, 0, 5, 8 + r() * 16); }
+      // stalattiti: poche e grosse, con la punta. Dieci schegge da cinque pixel non si
+      // vedevano come stalattiti, si vedevano come sporco sul soffitto.
+      for (const [x, hh] of [[112, 34], [268, 26], [452, 40], [618, 22], [802, 32]]) {
+        for (let k = 0; k * 4 < hh; k++) {
+          const wd = Math.max(3, Math.round((14 * (1 - (k * 4) / hh)) / 3) * 3);
+          ctx.fillStyle = k * 4 < hh * 0.4 ? '#5a7a8a' : '#3d5a6a';
+          ctx.fillRect(x - wd, k * 4, wd * 2, 4);
+        }
+      }
     },
 
     alba(ctx, W, H) {

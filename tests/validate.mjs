@@ -7,7 +7,7 @@ import { readFileSync } from 'fs';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { cercaBuchi } from './buchi-nei-fondali.mjs';
+import { cercaBuchi, cercaNeroPieno } from './buchi-nei-fondali.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -651,6 +651,15 @@ function testBuchiNeiFondali() {
   catch (e) { fail('non riesco a caricare js/scenes.js per cercare i buchi: ' + e.message); return; }
   const S = c.__S;
   const esito = cercaBuchi(S.painters, { setDepth: S.setDepth || S.setEclipse });
+  /* Il nero pieno: avviso, non errore. Un fondale con una macchia di (0,0,0) opaco quasi
+     sempre ha un colore calcolato male (shade() richiamato su un 'rgb(...)' dà NaN e
+     quindi zero: un nero VALIDO che nessun controllo sui colori può vedere). Ma il nero
+     voluto esiste — la stiva di un relitto a quarantacinque metri, dove la torcia entra
+     e non torna indietro — quindi qui si guarda e si decide, non si blocca. */
+  for (const n of cercaNeroPieno(S.painters, { setDepth: S.setDepth || S.setEclipse })) {
+    warn(`il fondale "${n.nome}" ha ${n.pixel} px di nero pieno (0,0,0): `
+       + 'se non è voluto è un colore calcolato male — guardalo col tool dei PNG');
+  }
   if (!esito.length) {
     ok(); console.log(`  ✔ nessuna macchia scoperta in ${Object.keys(S.painters).length - 1} fondali`);
     return;

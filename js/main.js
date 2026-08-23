@@ -30,11 +30,19 @@ const Main = (() => {
         b.onclick = () => {
           if (mode === 'load') {
             $('modal-generic').classList.add('hidden');
-            if (!Engine.loadGame(n)) alert('Salvataggio danneggiato.');
+            if (!Engine.loadGame(n)) Dialoghi.avvisa('⚠ Salvataggio danneggiato',
+              'Questo slot contiene dati che il gioco non riesce più a leggere. La partita non si può riprendere: si può solo cominciarne una nuova in questo slot.');
           } else {
-            if (!confirm(`Lo Slot ${n} contiene già una partita (${s.heroes}).\nSovrascriverla? La partita salvata andrà persa.`)) return;
-            $('modal-generic').classList.add('hidden');
-            Engine.clearSave(n); pendingSlot = n; openSetup();
+            /* Cancello vero: il pulsante rosso non è quello a fuoco, e Invio dice no. */
+            Dialoghi.chiedi('💾 Sovrascrivere lo Slot ' + n + '?',
+              `Lo Slot ${n} contiene già una partita: <b>${s.heroes}</b>` +
+              (s.caption ? ` — ${s.caption}` : '') +
+              '.<br><br>Cominciando una partita nuova qui, <b>quella salvata andrà persa</b> e non si torna indietro.',
+              '🗑 Sovrascrivi', true).then(ok => {
+                if (!ok) return;
+                $('modal-generic').classList.add('hidden');
+                Engine.clearSave(n); pendingSlot = n; openSetup();
+              });
           }
         };
       } else {
@@ -109,20 +117,32 @@ const Main = (() => {
   function useProfile(p) { Engine.setCurrentProfile(p); refreshTitle(); showProfiles(); }
 
   function renameProfileUI(p) {
-    const nuovo = prompt(`Nuovo nome per "${p}":`, p);
-    if (nuovo && nuovo.trim() && nuovo.trim() !== p) {
-      if (!Engine.renameProfile(p, nuovo.trim())) alert('Nome già in uso.');
-      refreshTitle();
-    }
-    showProfiles();
+    Dialoghi.chiediTesto('✏ Nuovo nome per «' + p + '»',
+      'I salvataggi restano dove sono: cambia solo il nome sotto cui si trovano.', p, '✓ Rinomina')
+      .then(nuovo => {
+        if (nuovo && nuovo.trim() && nuovo.trim() !== p) {
+          if (!Engine.renameProfile(p, nuovo.trim())) {
+            return Dialoghi.avvisa('⚠ Nome già in uso',
+              `C'è già un utente che si chiama «${nuovo.trim()}». Scegline un altro: due utenti con lo stesso nome si porterebbero via i salvataggi a vicenda.`)
+              .then(() => { refreshTitle(); showProfiles(); });
+          }
+          refreshTitle();
+        }
+        showProfiles();
+      });
   }
 
   function deleteProfileUI(p) {
-    if (confirm(`Eliminare l'utente "${p}" e TUTTI i suoi salvataggi? Non si torna indietro.`)) {
-      Engine.deleteProfile(p);
-      refreshTitle();
-    }
-    showProfiles();
+    const quante = (Engine.listSaves(p) || []).filter(Boolean).length;
+    Dialoghi.chiedi('🗑 Eliminare l\'utente «' + p + '»?',
+      (quante
+        ? `Ha <b>${quante} ${quante === 1 ? 'partita salvata' : 'partite salvate'}</b>, e ${quante === 1 ? 'va' : 'vanno'} perdut${quante === 1 ? 'a' : 'e'} insieme all'utente.`
+        : 'Non ha partite salvate.') +
+      '<br><br><b>Non si torna indietro.</b>',
+      '🗑 Elimina tutto', true).then(ok => {
+        if (ok) { Engine.deleteProfile(p); refreshTitle(); }
+        showProfiles();
+      });
   }
 
   function showCodes(p) {
