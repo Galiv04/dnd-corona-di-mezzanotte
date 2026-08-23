@@ -183,8 +183,10 @@ const Combat = (() => {
         ctx.fillStyle = frac > 0.5 ? '#5fca6a' : frac > 0.25 ? '#f5c542' : '#e05252';
         ctx.fillRect(x, y - 14, Math.floor(bw * frac), bh);
         // nome
-        ctx.fillStyle = '#fff'; ctx.font = "9px 'Press Start 2P'"; ctx.textAlign = 'center';
-        ctx.fillText(e.name.split(',')[0].slice(0, 16), x + eSize / 2, y - 22);
+        ctx.fillStyle = '#fff'; ctx.font = "11px 'Press Start 2P'"; ctx.textAlign = 'center';
+        const etichetta = e.name.split(',')[0].slice(0, 10);
+        const etX = Math.min(W - 4 - etichetta.length * 5.5, Math.max(4 + etichetta.length * 5.5, x + eSize / 2));
+        ctx.fillText(etichetta, etX, Math.max(12, y - 22));
         ctx.textAlign = 'left';
         if (e.stunned) { ctx.font = "14px 'Press Start 2P'"; ctx.fillText('💫', x + eSize - 10, y + 4); }
       }

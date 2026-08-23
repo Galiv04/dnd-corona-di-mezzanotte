@@ -54,7 +54,7 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; display:block
   margin-bottom: 12px;
 }
 .game-subtitle { color: var(--text-dim); font-size: 22px; margin-bottom: 26px;
-  max-width: 30ch; margin-inline:auto; text-wrap: balance; }
+  margin-inline:auto; text-wrap: balance; }
 .title-buttons { display:flex; flex-direction:column; gap:14px; align-items:stretch;
   margin-bottom: 18px; width:100%; max-width:420px; margin-inline:auto; }
 .title-footer { color: var(--text-dim); font-size: 18px; opacity:.8; }
