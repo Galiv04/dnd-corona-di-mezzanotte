@@ -399,6 +399,10 @@ const Engine = (() => {
     const capFrase = tagliaCap > 0 ? capIntera.slice(tagliaCap + 3) : '';
     $('hud-location').textContent = '📍 ' + capLuogo;
     Scenes.paint('scene-canvas', scene.location, null, scene.npc);
+    /* La scheda del luogo: il pulsante 🔎 sul quadro. Si accende solo se questo
+       luogo ha una scheda scritta — un pulsante che apre il vuoto è peggio di
+       nessun pulsante. Richiesta del committente, 23 agosto 2026. */
+    if (typeof Luoghi !== 'undefined') Luoghi.aggiorna(scene.location, capLuogo);
     $('scene-caption').textContent = capFrase;
     $('scene-caption').classList.toggle('hidden', !capFrase);
 

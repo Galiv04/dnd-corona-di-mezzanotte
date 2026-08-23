@@ -4,6 +4,7 @@
    sprite ben formati, raggiungibilità dei finali, sanità dei dadi, bilanciamento. */
 
 import { readFileSync } from 'fs';
+import vm from 'vm';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -579,6 +580,39 @@ function testLinkPagesNelReadme() {
   else { ok(); console.log(`  ✔ link a Pages nel README, riga ${dove + 1}`); }
 }
 testLinkPagesNelReadme();
+
+/* ---------- le schede dei luoghi (il pulsante 🔎) ----------
+   Richiesta del committente: ogni scena grafica ha un pulsante che spiega cosa si
+   sta guardando. Una scheda mancante spegne il pulsante in silenzio — cioè la
+   feature esiste per alcune scene e non per altre, e il giocatore non capisce
+   perché. Quindi: ogni painter (tranne `titolo`, che è la copertina) ha la sua
+   scheda, con tutte le sezioni piene e almeno tre elementi da guardare. */
+function testSchedeDeiLuoghi() {
+  let luoghiSrc;
+  try { luoghiSrc = readFileSync(join(root, 'js/luoghi.js'), 'utf8'); }
+  catch { fail('manca js/luoghi.js: il pulsante che spiega la scena non ha dati'); return; }
+  const ctxL = {};
+  vm.createContext(ctxL);
+  try { vm.runInContext(luoghiSrc + ';globalThis.__L = Luoghi;', ctxL); }
+  catch (e) { fail('js/luoghi.js non si carica: ' + e.message); return; }
+  const schede = ctxL.__L.LUOGHI;
+  const painters = [...readFileSync(join(root, 'js/scenes.js'), 'utf8')
+    .matchAll(/^    ([a-z_0-9]+)\(ctx, W, H\) \{/gm)].map(m => m[1]);
+  const senza = painters.filter(p => p !== 'titolo' && !schede[p]);
+  if (senza.length) fail(`fondali senza scheda del luogo (pulsante spento): ${senza.join(', ')}`);
+  else { ok(); console.log(`  ✔ scheda del luogo per tutti i ${painters.length - 1} fondali di gioco`); }
+  const orfane = Object.keys(schede).filter(k => !painters.includes(k));
+  if (orfane.length) warn(`schede di luoghi che non hanno un fondale: ${orfane.join(', ')}`);
+  const magre = [];
+  for (const [k, L] of Object.entries(schede)) {
+    if (!L.titolo || !L.ora || !L.storia || !L.gioco) magre.push(`${k} (sezione vuota)`);
+    else if (!Array.isArray(L.guarda) || L.guarda.length < 3) magre.push(`${k} (meno di 3 cose da guardare)`);
+    else if (L.storia.length < 120 || L.gioco.length < 80) magre.push(`${k} (storia o gioco troppo corti)`);
+  }
+  if (magre.length) fail(`schede che promettono e non mantengono: ${magre.join(', ')}`);
+  else { ok(); console.log('  ✔ ogni scheda ha le tre sezioni piene'); }
+}
+testSchedeDeiLuoghi();
 
 /* ---------- esito ---------- */
 

@@ -506,3 +506,29 @@ html.text-large .title-incipit-close { font-size: 21px; }
    cui vengono create. */
 .modal-box > .choice-btn { display: block; width: 100%; }
 .modal-box > .choice-btn + .choice-btn { margin-top: 8px; }
+
+
+/* ---------- 🔎 IL PULSANTE CHE SPIEGA LA SCENA ----------
+   Richiesta del committente, 23 agosto 2026: un tastino su ogni scena grafica che
+   apre una scheda su cosa si sta guardando. Sta DENTRO il riquadro, in alto a
+   destra, perché appartiene al quadro e non alla barra dei comandi. Deve stare
+   sopra il velo CRT (che è un ::after con inset:0), da cui lo z-index.
+   Su schermo piccolo resta solo la lente: la parola non ci sta e non serve. */
+.btn-scena {
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 11px;
+  font-family: inherit; font-size: 15px; line-height: 1;
+  color: var(--text); background: rgba(8, 14, 20, .72);
+  border: 2px solid var(--border); border-radius: 2px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.btn-scena:hover, .btn-scena:focus-visible {
+  background: rgba(20, 34, 44, .92); border-color: var(--green, #6a9);
+}
+.btn-scena.hidden { display: none; }
+@media (max-width: 640px) {
+  .btn-scena span { display: none; }
+  .btn-scena { padding: 6px 8px; font-size: 17px; }
+}
