@@ -963,7 +963,15 @@ Quello che avevate raccolto da lì in poi, <b>non lo avete più</b>.${nomiPersi.
       ctx.font = "10px 'Press Start 2P'";
       ctx.textAlign = 'center';
       ctx.font = "26px 'Press Start 2P'";
-      ctx.fillText(String(WORLD_MAP.indexOf(loc) + 1), x, y + 46);
+      /* Il numero sta sotto il luogo, tranne quando sotto c'è un altro luogo vicino:
+         nel Relais «I Tornanti» e «Paternopoli» distano 29 px in orizzontale e 48 in
+         verticale, e il numero del primo cadeva sull'icona del secondo. In quel caso
+         il numero va SOPRA. Vale per tutti: se un giorno due luoghi si avvicinano,
+         la pianta si aggiusta da sola. */
+      const sottoOccupato = WORLD_MAP.some(altro => altro !== loc
+        && Math.abs(altro.x * W - x) < 60
+        && (altro.y * H - y) > 0 && (altro.y * H - y) < 70);
+      ctx.fillText(String(WORLD_MAP.indexOf(loc) + 1), x, sottoOccupato ? y - 34 : y + 46);
       if (cur && cur.key === loc.key) {
         ctx.fillStyle = '#f5c542';
         ctx.font = "18px 'Press Start 2P'";

@@ -924,6 +924,50 @@ if (allEndings.size < 3) {
    ciclo delle abilità e il template la cercava fuori — ReferenceError a ogni click,
    proprio sulla schermata che il committente aveva chiesto per vedere gli stati.
    Questa prova apre la scheda di OGNI eroe in OGNI combinazione di stati. */
+/* ==================== TUTTE LE MODALI SI APRONO ====================
+   Fino ad agosto 2026 l'unica finestra provata da un test era la scheda del personaggio
+   — e ci era finita solo DOPO che era crashata per mesi in silenzio. Mappa, zaino,
+   regole, riepilogo della compagnia, diario, menu, fucina e quaderno non venivano mai
+   aperti da nessuna partita simulata: un ReferenceError in uno di quei template sarebbe
+   passato inosservato esattamente come l'altro. Qui si apre tutto quello che il motore
+   espone, a inizio partita e con lo zaino pieno. */
+(function testTutteLeModali() {
+  section('Ogni finestra si apre senza esplodere');
+  const game = buildGame(313131);
+  const E = game.api.Engine;
+  const eroi = (Array.isArray(game.api.HEROES) ? game.api.HEROES : Object.values(game.api.HEROES));
+  game.act(() => E.newGame(eroi.filter(h => !h.locked).slice(0, 2).map(h => ({ heroId: h.id, player: 'Gali' }))));
+  /* zaino pieno: molte finestre disegnano gli oggetti, e un template rotto si vede solo
+     quando c'è qualcosa da disegnare */
+  const G = game.api.Engine.debugState ? game.api.Engine.debugState() : null;
+  try { for (const k of Object.keys(game.api.ITEMS).slice(0, 12)) game.act(() => E.addItem && E.addItem(k)); } catch (e) { /* non tutti i motori hanno addItem */ }
+  const FINESTRE = ['showParty', 'showInventory', 'showMap', 'showRules', 'showMenu', 'showDiary',
+                    'showBestiary', 'showRevive', 'showChronicles', 'showImprese'];
+  let aperte = 0, rotte = 0;
+  for (const nome of FINESTRE) {
+    if (typeof E[nome] !== 'function') continue;
+    try { game.act(() => E[nome]()); aperte++; }
+    catch (e) { fail(`${nome}() esplode: ${(e && e.message) || e}`); rotte++; }
+  }
+  /* il retro degli oggetti: template a sé, e con quarantadue testi dietro */
+  if (typeof E.inspectItem === 'function') {
+    const conLore = Object.keys(game.api.ITEMS).filter(k => game.api.ITEMS[k].lore).slice(0, 3);
+    for (const k of conLore) {
+      try { game.act(() => E.inspectItem(k)); aperte++; }
+      catch (e) { fail(`inspectItem('${k}') esplode: ${(e && e.message) || e}`); rotte++; }
+    }
+  }
+
+  /* e le finestre dei moduli, dove esistono */
+  for (const [mod, metodo] of [['Crafting', 'open'], ['Misteri', 'show']]) {
+    const M = game.api[mod];
+    if (!M || typeof M[metodo] !== 'function') continue;
+    try { game.act(() => M[metodo]()); aperte++; }
+    catch (e) { fail(`${mod}.${metodo}() esplode: ${(e && e.message) || e}`); rotte++; }
+  }
+  if (!rotte) console.log(`  ✔ ${aperte} finestre aperte senza errori`);
+})();
+
 (function testSchedaPersonaggio() {
   section('Scheda del personaggio: si apre sempre, in ogni stato');
   const game = buildGame(424242);
