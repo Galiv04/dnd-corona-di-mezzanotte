@@ -75,3 +75,27 @@ tests/              validate.mjs (statico) + playthrough.mjs (simulazione)
 - Non aggiungere immagini o file audio: grafica e suoni sono **generati via codice** (canvas + WebAudio). È una scelta di progetto, non un limite.
 - Non spezzare il formato dati delle scene senza aggiornare `tests/validate.mjs`.
 - Non usare `alert()`/`prompt()` per il flusso di gioco (solo per utility di gestione): il gioco usa le proprie modali.
+
+## 🔎 Guardare le grafiche: strumenti, non pazienza
+
+Prima di toccare un painter e prima di dire che una scena è a posto:
+
+```bash
+node ../dnd-motore/tools/fondali-in-png.mjs                 # tutti in /tmp/fondali
+node ../dnd-motore/tools/fondali-in-png.mjs --solo nome     # uno, subito
+node ../dnd-motore/tools/fondali-in-png.mjs --provino       # tutti su una lastra
+node ../dnd-motore/tools/fondali-in-png.mjs --sfondo '#ff00ff'   # i buchi si vedono
+node ../dnd-motore/tools/fondali-in-png.mjs --pulisci       # e si buttano
+```
+
+`tools/provino.html` fa la stessa cosa nel browser (anche da telefono, via Pages) con
+fondo magenta, scala e velo di profondità.
+
+**Le tre regole che valgono più di ogni ritocco** (lezioni 58-62):
+1. **Un fondale ha UN soggetto**, grande almeno un terzo dell'inquadratura, più due o
+   tre elementi di contesto sopra i cento pixel. Sotto i sessanta pixel un oggetto non
+   dice cosa è, dice solo che c'è.
+2. **Le proporzioni delle cose vere si cercano, non si stimano** — e un oggetto che dopo
+   due tentativi non si riconosce si TOGLIE, non si ritocca una terza volta.
+3. **Il quadro deve mostrare quello che il testo dice.** Si rilegge la scena, si segnano
+   le cose che nomina, e si verifica che ci siano tutte.
