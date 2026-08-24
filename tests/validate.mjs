@@ -177,6 +177,27 @@ for (const [key, b] of Object.entries(BESTIARY)) {
 if (!charProblems) { ok(); console.log(`  ✔ 6 eroi completi (stats, abilità, backstory, sprite) e ${Object.keys(BESTIARY).length} nemici validi`); }
 
 /* ---------- 5. sprite ---------- */
+/* ---------- stinger dichiarati dalle scene: devono esistere in sound.js ---------- */
+/* Aggiunto il 24 agosto 2026, insieme alla riga di motore che li fa SUONARE: fino a oggi
+   `scene.stinger` in questo gioco non lo leggeva nessuno — la riga che i quattro fratelli
+   hanno da sempre qui non c'era — e centosettantasei scene entravano in silenzio. Un suono
+   che non parte non lascia tracce, e per questo nessuno se n'era accorto. */
+section('Stinger delle scene (nessun suono fantasma)');
+{
+  const soundSrc2 = readFileSync(join(root, 'js/sound.js'), 'utf8');
+  const bloccoEff = soundSrc2.slice(soundSrc2.indexOf('const effects = {'), soundSrc2.indexOf('function play('));
+  const nomiEff = new Set([...bloccoEff.matchAll(/^\s{4}([a-z_0-9]+)\(\)/gm)].map(m => m[1]));
+  let morti = 0;
+  for (const [id, sc] of Object.entries(CAMPAIGN)) {
+    if (sc.stinger && !nomiEff.has(sc.stinger)) {
+      fail(`scena "${id}": stinger "${sc.stinger}" non esiste in sound.js (suono fantasma silenzioso)`);
+      morti++;
+    }
+  }
+  const conStinger = Object.values(CAMPAIGN).filter(sc => sc.stinger).length;
+  if (!morti) { ok(); console.log(`  ✔ ${conStinger} scene con stinger, tutti esistenti in sound.js (${nomiEff.size} effetti nel catalogo)`); }
+}
+
 /* ---------- chiavi doppie dentro la stessa scena ---------- */
 /* PERCHE' ESISTE, e costa due righe. In un letterale JavaScript una chiave ripetuta non e'
    un errore: vince l'ULTIMA, in silenzio. Il 24 agosto 2026, spezzando le scene lunghe in
@@ -455,7 +476,7 @@ if (!proveRipetibili) { ok(); console.log(`  ✔ ${bersagliRitorno.size} scene r
      2) WARN  se una chiave IN whitelist non risulta consumata dal codice. */
 section('Chiavi dei dati (whitelist + controprova nel motore)');
 
-const CHIAVI_SCENA = new Set(['location','caption','text','choices','npc','sets','rep','gold','goldLoss',
+const CHIAVI_SCENA = new Set(['location','caption','text','choices','npc','sets','rep','gold','goldLoss','stinger',
   'item','item2','heal','damage','fullHeal','recharge','onEnterOnce','combat','minigame','ending']);
 const CHIAVI_SCELTA = new Set(['text','next','tag','once','requires','requiresGold','item','item2',
   'removeItem','sets','rep','gold','goldLoss','heal','damage','check']);

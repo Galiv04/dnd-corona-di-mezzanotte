@@ -130,6 +130,7 @@ La piazza esplode nel panico. Galline ovunque. Il fornaio corre in tondo con una
 
   p2_calma_ok: {
     location: 'villaggio',
+    stinger: 'success',
     caption: 'Piazza di Brindolo',
     text: `Salite sulla fontana e la vostra voce copre il caos:
 
@@ -147,6 +148,7 @@ Funziona. La folla si ferma, vi guarda, e si aggrappa alla vostra calma come a u
 
   p2_calma_ko: {
     location: 'villaggio',
+    stinger: 'fail',
     caption: 'Piazza di Brindolo',
     text: `Salite sulla fontana per parlare alla folla... e scivolate sul muschio, finendo seduti nell'acqua con un *SPLASH* solenne.
 
@@ -161,6 +163,7 @@ Be'... tecnicamente il panico è passato. Diciamo che era il piano fin dall'iniz
 
   p2_studio_ok: {
     location: 'villaggio',
+    stinger: 'success',
     caption: 'Piazza di Brindolo',
     text: `Osservate il disco nero. Non è una nuvola, non è un'eclissi naturale: l'anello rosso *pulsa*, con un ritmo regolare. Come un cuore. O come un **incantesimo**.
 
@@ -176,6 +179,7 @@ Ve lo annotate a mente: chiunque sia stato, ha firmato il cielo col proprio stil
 
   p2_studio_ko: {
     location: 'villaggio',
+    stinger: 'fail',
     caption: 'Piazza di Brindolo',
     text: `Fissate il cielo con aria da esperti. Molto a lungo. Con il mento appoggiato alla mano, per rendere l'idea.
 
@@ -229,6 +233,7 @@ Con drammatico affetto,
 
   p3_nego_ok: {
     location: 'villaggio',
+    stinger: 'success',
     caption: 'Piazza di Brindolo',
     text: `Bartolo strabuzza gli occhi, guarda la piazza buia, guarda voi, riguarda la piazza.
 
@@ -248,6 +253,7 @@ Vi mette in mano una borsa. **(+50 monete d'oro subito!)** Sapete il fatto vostr
 
   p3_nego_ko: {
     location: 'villaggio',
+    stinger: 'fail',
     caption: 'Piazza di Brindolo',
     text: `> Bartolo: *(improvvisamente molto sindaco)* "Cari eroi, il bilancio comunale è già in rosso per la sagra della zucca. 500 monete, statua, e la mia eterna gratitudine. Prendere o lasciare."
 
@@ -318,6 +324,7 @@ Il corvo gracchia qualcosa che suona sospettosamente come una recensione. C'è d
 
   q_corvo_ok: {
     location: 'villaggio',
+    stinger: 'success',
     caption: 'Amleto, ex critico musicale',
     text: `Ci arrivate: il portamento teatrale, il disprezzo per il pane scadente, il modo in cui gracchia in PENTAMETRI. Questo non è un corvo. È — o meglio, ERA — una persona.
 
@@ -339,6 +346,7 @@ Mettendo insieme i gesti, i graffi sul bordo della fontana (ci ha INCISO delle n
 
   q_corvo_ko: {
     location: 'villaggio',
+    stinger: 'fail',
     caption: 'Incomprensioni ornitologiche',
     text: `Il vostro approccio parte con le migliori intenzioni e finisce come ogni conversazione con un critico: male.
 
@@ -382,6 +390,7 @@ Dallo scaffale "ARTICOLI PER LA GUERRA CHIMICA (legalissimi)": **bombe puzzolent
 
   v_mirtilla: {
     location: 'taverna',
+    stinger: 'item',
     caption: 'La casa della vecchia Mirtilla',
     text: `Mirtilla ha novantatré anni, una sedia a dondolo e la memoria di un archivio reale. Vi squadra da capo a piedi.
 
@@ -448,6 +457,7 @@ Vi supplica con gli occhi da cane bastonato. Avete ancora un po' di tempo prima 
 
   q_capra1_tracce_ko: {
     location: 'villaggio',
+    stinger: 'fail',
     caption: 'Piazza di Brindolo — tracce (quasi) perse',
     text: `Vi accovacciate, esaminate il terreno con aria da esperti tracciatori... e seguite con grande sicurezza un sentiero di impronte che si rivela, dieci minuti dopo, quello del maiale del vicino. Il maiale vi fissa, visibilmente offeso di essere scambiato per una capra.
 
@@ -482,6 +492,7 @@ Due strade, per farla scendere.`,
 
   q_capra2_ko: {
     location: 'tempietto',
+    stinger: 'fail',
     npc: [{ key: 'capra', x: 0.5, y: 0.333, scale: 4 }],
     caption: 'Il tetto del tempietto — tentativo maldestro',
     text: `Che sia l'appiglio che si sbriciola sotto una mano di troppo, o l'offerta di cibo che Berenice giudica personalmente insultante con un solo sguardo laterale, il risultato è lo stesso: qualcuno finisce seduto per terra con la schiena a pezzi. **(-2 PV)**
@@ -500,6 +511,7 @@ Va bene. Riprovate, stavolta con più metodo — e con QUALSIASI cosa aveste in 
 
   q_capra_salvata: {
     location: 'taverna',
+    stinger: 'item',
     npc: ['capra'],
     caption: 'Taverna "Il Gallo Storto" — capra recuperata',
     text: `Berenice si lascia infine convincere a scendere — con la dignità intatta e l'aria di chi vi sta facendo un favore enorme — e trotterella verso Bocciolo come se niente fosse. Lui la stringe in un abbraccio che lei sopporta con pazienza quasi regale.
@@ -657,6 +669,7 @@ I goblin vi scortano oltre il ponte cantando un inno di lotta stonatissimo. **(I
 
   v2_paura: {
     location: 'ponte',
+    stinger: 'fail',
     npc: [{ key: 'goblin', x: 0.37, y: 0.661, scale: 4 }, { key: 'goblin_capo', x: 0.50, y: 0.661, scale: 4 }, { key: 'goblin', x: 0.63, y: 0.661, scale: 4 }],
     caption: 'Il Ponticello',
     text: `Vi gonfiate come gatti arrabbiati. Chi ringhia, chi fa scrocchiare le nocche, chi solleva un masso con noncuranza fischiettando.
@@ -737,6 +750,7 @@ Restano lì, con le sciabole alzate e l'aria di due che avevano fatto un altro c
 
   v3_bandito_ok: {
     location: 'strada',
+    stinger: 'success',
     caption: 'Dietro il muretto — dopo',
     gold: 0,
     sets: { banditi_battuti: true },
@@ -867,6 +881,7 @@ I rami si spostano da soli, aprendo un corridoio di funghi luminosi diritto vers
 
   b1_persi: {
     location: 'bosco',
+    stinger: 'fail',
     caption: 'Bosco dei Sussurri — molto persi',
     text: `Un'ora dopo. Siete passati davanti allo stesso ceppo a forma di papera TRE volte. Il bosco bisbiglia risatine.
 
@@ -926,6 +941,7 @@ sono l'ombra di ciò che credi.
 
   b2_giusto: {
     location: 'bosco',
+    stinger: 'heal',
     caption: 'La Radura dei Funghi',
     text: `> Fungo Anziano: "L'ECLISSI! Sì! SÌ! Nessuno lo indovina MAI! Di solito dicono 'un pipistrello' e io devo fingere di non essere deluso!"
 
@@ -941,6 +957,7 @@ Il fungo è così felice che rilascia una nuvola di spore dorate profumate di va
 
   b2_sbagliato: {
     location: 'bosco',
+    stinger: 'fail',
     caption: 'La Radura dei Funghi',
     text: `> Fungo Anziano: *(sospiro lunghissimo)* "Un pipistrello. UN PIPISTRELLO. Dicono TUTTI 'un pipistrello'! I pipistrelli HANNO le ali! È nel testo! 'NON ho ali'! PRIMA RIGA!"
 
@@ -957,6 +974,7 @@ Il fungo si agita e — *POFF* — rilascia per lo stress una nuvola di spore so
 
   b2_sbagliato2: {
     location: 'bosco',
+    stinger: 'fail',
     caption: 'La Radura dei Funghi',
     text: `> Fungo Anziano: "Un ALTRO FUNGO? Che indovinello sarebbe 'indovina chi sono, sono un fungo'?! IO sono un fungo! Lo VEDI che sono un fungo! L'indovinello parlava dell'ECLISSI!"
 
@@ -1039,6 +1057,7 @@ Il gatto volta pagina, interessato a come andrà a finire.`,
 
   b3_riso_ok: {
     location: 'capanna',
+    stinger: 'success',
     npc: ['nonnaOrtica'],
     caption: 'MISSIONE COMPIUTA',
     text: `Silenzio.
@@ -1059,6 +1078,7 @@ La risata di Nonna Ortica fa tremare i barattoli, spaventa il gatto (che perde i
 
   b3_riso_meh: {
     location: 'capanna',
+    stinger: 'fail',
     npc: ['nonnaOrtica'],
     caption: 'Pubblico difficile',
     text: `...il finale della gag muore nel silenzio. Ortica vi fissa, impassibile come una roccia con la verruca.
@@ -1068,7 +1088,15 @@ La risata di Nonna Ortica fa tremare i barattoli, spaventa il gatto (che perde i
 Sospira e indica la porta col mento.
 
 > Ortica: "Piano B, tesorucci: i lupi sono in giardino. Un dente, una pozione. E magari, mentre combattete, fatemi vedere qualcosa di buffo, va'."`,
-    choices: [{ text: '🐺 Uscite ad affrontare i lupi', next: 'b3_lupi' }],
+    heal: 0,
+    damage: 2,
+    choices: [
+      { text: '🎭 Una sola battuta ancora, l\'ultima, e questa volta guardandola negli occhi',
+        tag: 'Prova di CARISMA — CD 13 (il pubblico difficile è quello che si è già fatto un\'idea)',
+        once: true,
+        check: { stat: 'CAR', dc: 13, success: 'b3_riso_ok', fail: 'b3_lupi', failDamage: 2 } },
+      { text: '🐺 Uscite ad affrontare i lupi', next: 'b3_lupi' },
+    ],
   },
 
   b3_lupi: {
@@ -1088,6 +1116,7 @@ Il capobranco ringhia. Dalla finestra, Ortica grida:
 
   b3_lupi_vinti: {
     location: 'capanna',
+    stinger: 'item',
     caption: 'Il giardino di Ortica',
     text: `L'ultimo lupo guaisce e il branco si ritira nell'ombra, sconfitto con onore. Sul prato, tra l'erba: un canino perfetto, lungo come un dito. **(Dente di Lupo ottenuto!)**
 
@@ -1103,6 +1132,7 @@ Ortica esce, lo esamina controluce come un gioielliere, annuisce, e ve lo lascia
 
   b4: {
     location: 'capanna',
+    stinger: 'item',
     npc: ['nonnaOrtica'],
     caption: 'La Pozione del Crepuscolo',
     text: `Mezz'ora di vapori violacei, tre bestemmie in linguaggio arcano e un "NON TOCCARE QUELLO" dopo, Nonna Ortica vi consegna una fiala che sembra contenere un pezzetto di cielo notturno, stelle comprese.
@@ -1196,6 +1226,7 @@ Rumore di catenacci: il portone si apre su un nano con una barba fino alle ginoc
 
   m1_sbaglio: {
     location: 'strada',
+    stinger: 'fail',
     caption: 'Risposta errata',
     text: `> Gastone: "DEL MIELE?! *DEL MIELE?!* SPIE! SPIE DI VESPER! Lo sapevo! SOLO un vampiro direbbe una cosa del genere!"
 
@@ -1210,6 +1241,7 @@ Bene. Benissimo. Resta il condotto di aerazione, lassù sulla parete: stretto, a
 
   m1_caduta: {
     location: 'strada',
+    stinger: 'hit',
     caption: 'Il condotto — tentativo n°1',
     text: `L'arrampicata inizia bene e finisce malissimo: la grondaia a cui vi appendete è decorativa, come scoprite a metà volo.
 
@@ -1304,6 +1336,7 @@ Arrivate a una biforcazione. A sinistra: un tunnel a piedi, lungo ma tranquillo.
 
   m2_deposito: {
     location: 'miniera',
+    stinger: 'item',
     npc: ['gastone'],
     caption: 'Il vecchio deposito — luce nelle tenebre',
     text: `Le torce di Gedeone si accendono al primo colpo (ottimo acquisto!) e il deposito smette di essere un buco nero: è una stanzetta piena di casse del 1847, ragnatele monumentali e — sotto un telo ammuffito — la vecchia cassetta di pronto soccorso dei minatori.
@@ -1323,6 +1356,7 @@ L'eco, per la cronaca, vi fa un versaccio di saluto. Educata, comunque.`,
 
   m2_carrello_ok: {
     location: 'miniera',
+    stinger: 'success',
     caption: 'IL CARRELLO — 80 km/h di gloria nanica',
     text: `Vi stipate nel carrello[[eroe:zonk]] (qualcuno in braccio a qualcun altro, non facciamo nomi, Zonk)[[/eroe]] e via!
 
@@ -1344,6 +1378,7 @@ Il carrello si ferma con eleganza al capolinea. Dietro di voi, Gastone arriva co
 
   m2_carrello_ko: {
     location: 'miniera',
+    stinger: 'fail',
     caption: 'IL CARRELLO — versione "l\'Incidente 2"',
     text: `Vi stipate nel carrello e via! La discesa è PURA FOLLIA: scintille, curve, il famoso salto del binario rotto—
 
@@ -1398,6 +1433,7 @@ La "procedura d'urgenza", capite dal gesto, prevede legnate.`,
 
   m3_modulo_ok: {
     location: 'miniera',
+    stinger: 'success',
     npc: ['skeleton'],
     caption: 'Trionfo burocratico',
     text: `Chi di voi ha la penna più ferma affronta il Modulo 7-B: quarantadue campi, sette firme, una marca da bollo che fabbricate al volo con cera di candela[[eroe:zonk]] e la faccia di Zonk come sigillo[[/eroe]].
@@ -1421,6 +1457,7 @@ Vi consegna una **Gemma Nanica** scintillante. I tre scheletri vi fanno la ola c
 
   m3_modulo_ko: {
     location: 'miniera',
+    stinger: 'fail',
     npc: ['skeleton','skeleton'],
     caption: 'Respinto con disonore',
     text: `Quarantadue campi, sette firme... e alla casella 38 ("motivo del transito") qualcuno scrive *"per menare un vampiro"*.
@@ -1457,6 +1494,7 @@ Lo Scheletro Capoufficio legge. Si blocca. Il timbro cala come una ghigliottina:
 
   m3_fight_win: {
     location: 'miniera',
+    stinger: 'item',
     caption: 'Sportello definitivamente chiuso',
     text: `L'ultimo scheletro crolla in un mucchietto ordinato di ossa e rimpianti. Il timbrone "RESPINTO" rotola ai vostri piedi: qualcuno lo intasca come trofeo.
 
@@ -1472,6 +1510,7 @@ La porta sul retro dell'ufficio si apre su una galleria che sale, sale, sale...`
 
   m4: {
     location: 'miniera',
+    stinger: 'item',
     npc: ['gastone'],
     caption: 'Il Passaggio Basso — capolavoro nanico',
     text: `La galleria termina davanti a una porta circolare di pietra, decorata con rune naniche e — molto meno solennemente — un tappetino che dice *"BENTORNATO (pulirsi i piedi)"*.
@@ -1524,6 +1563,7 @@ e ricordo ogni lacrima che pena.
 
   r1_sbagliato: {
     location: 'fiume',
+    stinger: 'fail',
     caption: 'Un indovinello mancato',
     text: `Il Salice si blocca a mezza fronda, indignato.
 
@@ -1611,6 +1651,7 @@ Con qualche spallata coordinata (e un contributo non richiesto di chi tratta la 
 
   r1_remo: {
     location: 'fiume',
+    stinger: 'item',
     npc: ['bertoldo'],
     caption: 'Il remo tra le canne',
     text: `Qualcuno con occhio allenato nota, tra le canne sulla riva, un bagliore d'oro vecchio: un remo consumato, l'impugnatura intagliata a forma di pesce sorridente (o forse è solo storto). Recuperarlo richiede scivolare a piedi nudi nel fango, disturbare una famiglia di rane profondamente indignate, e sopportare per tutto il tempo lo sguardo giudicante di un airone che non smette MAI di fissarvi.
@@ -1691,6 +1732,7 @@ E nel mulinello che si placa, tra le radici smosse dalla festa, qualcosa di chia
 
   mg_salice: {
     location: 'fiume',
+    stinger: 'dice',
     caption: 'Il secondo indovinello del Salice',
     text: `Il Vecchio Salice si piega sull'acqua con tutta la chioma, teatrale come un attore che ha finalmente trovato pubblico pagante.
 
@@ -1722,6 +1764,7 @@ ma è SEMPRE lui che finisce a reggermi.
 
   r1_salice_ok: {
     location: 'fiume',
+    stinger: 'success',
     caption: 'Il Salice paga',
     text: `> Il Vecchio Salice: *(dopo un silenzio lunghissimo, quasi offeso)* "...esatto. ESATTO. Una corona. Non pesa niente eppure schiaccia, e chi la porta finisce a reggerla, altroché possederla." *(le fronde frugano nell'acqua e ne riemergono con una borsina di tela fradicia)* "Il tesoretto dei pesci. Dieci monete, come promesso. E un consiglio non richiesto, che è la mia specialità: quella lassù al castello, la Corona di Mezzanotte... ricordatevi il mio indovinello, quando la vedrete da vicino. Le corone non si POSSIEDONO."
 
@@ -1738,6 +1781,7 @@ ma è SEMPRE lui che finisce a reggermi.
 
   r1_salice_ko: {
     location: 'fiume',
+    stinger: 'fail',
     caption: 'Altre foglie',
     text: `> Il Vecchio Salice: "SBAGLIATO! Magnificamente, generosamente SBAGLIATO!" *(la raffica di foglie stavolta è il doppio: nei colletti, negli stivali, in posti dove le foglie non dovrebbero poter arrivare)* "La risposta era UNA CORONA. Non pesa niente eppure schiaccia! Chi la porta la regge, mica la possiede! Ah, i giovani. Nessuna cultura del pedaggio."
 
@@ -1769,6 +1813,7 @@ Il barcone si impenna, i massi neri sfrecciano a un palmo dallo scafo, e serve o
 
   r2_ko: {
     location: 'fiume',
+    stinger: 'fail',
     caption: 'Un tuffo non richiesto',
     text: `Il coordinamento... manca. Un remo colpisce un altro remo, qualcuno grida "A DESTRA!" mentre un altro grida "A SINISTRA!", e il barcone incontra un masso con un CROCK che gela il sangue più della corrente stessa.
 
@@ -1843,6 +1888,7 @@ Il gruppo si guarda. È una decisione da prendere insieme: chi, se qualcuno, è 
 
   r4_dono: {
     location: 'fiume',
+    stinger: 'item',
     npc: ['bertoldo'],
     caption: 'Il prezzo pagato',
     text: `Uno di voi — non serve dire chi, lo sapete già, e non ne parlerete più — chiude gli occhi e lascia andare qualcosa: una risata d'infanzia, un abbraccio, un pomeriggio qualunque che era, semplicemente, perfetto. Il Pescatore allunga due dita e lo raccoglie dall'aria come si raccoglie una goccia di pioggia.
@@ -1904,6 +1950,7 @@ Il barcone punta dritto contro la corrente, verso il muro d'acqua che ruggisce.`
 
   r5_ko: {
     location: 'fiume',
+    stinger: 'fail',
     caption: 'Respinti dalla corrente',
     text: `I remi mordono l'acqua con tutta la forza che avete, ma la cascata è più testarda di voi: il barcone viene sbattuto indietro, gira su sé stesso due volte come una trottola ubriaca, e finisce a sbattere contro una roccia sommersa con un TONFO che fa vibrare i denti. **(-3 PV a tutti, e un giro di corrente completamente sprecato.)**
 
@@ -1936,6 +1983,7 @@ Bertoldo lega il barcone a un anello di ferro arrugginito, con la cura meticolos
 
   r7: {
     location: 'cisterna',
+    stinger: 'heal',
     npc: ['bertoldo'],
     caption: 'Il Congedo di Bertoldo',
     text: `Salite dal barcone sulla banchina di pietra, e per un istante nessuno dice niente: Bertoldo, il fiume, la cascata alle spalle — sembra già tutto un ricordo, anche se è successo dieci minuti fa.
@@ -1997,6 +2045,7 @@ Dietro le carrozze, però, notate un furgone di servizio con la scritta *"MASCHE
 
   c_maschere_ok: {
     location: 'castelloEsterno',
+    stinger: 'success',
     caption: 'Sei maschere più tardi...',
     text: `Mani di velluto: sei maschere spariscono dal furgone senza che una piuma si scomponga. C'è anche l'imbarazzo della scelta: un corvo, una volpe, un sole (ironico), una luna, un gatto e... una rana. Qualcuno DOVRÀ fare la rana.
 
@@ -2016,6 +2065,7 @@ Dietro le carrozze, però, notate un furgone di servizio con la scritta *"MASCHE
 
   c_maschere_ok2: {
     location: 'castelloEsterno',
+    stinger: 'success',
     caption: 'Gli "artisti"',
     text: `> Voi: "Siamo gli ARTISTI! La compagnia teatrale 'I Figli della Mezzanotte'! Il numero di apertura! Non ci hanno dato le maschere di scena, TIPICO della produzione..."
 
@@ -2033,6 +2083,7 @@ Il fattorino, che chiaramente odia il suo lavoro con passione, vi squadra:
 
   c_maschere_ko: {
     location: 'castelloEsterno',
+    stinger: 'fail',
     caption: 'Operazione fallita — piano B(otte)',
     text: `Il piano fallisce nel modo più classico: la pila di scatole crolla, il fattorino urla "AL LADRO!", e due **guardie pipistrello** enormi calano dalle torri con uno stridio da gelare il sangue.
 
@@ -2187,6 +2238,7 @@ Attraversate il giardino fino a una porta di servizio, che si apre sulle **cucin
 
   c_mura_ok: {
     location: 'castelloEsterno',
+    stinger: 'success',
     caption: 'La scalata — versione eroica',
     text: `Pietra su pietra, appiglio su appiglio. Il più forte di voi fa da ancora, gli altri salgono in cordata. Sotto, l'abisso; sopra, i merli.
 
@@ -2203,6 +2255,7 @@ Nelle cantine, in una cripta silenziosa, uno scheletro in livrea da maggiordomo 
 
   c_mura_ko: {
     location: 'castelloEsterno',
+    stinger: 'fail',
     caption: 'La scalata — versione realistica',
     text: `Pietra su pietra, appiglio su... CRACK.
 
@@ -2256,6 +2309,7 @@ Le sue orbite vuote vi fissano. C'è una domanda lì dentro, da qualche parte.`,
 
   c_gerbold_alleato: {
     location: 'cripta',
+    stinger: 'item',
     npc: ['gerbold'],
     caption: 'La ribellione del maggiordomo',
     text: `Gerbold resta immobile così a lungo che temete si sia spento. Poi, con gesto lentissimo e cerimoniale... si toglie i guanti bianchi. Li piega. Li posa sull'argenteria.
@@ -2296,6 +2350,7 @@ Afferra un vassoio d'argento grande come uno scudo e lo fa roteare con perizia t
 
   c_gerbold_sconfitto: {
     location: 'cripta',
+    stinger: 'item',
     caption: 'Il maggiordomo a riposo (forzato)',
     text: `Il vassoio d'argento rotola a terra con un lungo *clang* malinconico. Gerbold, ridotto a un mucchio ordinato di ossa (ordinato PERFINO così: deformazione professionale), mormora dal pavimento:
 
@@ -2334,6 +2389,7 @@ Decisione tattica, eroi: riposare qui costa tempo prezioso, ma arrivare stanchi 
 
   c_scala_riposo: {
     location: 'cripta',
+    stinger: 'heal',
     caption: 'Il pianerottolo — riposo del guerriero',
     text: `Dieci minuti di bende, sorsi di pozione, uno spuntino a base delle provviste[[eroe:torvald]] di Torvald[[/eroe]] e qualche profondo respiro. **(+8 PV a tutti e TUTTE le abilità speciali ricaricate!)**
 
@@ -2720,6 +2776,7 @@ Nel cielo, il filo rosso dell'eclissi si spezza.
 
   f_boss_fase2_dopotentativo: {
     location: 'vetta',
+    stinger: 'hit',
     caption: 'Il tentativo — quasi!',
     text: `Il balzo è PERFETTO, le dita si chiudono sul metallo nero — ma la corona URLA e una frustata d'ombra vi scaglia indietro. **(-5 PV a chi ci ha provato... e a chi gli è caduto addosso.)**
 
@@ -2760,6 +2817,7 @@ La corona, però, non ha finito. Tra le vostre dita, la gemma rossa smette di ur
 
   f_tentazione_ok: {
     location: 'vetta',
+    stinger: 'success',
     npc: ['vesper'],
     caption: 'La Tentazione — respinta',
     text: `Per un lungo istante, la mano che regge la corona... si alza. Verso una fronte. La vostra.
@@ -2779,6 +2837,7 @@ La corona STRILLA di frustrazione — un suono che scheggia due merli della torr
 
   f_tentazione_ko: {
     location: 'vetta',
+    stinger: 'fail',
     npc: ['vesper'],
     caption: 'Il Regno dei Quattro Secondi',
     text: `La corona tocca la fronte di uno di voi.
@@ -2840,6 +2899,7 @@ L'urlo della corona si sente fino a Brindolo. La gemma esplode in fumo rosso che
 
   f_sconfitta_boss: {
     location: 'cripta',
+    stinger: 'heal',
     caption: 'Buio. Poi... una candela verde.',
     text: `Buio.
 
@@ -2862,6 +2922,7 @@ Una chiave gira nella serratura. La porta si apre su una figura ossuta con una c
 
   sconfitta_generica: {
     location: 'strada',
+    stinger: 'heal',
     caption: 'Tutto nero... ma non è finita',
     text: `Buio. Poi odori: erba, fumo di legna, unguento alle ortiche.
 
@@ -3026,6 +3087,7 @@ Recupera dalla frana esattamente il volume dalla copertina blu (o verde) che cer
 
   mg_monte_sapere: {
     location: 'torre',
+    stinger: 'dice',
     caption: 'La frana del Monte Sapere',
     text: `C'è una terza via, e la propone il pavimento stesso: la torre è inclinata, il Monte Sapere è in equilibrio precario, e basta UN passo nel punto giusto per innescare una frana controllata di volumi rilegati — con il trattato, per le leggi della sfortuna, esattamente in cima.
 
@@ -3096,6 +3158,7 @@ Vi lascia posto all'oculare, le mani che le tremano appena — non di freddo. Tr
 
   t6_sbagliato: {
     location: 'vetta',
+    stinger: 'fail',
     caption: 'Una Lettura Poetica ma Sbagliata',
     text: `Ottavia aggiusta l'oculare secondo la vostra indicazione, trattiene il fiato per un istante di speranza... e poi lo lascia andare in uno sbuffo.
 
@@ -3114,6 +3177,7 @@ Nessun danno, nessun rimprovero vero: solo un indice puntato, gentile, verso l'o
 
   t7: {
     location: 'vetta',
+    stinger: 'item',
     caption: 'Quarantotto',
     text: `> Ottavia: *(con voce che trema, stavolta non di entusiasmo)* "Esatto. È quello. L'anello che si chiude — il vero segnale. Ve lo dico io: è la prima volta in vent'anni che qualcuno guarda dove guardo io E vede quello che vedo io."
 
@@ -3438,6 +3502,7 @@ C'è dell'altro, dietro la domanda. Duecento anni di servizio creano un legame s
 
   k9: {
     location: 'cucine',
+    stinger: 'item',
     caption: 'Il primo assaggio in duecento anni',
     text: `Sulla soglia, qualcuno del gruppo si ferma. Forse è la fame nervosa prima di una battaglia, forse è solo curiosità: un cucchiaio, preso quasi senza pensarci, affonda in una delle sette portate perfette allineate sul bancone — la Duchessa Anversa in salsa di melagrana, quella che aspetta un commensale dal 1841.
 
@@ -3513,6 +3578,9 @@ Vesper Morn giace tra i frammenti della corona. Sconfitto, spettinato, il mantel
 
   e_alba_redenzione: {
     location: 'alba',
+    stinger: 'victory',
+    fullHeal: true,
+    recharge: true,
     npc: ['vesper'],
     caption: 'L\'ALBA — per la prima volta da... ieri',
     text: `Il disco nero si sgretola come cenere soffiata via. E il sole — IL SOLE! — esplode di nuovo nel cielo di Lumelia, caldo e abbagliante e meravigliosamente NORMALE.
@@ -3526,11 +3594,13 @@ Si guarda le mani, il mantello strappato, l'alba.
 > Vespertino: "Ho un debito con un intero regno e duecento anni di canzoni arretrate. Da dove... da dove si comincia, a rifare tutto?"`,
     choices: [
       { text: '🍻 "Si comincia da una taverna. Conosciamo un Gallo Storto che cerca un musicista."', next: 'e_finale_bardo' },
+      { text: '☀️ Non rispondere. Stare fermi tutti quanti a guardare il sole per un minuto intero', once: true, heal: 6, next: 'e_finale_bardo' },
     ],
   },
 
   e_finale_giusto: {
     location: 'alba',
+    stinger: 'victory',
     caption: 'EPILOGO — Giustizia (con calendario eventi)',
     text: `**Sei mesi dopo.**
 
@@ -3548,6 +3618,7 @@ E quando il sole tramonta su Brindolo — *tramonta e poi RISORGE, ogni giorno, 
 
   e_finale_esilio: {
     location: 'alba',
+    stinger: 'defeat',
     caption: 'EPILOGO — Il vagabondo',
     text: `**Sei mesi dopo.**
 
@@ -3565,6 +3636,7 @@ E nelle sere d'estate, quando i grilli cantano e la birra è fresca, a Brindolo 
 
   e_finale_bardo: {
     location: 'alba',
+    stinger: 'victory',
     caption: 'EPILOGO — La seconda carriera di Vespertino Morn',
     text: `**Sei mesi dopo.**
 

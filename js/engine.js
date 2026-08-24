@@ -295,6 +295,12 @@ const Engine = (() => {
     G.stats.scenes++;
 
     const firstVisit = !G.enteredScenes[id];
+    /* LO STINGER DELLA SCENA. Questa riga, che i quattro giochi fratelli hanno da sempre,
+       qui non c'era: `scene.stinger` non lo leggeva nessuno, e quindi in centosettantasei
+       scene non partiva un suono all'ingresso mai. Non era una scelta di progetto — era la
+       funzione che non esisteva nel piu' vecchio dei cinque motori, e nessuno se n'era
+       accorto perche' un suono che non parte non lascia tracce da nessuna parte. */
+    if (firstVisit && scene.stinger && typeof Sound !== 'undefined') Sound.play(scene.stinger);
     G.enteredScenes[id] = true;
 
     // effetti d'ingresso (solo alla prima visita)

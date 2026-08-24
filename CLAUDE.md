@@ -99,3 +99,34 @@ fondo magenta, scala e velo di profondità.
    due tentativi non si riconosce si TOGLIE, non si ritocca una terza volta.
 3. **Il quadro deve mostrare quello che il testo dice.** Si rilegge la scena, si segnano
    le cose che nomina, e si verifica che ci siano tutte.
+
+## 🚩 Le promesse non mantenute: `flag-orfani.mjs`
+
+```bash
+node ../dnd-motore/tools/flag-orfani.mjs           # dal repo del gioco
+node ../dnd-motore/tools/flag-orfani.mjs --dove    # e dove viene impostato ognuno
+```
+
+Dice tre numeri, e il terzo è quello che conta:
+
+- **scritti e mai letti** — il gioco registra che il giocatore SA una cosa e poi non gliela
+  fa mai usare né dire. È debito: si paga dando al flag la sua scena, una riga di CRONACA
+  nell'epilogo, una nota nel Quaderno — o togliendolo, se non prometteva niente.
+- **letti e mai scritti** — una scelta che non può comparire mai, o un premio che il motore
+  promette e la storia non concede. **Questo numero deve stare a zero: è un bug.**
+- **di cui CRITICI** — i flag che sono l'**unico** effetto di una scelta. Quella scelta non
+  fa niente: il giocatore la premeva, il gioco segnava una crocetta su un foglio che non
+  legge nessuno, e la storia restava dov'era. **Anche questo a zero.**
+
+## I controlli che il validatore fa e che non sono ovvi
+
+- **chiavi doppie in una scena**: in JavaScript una chiave ripetuta non è un errore, vince
+  l'ultima *in silenzio*. È così che una scena ha perso il flag che dava più aria in
+  immersione, restando verde a tutti i collaudi.
+- **tutte le uscite `once: true`**: chi ritorna nella scena non ha più dove andare.
+- **paragrafi ripetuti** dentro la stessa scena: un inserimento chirurgico che ha lasciato
+  accanto la versione vecchia. Guarda solo la prosa, non le battute.
+- **oggetti citati dal motore che non esistono in ITEMS**: il motore di questi cinque giochi
+  si copia da un repo all'altro e si porta appresso i riferimenti degli altri. Un premio
+  irraggiungibile non è codice morto innocuo: è una promessa che il giocatore non scoprirà.
+- **stinger che non esistono in sound.js**: un suono fantasma è silenzio.
