@@ -126,6 +126,13 @@ const Combat = (() => {
     openLines.forEach(l => log(l, 'log-heal'));
     log(`Ordine di iniziativa: ${battle.turnQueue.map(c => c.type === 'hero' ? G.party[c.idx].name.split(' ')[0] : battle.enemies[c.idx].name.split(',')[0]).join(' → ')}`, 'log-info');
 
+    /* LE CUCINE SONO DALLA VOSTRA. `alleato_ragout` lo impostavano due scelte su tre in
+       k8 e non lo leggeva nessuno: si scegliva COME parlare a Monsieur Ragoût e non
+       cambiava niente. Un cuoco fantasma che vi vuole bene, al Banchetto, serve da bere. */
+    if (battle.isBoss && G.flags.alleato_ragout) {
+      for (const h of G.party) if (!h.down && !h.preso) h.hp = Math.min(h.maxHp, h.hp + 4);
+      log(`🍷 Dalla porta delle cucine arriva un vassoio che nessuno porta: sette calici del rosso del 1841, uno a testa, versati alla temperatura giusta. <b>+4 PV a tutti.</b> Monsieur Ragoût non entra nella sala — non e' stato invitato — ma il servizio, quello, lo fa lui.`, 'log-heal');
+    }
     if (battle.isBoss && G.flags.benedizione) log(`⛪ La benedizione di Pipino vi avvolge: <b>+1 a tutti i vostri tiri!</b>`, 'log-heal');
     if (battle.isBoss && G.flags.sorpresa) log(`⚡ <b>Sorpresa!</b> Primo round con VANTAGGIO agli attacchi!`, 'log-heal');
     if (battle.isBoss && G.flags.gerbold_alleato) log(`🧹 Gerbold ha "dimenticato" aperte le difese: VANTAGGIO al primo round!`, 'log-heal');

@@ -2920,6 +2920,11 @@ La scala a chiocciola sale stretta e, come promesso, pende in senso opposto al p
 
 Salite dietro di lei, con la schiena incollata al muro giusto e il cuore un po' meno.`,
     choices: [
+      /* Il premio di averle creduto in t1. Prima `ottavia_creduta` era l'unico effetto di
+         quella scelta e non lo leggeva nessuno: dire a una persona che aveva ragione non
+         cambiava niente, che in un castello dove nessuno le crede e' il peggior posto
+         possibile per non cambiare niente. */
+      { text: '🕯 [Ottavia va avanti col candelabro e conta i passi a voce alta, per voi]', requires: { flag: 'ottavia_creduta' }, once: true, heal: 2, next: 't3' },
       { text: '👣 Seguite ESATTAMENTE i passi di Ottavia, uno a uno', next: 't3' },
       { text: '🧗 Andate a modo vostro, aggrappandovi al muro', tag: 'Prova di Destrezza — CD 12', check: { stat: 'DES', dc: 12, success: 't3', fail: 't2_capitombolo' } },
     ],

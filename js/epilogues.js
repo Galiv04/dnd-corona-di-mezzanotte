@@ -89,4 +89,11 @@ const CRONACA = [
   { flag: 'tentazione_ceduta',   icon: '🤫', text: 'Del Regno dei Quattro Secondi non si parla. MAI. (Il sovrano deposto paga ancora da bere a chi promette silenzio.)' },
   { flag: 'tentazione_resistita', icon: '🛡️', text: 'La storia di chi disse no alla Corona è diventata una parabola che si racconta ai bambini di Lumelia. La morale cambia a ogni racconto, ma il finale è sempre lo stesso: "e per questo il sole sorge ancora".' },
   { flag: 'solo',                icon: '🌟', text: 'E i bardi ancora discutono: com\'è possibile che UN SOLO eroe abbia fatto tutto questo? La risposta, come sempre, è: pozioni. Tante, tante pozioni.' },
+  /* ---- TRE SCELTE CHE PRIMA NON LASCIAVANO TRACCIA ----
+     Lo strumento dei flag orfani (24 agosto 2026) ha trovato cinque scelte il cui unico
+     effetto era un flag che non leggeva nessuno: tre erano di racconto e stanno qui, due
+     avevano bisogno di un effetto vero e l'hanno avuto. */
+  { flag: 'avviso_ragout',     icon: '🍲', text: 'Monsieur Ragoût ha aggiunto una portata al menù eterno del Banchetto, la ottava, e sul cartoncino scritto a mano c\'è: <i>«Sorbetto di cortesia — offerto da chi mi ha detto la verità»</i>. Non l\'ha assaggiata nessuno perché nessuno mangia, al Banchetto. Ma il cartoncino sta lì, e i cartoncini, in questo castello, contano più delle portate.' },
+  { flag: 'ribellione_ragout', icon: '📜', text: 'Sulla porta delle cucine, da qualche mese, è affisso un foglio con una lista di rivendicazioni in ventidue punti, in calligrafia impeccabile. Il punto uno chiede le ferie arretrate dal 1841. Il punto ventidue chiede «un commensale, uno solo, che finisca il piatto». Vesper non ha risposto: ha fatto incorniciare il foglio, che è la cosa più crudele che gli riusciva.' },
+  { flag: 'banditi_a_casa',    icon: '🗺', text: 'Tre banditi da strada, che erano usciti di casa per rapinare qualcuno e sono tornati indietro perché qualcuno ha tenuto il braccio fermo abbastanza a lungo da farsi capire, hanno aperto una locanda sulla via del bosco. Si chiama <i>Al Braccio Fermo</i>, il vino è annacquato e la strada, per la prima volta in trent\'anni, è sicura.' },
 ];

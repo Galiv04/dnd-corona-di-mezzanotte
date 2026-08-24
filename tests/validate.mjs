@@ -3,7 +3,7 @@
    Verifica: integrità del grafo delle scene, dati personaggi/nemici/oggetti,
    sprite ben formati, raggiungibilità dei finali, sanità dei dadi, bilanciamento. */
 
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -177,6 +177,65 @@ for (const [key, b] of Object.entries(BESTIARY)) {
 if (!charProblems) { ok(); console.log(`  ✔ 6 eroi completi (stats, abilità, backstory, sprite) e ${Object.keys(BESTIARY).length} nemici validi`); }
 
 /* ---------- 5. sprite ---------- */
+/* ---------- il motore cita oggetti di ALTRI giochi della serie ---------- */
+/* PERCHE' ESISTE. Il motore di questi cinque giochi si copia da un repo all'altro, e ogni
+   copia si porta appresso i riferimenti del gioco da cui viene. Il 24 agosto 2026 ce
+   n'erano tre in giro, tutti invisibili perche' `G.inventory.includes('cosa-che-non-c-e')`
+   e' semplicemente falso per sempre: Pandataria toglieva un punto ai colpi dei nemici a chi
+   avesse un ombrellone che non era in ITEMS; la Casa aveva la stessa riga, e l'ombrellone e'
+   di Pandataria; il Relais rendeva i riposi piu' nutrienti a chi avesse le «Provviste di
+   Bocciolo», che sono della Corona di Mezzanotte.
+   Non e' codice morto innocuo: e' un premio che il motore promette e la storia non
+   concede, e il giocatore non ha modo di scoprirlo. Vale come errore. */
+section('Il motore non cita oggetti che questo gioco non ha');
+{
+  let fantasmi = 0;
+  for (const f of readdirSync(join(root, 'js')).filter(f => f.endsWith('.js') && f !== 'campaign.js')) {
+    const src = readFileSync(join(root, 'js', f), 'utf8');
+    for (const m of src.matchAll(/inventory\.includes\(\s*'([^']+)'\s*\)/g)) {
+      if (!ITEMS[m[1]]) {
+        fail(`js/${f} legge l'oggetto "${m[1]}", che non esiste in ITEMS: effetto promesso e mai raggiungibile (residuo di un altro gioco della serie?)`);
+        fantasmi++;
+      }
+    }
+  }
+  if (!fantasmi) { ok(); console.log('  ✔ tutti gli oggetti citati dal motore esistono in ITEMS'); }
+}
+
+/* ---------- flag morti: imprese/cronache/diario devono poter scattare ---------- */
+section('Flag di imprese, cronache e diario (nessun flag morto)');
+
+const epiSrcFlag = readFileSync(join(root, 'js/epilogues.js'), 'utf8');
+const campSrcFlag = readFileSync(join(root, 'js/campaign.js'), 'utf8');
+const setsBlocks = [...campSrcFlag.matchAll(/sets:\s*{([^}]*)}/g)].map(m => m[1]).join(' ');
+const settableFlags = new Set([...setsBlocks.matchAll(/([a-z_0-9]+)\s*:/g)].map(m => m[1]));
+/* I FLAG CHE IMPOSTA IL MOTORE, letti dal codice invece che tenuti a mano.
+   Prima qui c'era una lista scritta a mano con la nota «da tenere aggiornata a mano», e una
+   lista da tenere aggiornata a mano e' una lista che a un certo punto non e' aggiornata: il
+   24 agosto 2026 l'aggiunta di un'impresa sul flag `solo` — che il motore imposta alla
+   riga quattro di newGame(), `flags: solo ? { solo: true } : {}` — ha fatto FALLIRE il
+   collaudo dicendo che quel flag non lo imposta nessuno. Il controllo aveva ragione sulla
+   sua lista e torto sul gioco. Adesso i tre modi in cui il codice scrive un flag si leggono
+   dai sorgenti: assegnamento, incremento, e inizializzazione dentro un letterale. */
+const FLAG_DAL_MOTORE = new Set();
+for (const f of readdirSync(join(root, 'js')).filter(f => f.endsWith('.js') && f !== 'campaign.js')) {
+  const src = readFileSync(join(root, 'js', f), 'utf8');
+  for (const m of src.matchAll(/flags\s*\.\s*([A-Za-z_$][\w$]*)\s*(?:=[^=]|\+\+|--|\+=)/g)) FLAG_DAL_MOTORE.add(m[1]);
+  for (const m of src.matchAll(/flags\s*\[\s*['"]([^'"]+)['"]\s*\]\s*(?:=[^=]|\+\+|--|\+=)/g)) FLAG_DAL_MOTORE.add(m[1]);
+  for (const m of src.matchAll(/flags\s*:\s*[^;\n]{0,240}/g))
+    for (const k of m[0].matchAll(/([A-Za-z_$][\w$]*)\s*:\s*(?:true|false|0|1)\b/g)) FLAG_DAL_MOTORE.add(k[1]);
+}
+const FLAG_ESTERNI = FLAG_DAL_MOTORE;
+const flagRichiesti = new Set([
+  ...[...epiSrcFlag.matchAll(/flag:\s*'([a-z_0-9]+)'/g)].map(m => m[1]),
+  ...[...campSrcFlag.matchAll(/^\s*\['([a-z_0-9]+)',/gm)].map(m => m[1]), // DIARY_FLAGS
+]);
+let flagMorti = 0;
+for (const f of flagRichiesti) {
+  if (!settableFlags.has(f) && !FLAG_ESTERNI.has(f)) { fail(`flag "${f}" richiesto da imprese/cronache/diario ma MAI impostato da nessuna scena`); flagMorti++; }
+}
+if (!flagMorti) { ok(); console.log(`  ✔ ${flagRichiesti.size} flag di imprese/cronache/diario, tutti impostabili da almeno una scena`); }
+
 section('Sprite pixel-art');
 
 let spriteProblems = 0;
