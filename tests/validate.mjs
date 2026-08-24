@@ -535,6 +535,17 @@ function testFlagRichiestiMaiImpostati() {
     try { src = readFileSync(new URL('../' + f, import.meta.url), 'utf8'); } catch { continue; }
     for (const m of src.matchAll(/G\.flags\[['"]([a-z0-9_]+)['"]\]\s*=/gi)) impostati.add(m[1]);
   }
+  /* I FLAG DEI MINIGIOCHI: la scansione trova solo le chiavi LETTERALI, e i minigiochi
+     scrivono `G.flags[cfg.extraFlag || '...'] = true` — una chiave calcolata, che nessuna
+     espressione regolare puo vedere. Senza questo, un flag assegnato davvero veniva
+     dichiarato «mai impostato» e la prima scelta che lo usava passava per contenuto
+     irraggiungibile: un falso positivo, che e il tipo peggiore. */
+  for (const s2 of Object.values(CAMPAIGN)) {
+    const cfg = s2.minigame && s2.minigame.config;
+    if (cfg && cfg.extraFlag) impostati.add(cfg.extraFlag);
+    if (cfg && cfg.flag) impostati.add(cfg.flag);
+  }
+  impostati.add('ha_visto_giu');
   const morti = new Map(), inutili = new Map();
   for (const [id, s] of Object.entries(CAMPAIGN)) for (const c of (s.choices || [])) {
     const r = c.requires; if (!r) continue;
