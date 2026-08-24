@@ -1271,30 +1271,17 @@ const Scenes = (() => {
       bush(ctx, W * 0.14, g + 6, 24, '#2a4a2e', r);
     },
 
-    salaTrono(ctx, W, H) {
-      const r = rng(61);
-      blocks(ctx, 0, 0, W, H, '#241d33', 16, r, 0.18);
-      blocks(ctx, 0, H - 60, W, 60, '#1a1428', 14, r, 0.15);
-      blocks(ctx, W * 0.38, H * 0.35, W * 0.24, H * 0.65 - 60, '#6e1525', 12, r, 0.15);
-      for (const fx of [0.12, 0.3, 0.7, 0.88]) {
-        blocks(ctx, W * fx - 16, 20, 32, H - 80, '#3a3050', 10, r, 0.12);
-        blocks(ctx, W * fx - 24, 10, 48, 16, '#4a3f6b', 10, r, 0.1);
-        blocks(ctx, W * fx - 24, H - 76, 48, 16, '#4a3f6b', 10, r, 0.1);
-      }
-      blocks(ctx, W * 0.44, H * 0.3, W * 0.12, H * 0.34, '#1d1d28', 8, r, 0.12);
-      blocks(ctx, W * 0.42, H * 0.24, W * 0.16, 20, '#f5c542', 8, r, 0.1);
-      ctx.fillStyle = '#f5c542';
-      ctx.fillRect(W * 0.44, H * 0.24 - 14, 10, 14); ctx.fillRect(W * 0.495, H * 0.24 - 22, 10, 22); ctx.fillRect(W * 0.55, H * 0.24 - 14, 10, 14);
-      for (const fx of [0.2, 0.5, 0.8]) {
-        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx - 4, 46, 8, 20);
-        glow(ctx, W * fx, 42, 58, 62, '160,106,224');
-        ctx.fillStyle = '#a06ae0'; ctx.fillRect(W * fx - 7, 34, 14, 14);
-        ctx.fillStyle = '#d8b8f5'; ctx.fillRect(W * fx - 3, 38, 6, 8);
-      }
-      ctx.fillStyle = '#3d1030'; ctx.fillRect(W * 0.46, 30, W * 0.08, H * 0.16);
-      ctx.fillStyle = '#e84a5a'; ctx.fillRect(W * 0.47, 40, W * 0.06, H * 0.05);
-      ctx.fillStyle = '#8a35b8'; ctx.fillRect(W * 0.47, 40 + H * 0.06, W * 0.06, H * 0.05);
-    },
+    /* Qui c'era salaTrono(): una sala scura viola con quattro colonne e un tappeto rosso,
+       disegnata solo con blocks() e seme 61, cioe nello stile piu vecchio e piu semplice di
+       tutti gli altri fondali di questo gioco. NESSUNA SCENA la usava — l'ha trovata il
+       controllo nuovo sui fondali senza scheda, che elenca i painter che nessuna scena
+       mette in scena.
+       Tolta invece di collegata, e per una ragione: nel castello tutte le strade del ballo
+       confluiscono al maggiordomo, non c'e un momento da sala del trono, e inventarne uno
+       per giustificare un fondale avanzato avrebbe aggiunto un corridoio — cioe una scena
+       di passaggio che non fa niente, che questo progetto vieta. La regola del progetto e
+       la stessa per le risorse e per i fondali: se una cosa non fa niente, si rende vera o
+       si toglie. Il codice sta in git, se un giorno servisse una sala del trono vera. */
 
     cripta(ctx, W, H) {
       const r = rng(71);

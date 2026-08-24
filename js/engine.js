@@ -363,7 +363,7 @@ const Engine = (() => {
     taverna: 'village', villaggio: 'village', alba: 'alba', vetta: 'boss',
     bosco: 'bosco', capanna: 'bosco', miniera: 'miniera',
     fiume: 'fiume', cisterna: 'cripta', cripta: 'cripta',
-    ballo: 'ballo', castelloEsterno: 'cripta', salaTrono: 'ballo',
+    ballo: 'ballo', castelloEsterno: 'cripta',
   };
 
   function musicForScene(scene) {
