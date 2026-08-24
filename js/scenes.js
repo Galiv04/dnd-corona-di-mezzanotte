@@ -1043,75 +1043,377 @@ const Scenes = (() => {
     },
 
     bosco(ctx, W, H) {
+      /* IL BOSCO DEI SUSSURRI, nove scene. Il testo chiede tre cose che non
+         c'erano:
+           «Il SENTIERO per la capanna di Nonna Ortica esiste, ma il bosco —
+            dicono — lo SPOSTA»; e più tardi «i rami si spostano da soli,
+            aprendo un CORRIDOIO DI FUNGHI LUMINOSI diritto verso la capanna».
+            Nel quadro non c'era nessun sentiero: solo alberi in fila.
+           «Vi rivolgete alla QUERCIA PIÙ ANZIANA con un inchino perfetto» —
+            e non c'era una quercia più anziana: sedici alberi quasi identici a
+            passo quasi uguale, cioè una siepe di broccoli.
+           «Le fronde BISBIGLIANO al vostro passaggio»: c'erano due paia di
+            occhi gialli da cinque pixel, in tutto.
+         Adesso: il sentiero che si stringe verso il fondo con il corridoio di
+         funghi che lo fiancheggia (e sono i funghi a illuminare il sentiero, non
+         una luce che viene da nessuna parte), la QUERCIA ANZIANA come soggetto —
+         col nodo che è un occhio e la fenditura che è una bocca, perché in
+         questo bosco gli alberi parlano — e sette paia d'occhi di taglia diversa
+         a profondità diverse fra le fronde. */
       const r = rng(37);
-      skyGradient(ctx, W, H, '#0a0d14', '#14261d', 10);
       const g = H - 64;
-      // fondo: massa di chiome lontane
-      hills(ctx, W, H * 0.42, 70, '#0f2216', r, 28);
-      for (let i = 0; i < 9; i++) {
-        const x = 30 + i * (W / 8.5) + (r() * 26 - 13);
-        tree(ctx, x, g + 12, 108 + r() * 54, '#132b1a', '#241a10', r);
+      skyGradient(ctx, W, g, '#0a0d14', '#14261d', 10);
+      hills(ctx, W, H * 0.42, 70, '#08150c', r, 28);
+      /* Gli alberi: sagome CONTROLUCE, a distanza e altezza irregolari, e più
+         scure andando in fondo — è la profondità che fa un bosco, non il numero. */
+      for (const [fx, alt] of [[0.03, 126], [0.115, 92], [0.20, 148], [0.30, 104],
+                               [0.42, 132], [0.545, 88], [0.635, 140], [0.755, 100],
+                               [0.845, 152], [0.955, 112]]) {
+        tree(ctx, W * fx, g + 12, alt, '#0a1a10', '#150f08', r);
       }
-      for (let i = 0; i < 7; i++) {
-        const x = 70 + i * (W / 6.5) + (r() * 20 - 10);
-        tree(ctx, x, g + 12, 62 + r() * 26, '#1d3a25', '#2e2115', r);
+      for (const [fx, alt] of [[0.075, 62], [0.255, 74], [0.375, 56], [0.60, 68],
+                               [0.70, 52], [0.80, 72], [0.915, 58]]) {
+        tree(ctx, W * fx, g + 16, alt, '#112a19', '#221809', r);
       }
-      ground(ctx, W, H, g, '#16301c', r, 12, 12);
-      /* I funghi luminosi. Due grandi ai lati — «alti come persone», e ai LATI perché in
-         partita la fila degli eroi occupa il centro fino a 720 px — più tre di contorno
-         che dicono che la radura continua. Cinque cose invece di sette, ma tre si
-         riconoscono e due fanno luce: prima erano sette macchie tutte uguali da diciotto
-         pixel, e nessuna illuminava niente. */
-      glowMushroom(ctx, 116, g + 22, 74, r);
-      glowMushroom(ctx, 838, g + 16, 62, r);
-      glowMushroom(ctx, 214, g + 30, 40, r);
-      glowMushroom(ctx, 470, g + 34, 30, r);
-      glowMushroom(ctx, 706, g + 26, 34, r);
-      // occhi nel buio
-      ctx.fillStyle = '#e8d84a';
-      ctx.fillRect(W * 0.12, H * 0.44, 5, 5); ctx.fillRect(W * 0.12 + 12, H * 0.44, 5, 5);
-      ctx.fillRect(W * 0.85, H * 0.36, 5, 5); ctx.fillRect(W * 0.85 + 12, H * 0.36, 5, 5);
+      /* Il sottobosco stava a luminanza 33, cioè sotto la soglia del nero: un
+         terzo del quadro contava come buio. Un bosco illuminato da funghi
+         luminosi non ha il suolo nero — è il suolo la superficie che quella luce
+         prende per prima. */
+      ground(ctx, W, H, g, '#1e3c24', r, 12, 12);
+
+      /* IL SENTIERO, che si stringe verso il fondo: un piano orizzontale, quindi
+         i suoi bordi convergono e la terra battuta si schiarisce venendo avanti. */
+      {
+        const x0 = W * 0.52, x1 = W * 0.60;
+        for (let k = 0; k <= 46; k++) {
+          const t = k / 46;
+          const xx = x0 + (x1 - x0) * t, yy = H - t * (H - g - 4);
+          const larg = 210 - t * 194;
+          blocks(ctx, xx - larg / 2, yy, larg, Math.ceil((H - g) / 46) + 2, mix('#6a5b42', '#2e281c', t), 9, r, 0.14);
+          ctx.fillStyle = `rgba(14,10,6,${(0.30 * (1 - t)).toFixed(3)})`;
+          ctx.fillRect(xx - larg / 2, yy, 3, 3); ctx.fillRect(xx + larg / 2 - 3, yy, 3, 3);
+        }
+      }
+
+      /* IL CORRIDOIO DI FUNGHI che fiancheggia il sentiero: sette per parte, che
+         rimpiccioliscono andando in fondo — è il rimpicciolire che fa il
+         corridoio. E la loro luce viola cade sul sentiero. */
+      /* Sette per parte a passo regolare si SOVRAPPONEVANO: le calotte vicine
+         si toccavano e la fila leggeva come un BRUCO VIOLA. Quattro per parte,
+         a profondità sfalsate fra destra e sinistra, e staccati dal bordo del
+         sentiero di una calotta intera. */
+      const scia = [];
+      for (let k = 0; k < 4; k++) {
+        const t = k / 3.4;
+        const xx = W * 0.52 + (W * 0.60 - W * 0.52) * t, yy = H - t * (H - g - 4);
+        const larg = 150 - t * 138;
+        const cap = Math.round(78 - t * 56);
+        scia.push([xx - larg / 2 - cap * 0.86, yy - t * 8, cap]);
+      }
+      for (let k = 0; k < 4; k++) {
+        const t = (k + 0.5) / 3.4;
+        const xx = W * 0.52 + (W * 0.60 - W * 0.52) * t, yy = H - t * (H - g - 4);
+        const larg = 150 - t * 138;
+        const cap = Math.round(70 - t * 50);
+        scia.push([xx + larg / 2 + cap * 0.86, yy - 6 - t * 8, cap]);
+      }
+      // la luce viola sul sentiero, prima dei funghi
+      for (const [mx, my, cap] of scia) {
+        const rx2 = cap * 1.5, ry2 = cap * 0.5;
+        for (let y = Math.max(0, my - ry2); y < Math.min(H, my + ry2); y++) {
+          for (let x = Math.max(0, mx - rx2); x < Math.min(W, mx + rx2); x += 3) {
+            const d = Math.hypot((x - mx) / rx2, (y - my) / ry2);
+            if (d >= 1) continue;
+            const a = 0.16 * Math.pow(1 - d, 1.8);
+            if (a <= 0.005) continue;
+            ctx.fillStyle = `rgba(178,96,214,${a.toFixed(3)})`;
+            ctx.fillRect(x, y, 3, 1);
+          }
+        }
+      }
+      for (const [mx, my, cap] of scia) if (cap > 16) glowMushroom(ctx, mx, my, cap, r);
+      /* e il velo viola che i funghi buttano su tutto il primo piano: la luce
+         di dodici funghi luminosi non si ferma sul sentiero. */
+      /* ...ma un velo TINGE, non copre: a 0,035+0,055 il primo piano diventava
+         una fascia lavanda uniforme che leggeva come NEBBIA e mangiava la grana
+         del sottobosco. Un terzo di quell'opacità, più i cespi d'erba scuri che
+         dicono che quello è un suolo e non un piano. */
+      for (let y = g - 60; y < H; y += 2) {
+        const t = (y - (g - 60)) / (H - g + 60);
+        ctx.fillStyle = `rgba(146,86,192,${(0.012 + t * 0.020).toFixed(3)})`;
+        ctx.fillRect(0, y, W, 2);
+      }
+      for (let q = 0; q < 130; q++) {                    // cespi, radici, foglie secche
+        const ax = r() * W, ay = g + 4 + r() * (H - g - 6);
+        ctx.fillStyle = ['rgba(12,26,15,.52)', 'rgba(46,66,38,.34)', 'rgba(70,58,34,.30)'][q % 3];
+        ctx.fillRect(ax, ay, 5 + (r() * 14 | 0), 3 + (r() * 3 | 0));
+        if (q % 4 === 0) { ctx.fillStyle = 'rgba(30,52,32,.42)'; ctx.fillRect(ax + 2, ay - 5, 3, 6); }
+      }
+
+      /* LA QUERCIA PIÙ ANZIANA: il soggetto. Tronco di 96 px alla base, nodoso,
+         con IL NODO CHE È UN OCCHIO e LA FENDITURA CHE È UNA BOCCA — perché in
+         questo bosco gli alberi parlano, e un albero che parla si riconosce da
+         quello, non dalla dimensione. */
+      {
+        const qx = W * 0.225, qb = g + 20;
+        for (let y = qb; y > 40; y -= 1) {
+          const t = (qb - y) / (qb - 40);
+          const sp = Math.round(96 - t * 40 + Math.sin(t * 7) * 6);
+          const cx2 = qx + Math.sin(t * 2.2) * 14;
+          ctx.fillStyle = mix('#33261a', '#241a10', t * 0.6);
+          ctx.fillRect(cx2 - sp / 2, y, sp, 1);
+          for (let q = 0; q < 8; q++) {
+            const ox = (q - 4) * 12 + ((q * 7) % 5) - 2;
+            if (Math.abs(ox) > sp / 2 - 2) continue;
+            ctx.fillStyle = q % 3 !== 1 ? 'rgba(10,7,4,.42)' : 'rgba(122,102,70,.12)';
+            ctx.fillRect(cx2 + ox, y, 3, 1);
+          }
+        }
+        ctx.fillStyle = '#241a10';                                  // le radici, grosse
+        for (const dx of [-72, -44, -18, 22, 50, 76]) for (let k = 0; k < 26; k++) ctx.fillRect(qx + dx * (1 + k / 26 * 0.5), qb + k * 0.4, 11, 6);
+        // IL NODO-OCCHIO e LA FENDITURA-BOCCA
+        const fy2 = g - 96;
+        ctx.fillStyle = '#1a1209'; pixelEllipse(ctx, qx - 16, fy2, 17, 13, 3);
+        ctx.fillStyle = '#0b0704'; pixelEllipse(ctx, qx - 16, fy2, 11, 8, 3);
+        ctx.fillStyle = '#e8d84a'; pixelDisc(ctx, qx - 14, fy2 + 1, 5, 2);      // la pupilla accesa
+        ctx.fillStyle = '#100c04'; pixelDisc(ctx, qx - 14, fy2 + 1, 2, 2);
+        glow(ctx, qx - 14, fy2 + 1, 11, 5, '232,216,74');
+        ctx.fillStyle = '#1a1209'; pixelEllipse(ctx, qx + 22, fy2 - 4, 12, 9, 3);
+        ctx.fillStyle = '#0b0704'; pixelEllipse(ctx, qx + 22, fy2 - 4, 7, 5, 3);
+        /* LA BOCCA era `sin(t*3.1)*7` su 56 px: un ARCO SOLO, cioè un sorriso,
+           cioè una faccina. Una fenditura nella corteccia è quasi orizzontale e
+           irregolare: si sposta di due o tre pixel a caso, non descrive una
+           curva. È la differenza fra un albero che potrebbe parlare e un
+           adesivo. */
+        ctx.fillStyle = '#0b0704';
+        for (let k = 0; k < 58; k++) {
+          const dy = ((k * 7) % 5) - 2 + ((k * 13) % 3) - 1;
+          ctx.fillRect(qx - 30 + k, fy2 + 36 + dy, 2, 3 + ((k * 5) % 3));
+        }
+        ctx.fillStyle = 'rgba(122,102,70,.13)';
+        for (let k = 0; k < 58; k++) {
+          const dy = ((k * 7) % 5) - 2 + ((k * 13) % 3) - 1;
+          ctx.fillRect(qx - 30 + k, fy2 + 40 + dy, 2, 2);
+        }
+        // i rami a candelabro, e la chioma che pesa sopra
+        for (const [ang, lun] of [[-1.25, 150], [-0.6, 120], [0.5, 134], [1.15, 110], [-0.1, 84]]) {
+          for (let k = 0; k < lun; k++) {
+            ctx.fillStyle = '#241a10';
+            ctx.fillRect(qx + Math.sin(ang) * k, 44 - Math.cos(ang) * k * 0.5, Math.max(4, 13 - k / 11 | 0), 5);
+          }
+        }
+        for (let q = 0; q < 200; q++) {
+          const ax = qx - 200 + (r() * 400 | 0), ay = -14 + (r() * 108 | 0);
+          ctx.fillStyle = ['#0c1a11', '#08150d', '#102016'][q % 3];
+          ctx.fillRect(ax, ay, 16 + (r() * 12 | 0), 10 + (r() * 8 | 0));
+        }
+      }
+
+      /* GLI OCCHI FRA LE FRONDE, sette paia, di taglia e altezza diverse: due
+         paia da cinque pixel in un bosco che «bisbiglia al vostro passaggio»
+         erano un accenno, non una minaccia. Alcuni sbirciano da dietro un ramo
+         (una palpebra scura che ne taglia metà). */
+      for (const [fx, fy, sz, meta] of [[0.075, 0.40, 7, 0], [0.135, 0.22, 5, 1], [0.335, 0.34, 6, 0],
+                                        [0.455, 0.15, 8, 0], [0.585, 0.30, 5, 1], [0.745, 0.20, 7, 0],
+                                        [0.885, 0.37, 6, 1]]) {
+        const ex = W * fx, ey = H * fy;
+        glow(ctx, ex + sz, ey + sz / 2, sz * 3, sz * 1.4, '232,216,74');
+        ctx.fillStyle = '#e8d84a';
+        ctx.fillRect(ex, ey, sz, sz); ctx.fillRect(ex + sz * 2.2, ey, sz, sz);
+        ctx.fillStyle = '#161008';
+        ctx.fillRect(ex + sz * 0.3, ey + sz * 0.3, Math.max(2, sz * 0.4), Math.max(2, sz * 0.4));
+        ctx.fillRect(ex + sz * 2.5, ey + sz * 0.3, Math.max(2, sz * 0.4), Math.max(2, sz * 0.4));
+        if (meta) { ctx.fillStyle = '#0a1409'; ctx.fillRect(ex - 2, ey - 2, sz * 3.4, Math.ceil(sz * 0.45)); }
+      }
     },
 
     capanna(ctx, W, H) {
+      /* LA CAPANNA DI NONNA ORTICA, otto scene, e il testo la descrive in una
+         riga sola che è già un elenco: «esattamente come una capanna di strega
+         dovrebbe essere: STORTA, coperta di MUSCHIO, con FUMO VERDE che esce dal
+         camino e un CALDERONE che borbotta da solo IN GIARDINO».
+         Prima: una capanna perfettamente rettangolare e perfettamente in piombo
+         (nessuna stortura), senza un filo di muschio, con il fumo verde fatto di
+         tre quadrati allineati, e un calderone che era un rettangolo grigio da
+         56x30 — cioè una cassetta. E il suolo stava a luminanza 33: sotto la
+         soglia del nero, un terzo del quadro buio.
+         Adesso: la capanna PENDE (tutta ruotata di sette gradi, ed è la rotazione
+         a farla di strega — non i dettagli), il tetto di paglia ha i covoni
+         legati, il muschio cresce dove l'acqua scende, il fumo verde sale a
+         volute che si allargano, e il calderone è un calderone: pancia tonda su
+         un TREPPIEDE, con il fuoco sotto e il borbottio che esce. */
       const r = rng(41);
-      skyGradient(ctx, W, H, '#0a0d14', '#1a2e22', 10);
       const g = H - 72;
-      hills(ctx, W, H * 0.5, 60, '#0f2216', r, 30);
-      for (let i = 0; i < 5; i++) tree(ctx, 40 + i * (W / 4.2), g + 10, 82 + r() * 34, '#132b1a', '#241a10', r);
-      // capanna storta
-      const cx = W * 0.33, cw = 210, ch = 112;
-      blocks(ctx, cx, g - ch, cw, ch, '#4a3a28', 10, r, 0.18);
-      // tetto di paglia a spiovente
-      for (let i = 0; i < 6; i++) {
-        const rw = (cw + 40) * (1 - i / 6);
-        blocks(ctx, cx + (cw - rw) / 2 + i * 3, g - ch - 6 - i * 10, rw, 11, '#2e4a2e', 9, r, 0.2);
+      skyGradient(ctx, W, g, '#0a0d14', '#1a2e22', 10);
+      hills(ctx, W, H * 0.5, 60, '#08150c', r, 30);
+      for (const [fx, alt] of [[0.045, 96], [0.145, 68], [0.62, 104], [0.72, 74], [0.88, 118], [0.965, 84]]) {
+        tree(ctx, W * fx, g + 10, alt, '#0a1a10', '#150f08', r);
       }
-      ctx.fillStyle = '#241a10'; ctx.fillRect(cx + 84, g - 52, 38, 52);
-      ctx.fillStyle = '#3a2a18'; ctx.fillRect(cx + 80, g - 56, 46, 5);
-      // finestra verde magica (l'alone era un quadrato di 56×56: sulla parete di legno
-      // leggeva come un secondo riquadro dipinto attorno al primo)
-      glow(ctx, cx + 38, g - 72, 78, 78, '138,224,90');
-      ctx.fillStyle = '#8ae05a'; ctx.fillRect(cx + 24, g - 88, 28, 28);
-      ctx.fillStyle = '#4a3a28'; ctx.fillRect(cx + 36, g - 88, 4, 28);
-      // camino con fumo verde
-      blocks(ctx, cx + 152, g - ch - 46, 24, 60, '#5a5a66', 8, r, 0.2);
-      ctx.fillStyle = 'rgba(138,224,90,.34)';
-      ctx.fillRect(cx + 154, g - ch - 66, 18, 15); ctx.fillRect(cx + 162, g - ch - 88, 15, 15); ctx.fillRect(cx + 152, g - ch - 108, 13, 13);
-      ground(ctx, W, H, g, '#16301c', r, 12, 12);
-      // calderone col fuoco
-      ctx.fillStyle = '#2a2a35'; ctx.fillRect(W * 0.70, g - 30, 56, 30);
-      ctx.fillStyle = '#1a1a22'; ctx.fillRect(W * 0.70 + 6, g - 24, 44, 8);
-      glow(ctx, W * 0.70 + 28, g - 36, 92, 60, '138,224,90');   // vapore del calderone: tondo
-      ctx.fillStyle = '#8ae05a'; ctx.fillRect(W * 0.70 + 5, g - 38, 46, 9);
-      ctx.fillStyle = '#f5a623'; ctx.fillRect(W * 0.70 + 10, g - 6, 36, 6);
-      // erbe appese a un filo
-      ctx.strokeStyle = '#5a4530'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(cx + cw, g - ch + 20); ctx.lineTo(W * 0.92, g - ch + 40); ctx.stroke();
+      ground(ctx, W, H, g, '#1e3c24', r, 12, 12);
+      for (let q = 0; q < 120; q++) {                       // il giardino: cespi ed erbacce
+        const ax = r() * W, ay = g + 4 + r() * (H - g - 6);
+        ctx.fillStyle = ['rgba(12,26,15,.50)', 'rgba(48,70,40,.32)', 'rgba(72,60,34,.28)'][q % 3];
+        ctx.fillRect(ax, ay, 5 + (r() * 14 | 0), 3 + (r() * 3 | 0));
+        if (q % 4 === 0) { ctx.fillStyle = 'rgba(34,58,34,.44)'; ctx.fillRect(ax + 2, ay - 6, 3, 7); }
+      }
+
+      /* LA CAPANNA STORTA: si ruota tutta, così ogni linea pende insieme. Una
+         capanna disegnata dritta con qualche dettaglio sghembo resta dritta. */
+      const cx = W * 0.30, cw = 224, ch = 124;
+      ctx.save();
+      ctx.translate(cx + cw / 2, g);
+      ctx.rotate(0.085);   // sette gradi: a tre e mezzo la stortura non si leggeva
+      ctx.translate(-(cx + cw / 2), -g);
+      ctx.fillStyle = 'rgba(6,10,6,.44)'; ctx.fillRect(cx - 10, g - 6, cw + 20, 12);
+      // le tavole verticali della parete, di larghezza diversa
+      for (let x = 0; x < cw; ) {
+        const larg = 11 + ((x * 7) % 9);
+        ctx.fillStyle = ['#4a3a28', '#42331f', '#54422c', '#3c2f1e'][(x / 7 | 0) % 4];
+        ctx.fillRect(cx + x, g - ch, Math.min(larg, cw - x), ch);
+        ctx.fillStyle = 'rgba(12,8,4,.34)'; ctx.fillRect(cx + x, g - ch, 2, ch);
+        x += larg;
+      }
+      // IL MUSCHIO, dove l'acqua scende: sotto il tetto, negli angoli, sui giunti
+      for (let q = 0; q < 90; q++) {
+        const ax = cx + (r() * cw | 0);
+        const alto = 8 + (r() * 26 | 0);
+        const dalTetto = r() > 0.45;
+        const ay = dalTetto ? g - ch + (r() * 26 | 0) : g - (r() * 30 | 0) - alto;
+        ctx.fillStyle = ['rgba(74,112,54,.44)', 'rgba(52,88,42,.40)', 'rgba(96,132,62,.30)'][q % 3];
+        ctx.fillRect(ax, ay, 4 + (r() * 8 | 0), alto);
+      }
+      /* IL TETTO DI PAGLIA: covoni legati, non sei fasce sovrapposte. Ogni covone
+         ha il suo legaccio e le sue punte, e i covoni si accavallano. */
       for (let i = 0; i < 5; i++) {
-        const hx = cx + cw + 14 + i * 26, hy = g - ch + 22 + i * 4;
-        ctx.fillStyle = ['#5a8a4a', '#8a7a3a', '#6a5a8a'][i % 3];
-        ctx.fillRect(hx, hy, 8, 22);
+        const rw = (cw + 52) * (1 - i / 5.6);
+        const rx2 = cx + (cw - rw) / 2 + i * 2, ry2 = g - ch - 4 - i * 13;
+        for (let x = 0; x < rw; x += 13) {
+          ctx.fillStyle = ['#3e5a34', '#33502c', '#476639'][(x / 13 | 0) % 3];
+          ctx.fillRect(rx2 + x, ry2, 12, 16);
+          ctx.fillStyle = 'rgba(18,30,16,.44)'; ctx.fillRect(rx2 + x + 11, ry2, 2, 16);
+          ctx.fillStyle = 'rgba(150,168,110,.14)'; ctx.fillRect(rx2 + x, ry2, 12, 2);
+        }
+        ctx.fillStyle = '#241a10'; ctx.fillRect(rx2, ry2 + 11, rw, 3);       // il legaccio
+      }
+      // la porta, e la sua soglia consumata
+      ctx.fillStyle = '#241a10'; ctx.fillRect(cx + 92, g - 62, 46, 62);
+      ctx.fillStyle = '#3a2a18'; ctx.fillRect(cx + 86, g - 68, 58, 7);
+      ctx.fillStyle = '#54422c'; ctx.fillRect(cx + 92, g - 4, 46, 4);
+      ctx.fillStyle = '#e8c860'; ctx.fillRect(cx + 130, g - 36, 5, 5);        // la maniglia
+      // LA FINESTRA VERDE, coi quattro riquadri e il piombo
+      glow(ctx, cx + 44, g - 82, 24, 24, '138,224,90');
+      ctx.fillStyle = '#2e2418'; ctx.fillRect(cx + 22, g - 102, 44, 44);
+      ctx.fillStyle = '#8ae05a'; ctx.fillRect(cx + 26, g - 98, 36, 36);
+      ctx.fillStyle = '#b8f088'; ctx.fillRect(cx + 26, g - 98, 36, 8);
+      ctx.fillStyle = '#2e2418'; ctx.fillRect(cx + 42, g - 98, 4, 36); ctx.fillRect(cx + 26, g - 82, 36, 4);
+      // e IL GATTO che legge un libro, sul davanzale
+      ctx.fillStyle = '#1d1a20'; ctx.fillRect(cx + 20, g - 58, 50, 6);        // il davanzale
+      ctx.fillStyle = '#17141a'; pixelEllipse(ctx, cx + 40, g - 68, 13, 9, 2);
+      ctx.fillStyle = '#17141a'; pixelDisc(ctx, cx + 30, g - 76, 7, 2);       // la testa
+      ctx.fillRect(cx + 24, g - 84, 4, 6); ctx.fillRect(cx + 32, g - 84, 4, 6);   // le orecchie
+      ctx.fillStyle = '#8ae05a'; ctx.fillRect(cx + 27, g - 77, 3, 2); ctx.fillRect(cx + 32, g - 77, 3, 2);
+      ctx.fillStyle = '#17141a';                                              // la coda, alzata
+      for (let k = 0; k < 18; k++) ctx.fillRect(cx + 52 + k * 0.6, g - 70 - k, 3, 3);
+      ctx.fillStyle = '#d8cfae'; ctx.fillRect(cx + 34, g - 64, 22, 3);        // IL LIBRO, aperto
+      ctx.fillStyle = '#b8ad8a'; ctx.fillRect(cx + 44, g - 65, 2, 4);
+      // IL CAMINO, di pietra, con il fumo VERDE a volute che si allargano
+      for (let q = 0; q < 8; q++) {
+        ctx.fillStyle = ['#5a5a66', '#4a4a54', '#66666f'][q % 3];
+        ctx.fillRect(cx + 160, g - ch - 48 + q * 7, 26, 6);
+        ctx.fillStyle = 'rgba(20,20,26,.34)'; ctx.fillRect(cx + 160, g - ch - 48 + q * 7 + 5, 26, 2);
+      }
+      ctx.fillStyle = '#2a2a32'; ctx.fillRect(cx + 156, g - ch - 54, 34, 8);
+      ctx.restore();
+      // il fumo va disegnato FUORI dalla rotazione: il fumo non pende
+      for (let k = 0; k < 30; k++) {
+        const t = k / 29;
+        const yy = g - ch - 62 - k * 6;
+        const xx = cx + 176 + Math.sin(k * 0.38) * (10 + t * 34);
+        const rr = 7 + t * 22;
+        ctx.fillStyle = `rgba(138,224,90,${(0.30 * (1 - t * 0.9)).toFixed(3)})`;
+        pixelDisc(ctx, xx, yy, rr, 3);
+      }
+      glow(ctx, cx + 186, g - ch - 90, 34, 40, '138,224,90');
+
+      /* IL CALDERONE, in giardino, che borbotta DA SOLO: pancia tonda su un
+         treppiede di ferro, il bordo svasato, il fuoco sotto, e le bolle che
+         scoppiano fuori dall'orlo. Prima era un rettangolo grigio da 56x30 su
+         niente: una cassetta degli attrezzi con del vapore sopra. */
+      {
+        const kx = W * 0.735, kb = g + 22;
+        ctx.fillStyle = 'rgba(6,10,6,.44)'; ctx.fillRect(kx - 44, kb - 2, 92, 8);
+        ctx.fillStyle = '#2a2a32';                                            // il treppiede
+        for (const pend of [-0.55, 0.55, 0.06]) {
+          for (let k = 0; k < 34; k++) ctx.fillRect(kx + pend * k, kb - 34 + k, 5, 2);
+        }
+        // la pancia: un ovale schiacciato, piu' larga in alto
+        for (let y = -30; y < 6; y++) {
+          const u = (y + 30) / 36;
+          const sp = Math.round(46 * Math.sqrt(Math.max(0, 1 - Math.pow(u * 1.5 - 0.55, 2) * 1.6)));
+          ctx.fillStyle = mix('#3a3a46', '#1c1c24', u);
+          ctx.fillRect(kx - sp, kb - 44 + y + 8, sp * 2, 1);
+          ctx.fillStyle = 'rgba(150,150,170,.10)'; ctx.fillRect(kx - sp, kb - 44 + y + 8, 4, 1);
+        }
+        ctx.fillStyle = '#4a4a58'; ctx.fillRect(kx - 50, kb - 68, 100, 8);    // il bordo svasato
+        ctx.fillStyle = '#5e5e6c'; ctx.fillRect(kx - 50, kb - 68, 100, 2);
+        ctx.fillStyle = '#141418'; ctx.fillRect(kx - 44, kb - 62, 88, 5);     // dentro
+        ctx.fillStyle = '#8ae05a'; ctx.fillRect(kx - 42, kb - 62, 84, 3);     // la pozione
+        ctx.fillStyle = '#2a2a32';                                            // il manico ad arco
+        for (let a = 10; a <= 170; a += 4) {
+          const rad = a * Math.PI / 180;
+          ctx.fillRect(kx - Math.cos(rad) * 52, kb - 68 - Math.sin(rad) * 34, 5, 4);
+        }
+        // il fuoco sotto
+        glow(ctx, kx, kb - 12, 26, 12, '245,166,35');
+        for (let k = 0; k < 14; k++) {
+          const fx2 = kx - 30 + (r() * 60 | 0), fh = 8 + (r() * 16 | 0);
+          ctx.fillStyle = ['#f5a623', '#e8621a', '#f8d24a'][k % 3];
+          ctx.fillRect(fx2, kb - 6 - fh, 5, fh);
+        }
+        ctx.fillStyle = '#2e2118';                                            // la legna
+        for (let k = 0; k < 5; k++) ctx.fillRect(kx - 34 + k * 15, kb - 6, 17, 5);
+        // le BOLLE che scoppiano fuori dall'orlo: e' il «borbotta da solo»
+        glow(ctx, kx, kb - 84, 30, 26, '138,224,90');
+        for (let k = 0; k < 16; k++) {
+          const bx2 = kx - 34 + (r() * 68 | 0), by2 = kb - 72 - (r() * 46 | 0);
+          ctx.fillStyle = `rgba(138,224,90,${(0.20 + r() * 0.40).toFixed(2)})`;
+          pixelDisc(ctx, bx2, by2, 3 + (r() * 5 | 0), 2);
+        }
+      }
+
+      /* LE ERBE APPESE A TESTA IN GIÙ, su un filo teso fra la capanna e un palo:
+         mazzetti legati, di lunghezza diversa, che è come si essiccano davvero. */
+      {
+        const y0 = g - 116, y1 = g - 96;
+        ctx.fillStyle = '#4a3a28'; ctx.fillRect(W * 0.905, y1, 7, 96);        // il palo
+        ctx.fillStyle = '#5a4530';
+        for (let k = 0; k < 46; k++) ctx.fillRect(W * 0.56 + k * 7, y0 + (y1 - y0) * (k / 45) + Math.sin(k / 45 * 3.14) * 7, 7, 2);
+        for (let k = 0; k < 8; k++) {
+          const t = (k + 0.5) / 8;
+          const hx = W * 0.56 + t * (W * 0.345);
+          const hy = y0 + (y1 - y0) * t + Math.sin(t * 3.14) * 7;
+          const lun = 20 + ((k * 13) % 18);
+          ctx.fillStyle = '#6a5230'; ctx.fillRect(hx - 2, hy, 15, 5);        // il legaccio
+          /* Un MAZZETTO, non un serpentello: al primo colpo ogni erba era una
+             sola striscia da sei pixel che ondeggiava, e otto strisce ondeggianti
+             appese a un filo leggevano come otto zigzag colorati. Un mazzo
+             essiccato e' quattro o cinque steli affiancati, di lunghezza diversa,
+             che si aprono un po' scendendo. */
+          for (let st = 0; st < 5; st++) {
+            const lun2 = lun - ((st * 7) % 9);
+            const ox = (st - 2) * 3;
+            for (let q = 0; q < lun2; q++) {
+              const apre = ox * (1 + q / lun2 * 0.8);
+              ctx.fillStyle = st % 2
+                ? ['#4e7a3e', '#7a6a2e', '#5a4a7a', '#3e6a44'][k % 4]
+                : ['#3c6230', '#5f5223', '#453862', '#2f5636'][k % 4];
+              ctx.fillRect(hx + 4 + apre, hy + 5 + q, 3, 2);
+            }
+            // la punta secca, piu' chiara
+            ctx.fillStyle = 'rgba(200,190,140,.30)';
+            ctx.fillRect(hx + 4 + ox * 1.8, hy + 4 + lun2, 3, 3);
+          }
+        }
       }
     },
 
