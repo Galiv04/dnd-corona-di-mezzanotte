@@ -266,19 +266,32 @@ const Luoghi = (() => {
   const $ = id => document.getElementById(id);
   let corrente = null;
 
+  /* IL GRASSETTO DELLE SCHEDE. Le schede iniettavano il testo GREZZO in innerHTML, e nel
+     testo delle schede il grassetto si scrive `**cosi**` come in tutto il resto del gioco:
+     risultato, nel browser si leggevano gli asterischi. Trentaquattro volte in questo gioco,
+     e in tutti e cinque. Il motore ha `formatText` da sempre — ma e' privato dentro Engine, e
+     una scheda non deve dipendere dai privati di un altro modulo: qui basta una versione
+     piccola, con l'escape prima, che fa grassetto e corsivo e nient'altro.
+     E' un difetto che nessun collaudo poteva vedere: il grafo era sano, i dati erano sani, e
+     gli asterischi si vedono solo GUARDANDO la scheda in un browser. */
+  const md = t => String(t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\*(.+?)\*/g, '<i>$1</i>');
+
   function apri(key, titoloHUD) {
     const L = LUOGHI[key];
     if (!L) return;
     const box = $('modal-generic-content');
     if (!box) return;
-    box.innerHTML = `<h2>🔎 ${L.titolo}</h2>`
-      + `<p style="color:var(--text-dim);margin:-6px 0 14px">${L.ora}</p>`
+    box.innerHTML = `<h2>🔎 ${md(L.titolo)}</h2>`
+      + `<p style="color:var(--text-dim);margin:-6px 0 14px">${md(L.ora)}</p>`
       + (titoloHUD && titoloHUD !== L.titolo
           ? `<p style="color:var(--text-dim);font-size:.92em;margin:-10px 0 14px">Nel gioco, adesso: <b>${titoloHUD}</b></p>` : '')
       + `<h3>👁 Cosa vedete nel quadro</h3><ul style="margin:0 0 14px;padding-left:18px">`
-      + L.guarda.map(([n, t]) => `<li style="margin-bottom:7px"><b>${n}.</b> ${t}</li>`).join('')
-      + `</ul><h3>📜 Perché questo posto esiste</h3><p style="margin:0 0 14px">${L.storia}</p>`
-      + `<h3>🎲 Cosa c'entra col gioco</h3><p style="margin:0 0 4px">${L.gioco}</p>`
+      + L.guarda.map(([n, t]) => `<li style="margin-bottom:7px"><b>${md(n)}.</b> ${md(t)}</li>`).join('')
+      + `</ul><h3>📜 Perché questo posto esiste</h3><p style="margin:0 0 14px">${md(L.storia)}</p>`
+      + `<h3>🎲 Cosa c'entra col gioco</h3><p style="margin:0 0 4px">${md(L.gioco)}</p>`
       + `<p style="color:var(--text-dim);font-size:.86em;margin:14px 0 0">Questa scheda racconta solo quello che`
       + ` avete già davanti agli occhi: non anticipa niente di quello che deve ancora succedere.</p>`;
     const chiudi = document.createElement('button');

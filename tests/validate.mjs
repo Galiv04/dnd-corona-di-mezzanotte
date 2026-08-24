@@ -198,6 +198,34 @@ section('Stinger delle scene (nessun suono fantasma)');
   if (!morti) { ok(); console.log(`  ✔ ${conStinger} scene con stinger, tutti esistenti in sound.js (${nomiEff.size} effetti nel catalogo)`); }
 }
 
+/* ---------- il grassetto delle schede dei luoghi arriva a destinazione ---------- */
+/* Le schede dei luoghi iniettavano il testo GREZZO in innerHTML, e nel testo delle schede il
+   grassetto si scrive `**cosi**` come in tutto il resto del gioco: nel browser si leggevano
+   gli asterischi. Trentaquattro volte in Pandataria, e in tutti e cinque i giochi. Nessun
+   collaudo poteva vederlo — il grafo era sano, i dati erano sani — e si vede solo GUARDANDO
+   una scheda in un browser, che e' il motivo per cui la validazione visiva e' obbligatoria.
+   Il controllo e': se una scheda contiene marcatori di formato, il renderer deve passarli per
+   un formattatore. */
+section('Il grassetto delle schede dei luoghi viene reso');
+{
+  let fuori = 0;
+  try {
+    const src = readFileSync(join(root, 'js/luoghi.js'), 'utf8');
+    const conMarcatori = (src.match(/\*\*/g) || []).length;
+    if (conMarcatori > 0 && !/const md = t =>/.test(src)) {
+      fail(`js/luoghi.js contiene ${conMarcatori / 2} marcatori di grassetto ma non passa il testo per un formattatore: nel browser si vedranno gli asterischi`);
+      fuori++;
+    }
+    for (const campo of ['L.titolo', 'L.ora', 'L.storia', 'L.gioco']) {
+      if (src.includes('${' + campo + '}')) {
+        fail(`js/luoghi.js inserisce ${campo} grezzo in innerHTML: va passato per md()`);
+        fuori++;
+      }
+    }
+  } catch { /* i giochi senza schede non hanno niente da controllare */ }
+  if (!fuori) { ok(); console.log('  ✔ le schede passano il testo per il formattatore'); }
+}
+
 /* ---------- chiavi doppie dentro la stessa scena ---------- */
 /* PERCHE' ESISTE, e costa due righe. In un letterale JavaScript una chiave ripetuta non e'
    un errore: vince l'ULTIMA, in silenzio. Il 24 agosto 2026, spezzando le scene lunghe in
