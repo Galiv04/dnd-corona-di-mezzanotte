@@ -708,6 +708,7 @@ section('Bilanciamento: nessuno uccide più veloce di quanto muoia');
     }
   }
   /* e i gruppi: due nemici da 6 danni sono 12 al round */
+  const tesi = [];
   for (const [id, scene] of combats) {
     const vivi = (scene.combat.enemies || []).filter(e => BESTIARY[e]);
     if (vivi.length < 2) continue;
@@ -715,7 +716,40 @@ section('Bilanciamento: nessuno uccide più veloce di quanto muoia');
       const b = BESTIARY[e], [n, facce] = b.attack.dice;
       return t + n * (facce + 1) / 2 + (b.attack.plus || 0);
     }, 0);
-    if (dprTot > pvMin / 2) warn(`combattimento "${id}": ${vivi.length} nemici per ${dprTot.toFixed(1)} danni potenziali al round contro ${pvMin} PV — un eroe cade in ${Math.ceil(pvMin / dprTot)} round`);
+    /* Il danno di gruppo, MA diviso fra quanti eroi lo prendono. La prima stesura di
+       questo controllo confrontava il danno TOTALE del gruppo nemico coi PV dell'eroe piu
+       fragile, cioe misurava un caso che in partita non capita quasi mai: tutti i nemici
+       che picchiano sempre e solo la stessa persona. Con l'IA `random` — che e quella di
+       quasi tutto il bestiario — il danno si spalma, e il numero giusto e quello per
+       testa. Risultato della prima stesura: tredici avvisi identici per gioco, sempre lo
+       stesso, che nessuno leggeva piu. Un allarme che si impara a ignorare e peggio di
+       nessun allarme (lezione 71).
+       Ora si guarda il danno PER EROE, e si resta severi dove conta: se qualche nemico
+       concentra il fuoco (ai diverso da random) il caso pessimo torna a essere il totale,
+       e i boss hanno il loro controllo a parte, piu stretto, qualche riga sopra. */
+    const eroiInCampo = Math.max(1, (HEROES.filter ? HEROES.filter(h => !h.locked) : Object.values(HEROES)).length - 1);
+    const concentrano = vivi.some(e => BESTIARY[e].ai && BESTIARY[e].ai !== 'random');
+    const perEroe = concentrano ? dprTot : dprTot / Math.min(3, eroiInCampo);
+    const rounds = Math.ceil(pvMin / perEroe);
+    /* Severita proporzionata. La regola del progetto e «l'eroe piu fragile regge almeno
+       TRE COLPI», e quella la verifica il controllo per-nemico qui sopra, che passa. Questo
+       secondo controllo guarda il gruppo, ed e un'euristica: contava come debito anche le
+       due-round, cioe tredici avvisi identici per gioco che nessuno leggeva piu. Ma due
+       round, con la Difesa totale, le cure e il ritorno dal checkpoint, sono tensione e non
+       un difetto. Un round solo, invece, e un errore di progetto: il giocatore perde un eroe
+       prima di poter reagire. Quindi: allarme dove un round basta, e per il resto UN NUMERO,
+       che si guarda quando si vuole guardare. */
+    if (rounds < 2) {
+      warn(`combattimento "${id}": ${vivi.length} nemici, ${dprTot.toFixed(1)} danni al round`
+         + ` = ${perEroe.toFixed(1)} per eroe${concentrano ? ' (concentrano il fuoco)' : ''}`
+         + ` contro ${pvMin} PV: l'eroe piu fragile cade in UN ROUND, prima di poter reagire`);
+    } else if (rounds === 2) tesi.push(id);
+  }
+  if (tesi.length) {
+    console.log(`  ℹ ${tesi.length} scontri in cui l'eroe piu fragile cadrebbe in due round `
+      + `se i nemici lo prendessero di mira tutti insieme: ${tesi.join(', ')}. `
+      + `Non e debito — con la Difesa totale, le cure e il checkpoint due round sono tensione — `
+      + `ma se questo numero cresce, la difficolta si sta spostando da sola.`);
   }
   if (!squilibrati) { ok(); console.log(`  ✔ nessun boss uccide l'eroe più fragile in meno di 3 colpi (il più fragile ha ${pvMin} PV)`); }
 }
