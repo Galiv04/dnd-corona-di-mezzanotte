@@ -9,6 +9,9 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { cercaBuchi, cercaNeroPieno } from './buchi-nei-fondali.mjs';
 
+/* I fondali in cui il nero pieno e' una scelta, e la ragione della scelta. */
+const NERO_VOLUTO = {};   // qui non ce n'e'
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
@@ -667,9 +670,14 @@ function testBuchiNeiFondali() {
      quindi zero: un nero VALIDO che nessun controllo sui colori può vedere). Ma il nero
      voluto esiste — la stiva di un relitto a quarantacinque metri, dove la torcia entra
      e non torna indietro — quindi qui si guarda e si decide, non si blocca. */
+  /* Le deroghe si guardano una volta, si scrivono con la ragione, e non tornano piu'.
+     Un avviso che si sa di dover ignorare e' peggio di nessun avviso: si impara a saltare
+     la riga, e il giorno che sotto c'e' un difetto vero si salta anche quello. */
   for (const n of cercaNeroPieno(S.painters, { setDepth: S.setDepth || S.setEclipse })) {
+    if (NERO_VOLUTO[n.nome]) continue;
     warn(`il fondale "${n.nome}" ha ${n.pixel} px di nero pieno (0,0,0): `
-       + 'se non è voluto è un colore calcolato male — guardalo col tool dei PNG');
+       + 'se non è voluto è un colore calcolato male — guardalo col tool dei PNG. '
+       + 'Se è voluto, scrivilo in NERO_VOLUTO con la ragione');
   }
   if (!esito.length) {
     ok(); console.log(`  ✔ nessuna macchia scoperta in ${Object.keys(S.painters).length - 1} fondali`);
