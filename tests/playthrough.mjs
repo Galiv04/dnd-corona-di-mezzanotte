@@ -259,7 +259,13 @@ function buildGame(seed) {
     timers.drain();
     return r;
   }
-  return { context, doc, api, getG, consoleErrors, act };
+  /* Un `const X = ...` in cima a un file NON diventa una proprietà dell'oggetto passato
+     a createContext: sta nello scope lessicale del global del realm, non sull'oggetto.
+     Quindi `context.Dialoghi` era undefined e il controllo sulle finestre di conferma
+     falliva sostenendo che il modulo non fosse caricato — mentre lo era. I globali di un
+     realm si leggono valutando il loro nome DENTRO il realm, come già si fa per Math. */
+  const getGlobal = name => vm.runInContext(name, context);
+  return { context, doc, api, getG, getGlobal, consoleErrors, act };
 }
 
 /* ==================== UTILITA' DI INTERAZIONE ==================== */
@@ -1021,7 +1027,7 @@ if (allEndings.size < 3) {
 (function testFinestreDiConferma() {
   section('Le finestre di conferma si aprono e rispondono');
   const game = buildGame(515151);
-  const D = game.context.Dialoghi;
+  const D = game.getGlobal('typeof Dialoghi !== "undefined" ? Dialoghi : null');
   if (!D) { fail('Dialoghi non è caricato nel banco di prova'); return; }
   let aperte = 0;
   const prove = [

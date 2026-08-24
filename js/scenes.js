@@ -191,6 +191,33 @@ const Scenes = (() => {
     blocks(ctx, x - size * 0.3, groundY - size * 0.85, size * 0.6, size * 0.3, color, 6, rand, 0.3);
   }
 
+  /* FUNGO LUMINOSO. Erano sette macchie viola di diciotto pixel col cappello piatto, e
+     con l'alone così piccolo (16×12) da essere invisibile: cioè sette cose piccole in
+     un'inquadratura, e nessuna che facesse da soggetto — mentre il testo di b2 dice che
+     nella radura «i funghi luminosi crescono ALTI COME PERSONE» e che il più grosso apre
+     due occhi. Alti come persone, a questa scala, sono i sessanta-novanta pixel di uno
+     sprite d'eroe. Il cappello è una cupola (non un rettangolo), sotto ha le lamelle in
+     ombra, il gambo si allarga al piede, e l'alone è grande quanto la luce che deve
+     dare: un fungo luminoso che non illumina niente è solo un fungo viola. */
+  function glowMushroom(ctx, x, groundY, capW, rand) {
+    const capH = Math.round(capW * 0.46), stemH = Math.round(capW * 0.86);
+    const sw = Math.max(5, Math.round(capW * 0.26 / 3) * 3);
+    const capY = groundY - stemH;
+    glow(ctx, x, capY - capH * 0.3, capW * 2.2, (stemH + capH) * 1.5, '200,90,224');
+    ctx.fillStyle = '#8f7ea8'; ctx.fillRect(Math.round(x - sw / 2), capY, sw, stemH);
+    ctx.fillStyle = '#cfc0e0'; ctx.fillRect(Math.round(x - sw / 2), capY, Math.max(3, Math.round(sw / 3)), stemH);
+    ctx.fillStyle = '#8f7ea8'; ctx.fillRect(Math.round(x - sw / 2 - 3), groundY - 6, sw + 6, 6);  // piede allargato
+    ctx.fillStyle = '#5a3a70'; ctx.fillRect(Math.round(x - capW * 0.34), capY - 4, Math.round(capW * 0.68), 5); // lamelle
+    ctx.fillStyle = '#8f2eb0'; pixelEllipse(ctx, x, capY - capH * 0.42, capW * 0.5, capH * 0.56, 3);
+    ctx.fillStyle = '#c85ae0'; pixelEllipse(ctx, x, capY - capH * 0.62, capW * 0.42, capH * 0.40, 3);
+    ctx.fillStyle = '#e8b8f5'; pixelEllipse(ctx, x - capW * 0.13, capY - capH * 0.82, capW * 0.20, capH * 0.16, 3);
+    ctx.fillStyle = '#f0e0f8';
+    for (let i = 0; i < 3; i++) {
+      const a = -0.4 - i * 0.9 + rand() * 0.3, rr = capW * (0.16 + rand() * 0.16);
+      ctx.fillRect(Math.round(x + Math.cos(a) * rr), Math.round(capY - capH * 0.5 + Math.sin(a) * capH * 0.3), 4, 3);
+    }
+  }
+
   function reeds(ctx, x, groundY, n, rand) {
     for (let i = 0; i < n; i++) {
       const rx = x + i * 5, h = 14 + rand() * 16;
@@ -287,8 +314,16 @@ const Scenes = (() => {
      w e h restano la LARGHEZZA e l'ALTEZZA nominali dell'alone (come prima), così
      tutti i punti di chiamata non cambiano. */
   function glow(ctx, x, y, w, h, rgb) {
-    for (const [k, a] of [[1.15, 0.045], [0.86, 0.05], [0.60, 0.06], [0.36, 0.075]]) {
-      ctx.fillStyle = `rgba(${rgb},${a})`;
+    /* Il numero di gusci va col DIAMETRO, non fisso: quattro gusci su una candela sono
+       una sfumatura, gli stessi quattro sul lampadario del ballo (320 px) sono tre
+       anelli concentrici — e un anello è uno spigolo, solo tondo. Un guscio ogni tredici
+       pixel di diametro, e l'alpha di ciascuno si ricalcola per arrivare sempre allo stesso
+       0,22 al centro: così un alone grande non diventa anche più opaco. */
+    const n = Math.max(5, Math.min(22, Math.round(Math.max(w, h) / 13)));
+    const a = 1 - Math.pow(1 - 0.22, 1 / n);
+    ctx.fillStyle = `rgba(${rgb},${a.toFixed(4)})`;
+    for (let i = 0; i < n; i++) {
+      const k = 1.20 - (i * 1.02) / n;
       pixelEllipse(ctx, x, y, Math.max(4, w * k * 0.5), Math.max(4, h * k * 0.5), 3);
     }
   }
@@ -343,6 +378,119 @@ const Scenes = (() => {
       ctx.fillStyle = '#5ad8e0'; ctx.fillRect(cx, cy, s, Math.max(2, Math.round(s * 0.55)));
       ctx.fillStyle = '#a0f0f5'; ctx.fillRect(cx + 1, cy + 1, Math.max(2, s - 4), Math.max(2, Math.round(s * 0.34)));
     }
+  }
+
+  /* ---------- LA TAVOLA DELLE CUCINE ----------
+     Il testo di k1 costruisce tutta l'inquietudine su un banchetto PERFETTO senza
+     commensali: «anatre laccate, torri di soufflé che non collassano, una zuppa che fuma
+     con pazienza infinita. Non manca NULLA», e «piatti su piatti, disposti con precisione
+     da parata militare. Vassoi d'argento allineati come soldati». Il tavolo era invece
+     spoglio: un tagliere, due cubetti colorati e un coltellino, settantaquattro pixel di
+     roba su quattrocentoventitré di piano — cioè il quadro diceva l'esatto contrario del
+     testo. Qui ci sono quattro portate GRANDI (settanta-novanta pixel ciascuna) alla
+     stessa quota e a passo regolare: la regolarità è quella che il testo chiama
+     militare, e va vista. Pochi oggetti grandi, non dieci puntini. */
+
+  // Vassoio d'argento: tre fasce (piano, filo di luce sul bordo, ombra sotto)
+  function tray(ctx, cx, y, w) {
+    ctx.fillStyle = '#8f96a6'; ctx.fillRect(Math.round(cx - w / 2), y, w, 5);
+    ctx.fillStyle = '#ccd2de'; ctx.fillRect(Math.round(cx - w / 2), y, w, 2);
+    ctx.fillStyle = '#5f6474'; ctx.fillRect(Math.round(cx - w / 2), y + 5, w, 3);
+  }
+
+  // Anatra laccata: corpo tondo in tre toni, collo e testa da un lato, cosce dall'altro
+  function roastDuck(ctx, cx, baseY, w) {
+    const h = Math.round(w * 0.46);
+    ctx.fillStyle = '#7a3d18'; pixelEllipse(ctx, cx, baseY - h * 0.42, w * 0.5, h * 0.52, 3);
+    ctx.fillStyle = '#a35c22'; pixelEllipse(ctx, cx, baseY - h * 0.58, w * 0.44, h * 0.38, 3);
+    ctx.fillStyle = '#d69a4a'; pixelEllipse(ctx, cx - w * 0.06, baseY - h * 0.78, w * 0.26, h * 0.16, 3);
+    // collo e testa: è il dettaglio che dice «anatra» e non «pagnotta»
+    ctx.fillStyle = '#8a4a1e'; ctx.fillRect(Math.round(cx + w * 0.36), Math.round(baseY - h * 1.5), 8, Math.round(h * 0.8));
+    ctx.fillStyle = '#a35c22'; ctx.fillRect(Math.round(cx + w * 0.34), Math.round(baseY - h * 1.62), 15, 9);
+    ctx.fillStyle = '#e0b45a'; ctx.fillRect(Math.round(cx + w * 0.48), Math.round(baseY - h * 1.56), 8, 4);
+    // cosce legate
+    ctx.fillStyle = '#8a4a1e';
+    ctx.fillRect(Math.round(cx - w * 0.52), Math.round(baseY - h * 0.62), 16, 9);
+    ctx.fillRect(Math.round(cx - w * 0.50), Math.round(baseY - h * 0.36), 14, 8);
+  }
+
+  // Zuppiera col coperchio e il vapore: la zuppa del testo «fuma con pazienza infinita»
+  function tureen(ctx, cx, baseY, w, rand) {
+    const h = Math.round(w * 0.60);
+    ctx.fillStyle = '#b8b2a2'; pixelEllipse(ctx, cx, baseY - h * 0.26, w * 0.5, h * 0.34, 3);
+    ctx.fillStyle = '#dcd6c6'; pixelEllipse(ctx, cx, baseY - h * 0.34, w * 0.44, h * 0.26, 3);
+    // manici sul bordo, dove stanno per davvero
+    ctx.fillStyle = '#c8a032';
+    ctx.fillRect(Math.round(cx - w * 0.60), Math.round(baseY - h * 0.52), 12, 6);
+    ctx.fillRect(Math.round(cx + w * 0.48), Math.round(baseY - h * 0.52), 12, 6);
+    // coperchio: fascia del bordo + cupola + pomello
+    ctx.fillStyle = '#c8a032'; ctx.fillRect(Math.round(cx - w * 0.52), Math.round(baseY - h * 0.62), Math.round(w * 1.04), 6);
+    ctx.fillStyle = '#dcd6c6'; pixelEllipse(ctx, cx, baseY - h * 0.66, w * 0.42, h * 0.26, 3);
+    ctx.fillStyle = '#f0ece0'; pixelEllipse(ctx, cx - w * 0.08, baseY - h * 0.78, w * 0.2, h * 0.1, 3);
+    ctx.fillStyle = '#c8a032'; ctx.fillRect(Math.round(cx - 5), Math.round(baseY - h * 1.02), 10, 8);
+    /* Vapore: sbuffi che salgono, si allargano e si diradano. Al primo tentativo ci
+       avevo messo anche un glow: su una parete scura l'alone pallido diventava una PALLA
+       grigia appesa sopra la zuppiera, e la zuppiera sembrava tenere un pallone. Il
+       vapore non illumina niente, quindi non ha alone: ha solo forma e trasparenza. */
+    for (let i = 0; i < 4; i++) {
+      const t = i / 3;
+      ctx.fillStyle = `rgba(246,243,232,${(0.62 - t * 0.40).toFixed(3)})`;
+      pixelEllipse(ctx, cx + Math.sin(t * 4.2 + rand()) * w * 0.20, baseY - h * 1.15 - i * 14, 6 + i * 3, 4 + i * 2, 3);
+    }
+  }
+
+  // Pila di piatti: dischi visti quasi di taglio, uno sopra l'altro
+  function plateStack(ctx, cx, baseY, w, n = 7) {
+    for (let i = 0; i < n; i++) {
+      const y = baseY - i * 7;
+      ctx.fillStyle = '#9a9689'; pixelEllipse(ctx, cx, y, w * 0.5, 5, 3);
+      ctx.fillStyle = '#eae6d8'; pixelEllipse(ctx, cx, y - 2, w * 0.5, 3, 3);
+    }
+  }
+
+  /* CASSERUOLA DI RAME appesa alla rastrelliera — casseruola, non pentola, perché è la
+     parola che usa il testo: «la salsa, in una casseruola di rame», «passa un dito sul
+     bordo di una casseruola di rame». Erano sette rettangoli arancioni di 22-38 px in
+     fila, e un rettangolo pieno non è un recipiente. Tre cose la fanno leggere: il FONDO
+     TONDO (i fianchi diritti solo per la metà alta, poi l'ellisse), la fascia chiara
+     sull'IMBOCCATURA col filo di luce sul filo, e il MANICO LUNGO di legno attaccato al
+     bordo — che è anche il punto da cui una casseruola si appende davvero, quindi il
+     gancio sta là e non in mezzo alla pancia. Rame in tre fasce di tono. */
+  function copperPan(ctx, cx, rimY, w, h) {
+    const R = Math.round(w / 2), straight = Math.round(h * 0.52);
+    for (let i = 0; i < h; i += 3) {
+      const t = i / h;
+      let hw = R;
+      if (i > straight) { const u = (i - straight) / (h - straight); hw = R * Math.sqrt(Math.max(0, 1 - u * u)); }
+      hw = Math.max(3, Math.round(hw));
+      ctx.fillStyle = t < 0.28 ? '#c88a3a' : (t < 0.68 ? '#a86428' : '#7d461c');
+      ctx.fillRect(cx - hw, rimY + 9 + i, hw * 2, 3);
+    }
+    ctx.fillStyle = '#d8a04a'; ctx.fillRect(cx - R, rimY, w, 10);
+    ctx.fillStyle = '#f0c878'; ctx.fillRect(cx - R, rimY, w, 3);
+    const hl = Math.round(w * 0.5);
+    ctx.fillStyle = '#5a4530'; ctx.fillRect(cx + R, rimY + 2, hl, 7);
+    ctx.fillStyle = '#7a5c3d'; ctx.fillRect(cx + R, rimY + 2, hl, 2);
+    ctx.fillStyle = '#3a2a18'; ctx.fillRect(cx + R + hl - 8, rimY - 12, 4, 14);   // gancio sul manico
+  }
+
+  /* Soufflé. Al primo tentativo era una torre di tre pirottini impilati e leggeva come
+     una pila di frittelle: la «torre» di un soufflé non è una pila, è UNO che è cresciuto
+     fuori dal suo stampo. Quindi stampo scanalato (le scanalature verticali sono il
+     dettaglio che dice «stampo da soufflé» e non «bicchiere») e cupola dorata più larga
+     del bordo, spaccata in cima come si spacca crescendo. */
+  function souffle(ctx, cx, baseY, w) {
+    const R = Math.round(w / 2);
+    ctx.fillStyle = '#c4bfae'; ctx.fillRect(cx - R, baseY - 32, w, 32);
+    ctx.fillStyle = '#8f8a7c';
+    for (let i = 1; i < 5; i++) ctx.fillRect(cx - R + Math.round(i * w / 5), baseY - 30, 3, 28);
+    ctx.fillStyle = '#eae4d2'; ctx.fillRect(cx - R - 3, baseY - 36, w + 6, 6);      // bordo dello stampo
+    ctx.fillStyle = '#a87a34'; pixelEllipse(ctx, cx, baseY - 44, R * 1.16, 15, 3);   // cupola cresciuta
+    ctx.fillStyle = '#d69a4a'; pixelEllipse(ctx, cx, baseY - 52, R * 0.94, 10, 3);
+    ctx.fillStyle = '#f0c878'; pixelEllipse(ctx, cx - R * 0.22, baseY - 58, R * 0.44, 5, 3);
+    ctx.fillStyle = '#7d5a24';                                                       // le spaccature
+    ctx.fillRect(Math.round(cx - R * 0.5), baseY - 50, 4, 9);
+    ctx.fillRect(Math.round(cx + R * 0.36), baseY - 53, 4, 11);
   }
 
   /* LA CORONA DI MEZZANOTTE — un solo disegno, per il titolo e per la vetta.
@@ -515,12 +663,13 @@ const Scenes = (() => {
       // camino
       blocks(ctx, W * 0.80, floorY - 150, 130, 150, '#5a5a66', 10, r, 0.2);
       blocks(ctx, W * 0.78, floorY - 162, 154, 14, '#6e6e7a', 10, r, 0.15); // mensola
+      /* IL FOCOLARE. Era un rettangolo arancione con dentro un rettangolo giallo e una
+         barra scura sopra per i ceppi: leggeva come un pannello luminoso acceso, non
+         come un fuoco. Il fuoco si riconosce dal profilo — lingue larghe in basso e
+         strozzate in punta, la brace fra i ceppi — e quella sagoma ce l'ha già fire(),
+         che è lo stesso helper del focolare delle cucine: un fuoco solo, due scene. */
       ctx.fillStyle = '#1a1a22'; ctx.fillRect(W * 0.80 + 26, floorY - 92, 78, 92);
-      ctx.fillStyle = 'rgba(245,166,35,.2)'; ctx.fillRect(W * 0.80 - 10, floorY - 120, 150, 130);
-      ctx.fillStyle = '#f5a623'; ctx.fillRect(W * 0.80 + 36, floorY - 62, 58, 62);
-      ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.80 + 50, floorY - 44, 30, 44);
-      ctx.fillStyle = '#3a2a18';
-      ctx.fillRect(W * 0.80 + 30, floorY - 14, 70, 8); // ceppi
+      fire(ctx, W * 0.80 + 65, floorY - 4, 58, 56, r);
       // scaffale con bottiglie dietro il bancone
       blocks(ctx, W * 0.05, floorY - 168, 230, 10, '#5d4530', 10, r, 0.12);
       const bottleCols = ['#5a8a4a', '#8a5a2a', '#4a6a9a', '#8a4a6a', '#6a6a3a'];
@@ -546,9 +695,11 @@ const Scenes = (() => {
       // tavolo con candela e piatti
       blocks(ctx, W * 0.44, floorY - 58, 170, 14, '#5d4530', 12, r, 0.12);
       ctx.fillStyle = '#4a3524'; ctx.fillRect(W * 0.46, floorY - 44, 14, 44); ctx.fillRect(W * 0.58, floorY - 44, 14, 44);
+      // la candela sul tavolo: alone tondo (era un quadrato di 34×34 attorno alla fiamma,
+      // e attorno a una candela un quadrato più chiaro sembra un quadretto appeso)
+      glow(ctx, W * 0.47 + 5, floorY - 82, 46, 50, '245,224,66');
       ctx.fillStyle = '#f0e8d8'; ctx.fillRect(W * 0.47, floorY - 76, 9, 18);
-      ctx.fillStyle = 'rgba(245,224,66,.18)'; ctx.fillRect(W * 0.47 - 12, floorY - 96, 34, 34);
-      ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.47 + 1, floorY - 84, 7, 8);
+      flame(ctx, W * 0.47 + 4, floorY - 76, 8, 12, r, 3);
       ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.52, floorY - 64, 22, 6);
       // botti
       for (const bx of [0.66, 0.72]) {
@@ -755,14 +906,16 @@ const Scenes = (() => {
         tree(ctx, x, g + 12, 62 + r() * 26, '#1d3a25', '#2e2115', r);
       }
       ground(ctx, W, H, g, '#16301c', r, 12, 12);
-      // funghi luminosi
-      for (let i = 0; i < 7; i++) {
-        const x = 60 + r() * (W - 120), y = g + 14 + r() * 26;
-        glow(ctx, x, y - 8, 16, 12, '200,90,224');
-        ctx.fillStyle = '#e8d8f0'; ctx.fillRect(x - 1, y - 8, 6, 10);
-        ctx.fillStyle = '#c85ae0'; ctx.fillRect(x - 7, y - 14, 18, 8);
-        ctx.fillStyle = '#e8b8f5'; ctx.fillRect(x - 4, y - 12, 5, 3);
-      }
+      /* I funghi luminosi. Due grandi ai lati — «alti come persone», e ai LATI perché in
+         partita la fila degli eroi occupa il centro fino a 720 px — più tre di contorno
+         che dicono che la radura continua. Cinque cose invece di sette, ma tre si
+         riconoscono e due fanno luce: prima erano sette macchie tutte uguali da diciotto
+         pixel, e nessuna illuminava niente. */
+      glowMushroom(ctx, 116, g + 22, 74, r);
+      glowMushroom(ctx, 838, g + 16, 62, r);
+      glowMushroom(ctx, 214, g + 30, 40, r);
+      glowMushroom(ctx, 470, g + 34, 30, r);
+      glowMushroom(ctx, 706, g + 26, 34, r);
       // occhi nel buio
       ctx.fillStyle = '#e8d84a';
       ctx.fillRect(W * 0.12, H * 0.44, 5, 5); ctx.fillRect(W * 0.12 + 12, H * 0.44, 5, 5);
@@ -785,8 +938,9 @@ const Scenes = (() => {
       }
       ctx.fillStyle = '#241a10'; ctx.fillRect(cx + 84, g - 52, 38, 52);
       ctx.fillStyle = '#3a2a18'; ctx.fillRect(cx + 80, g - 56, 46, 5);
-      // finestra verde magica
-      ctx.fillStyle = 'rgba(138,224,90,.2)'; ctx.fillRect(cx + 10, g - 100, 56, 56);
+      // finestra verde magica (l'alone era un quadrato di 56×56: sulla parete di legno
+      // leggeva come un secondo riquadro dipinto attorno al primo)
+      glow(ctx, cx + 38, g - 72, 78, 78, '138,224,90');
       ctx.fillStyle = '#8ae05a'; ctx.fillRect(cx + 24, g - 88, 28, 28);
       ctx.fillStyle = '#4a3a28'; ctx.fillRect(cx + 36, g - 88, 4, 28);
       // camino con fumo verde
@@ -797,7 +951,7 @@ const Scenes = (() => {
       // calderone col fuoco
       ctx.fillStyle = '#2a2a35'; ctx.fillRect(W * 0.70, g - 30, 56, 30);
       ctx.fillStyle = '#1a1a22'; ctx.fillRect(W * 0.70 + 6, g - 24, 44, 8);
-      ctx.fillStyle = 'rgba(138,224,90,.25)'; ctx.fillRect(W * 0.70 - 6, g - 56, 68, 40);
+      glow(ctx, W * 0.70 + 28, g - 36, 92, 60, '138,224,90');   // vapore del calderone: tondo
       ctx.fillStyle = '#8ae05a'; ctx.fillRect(W * 0.70 + 5, g - 38, 46, 9);
       ctx.fillStyle = '#f5a623'; ctx.fillRect(W * 0.70 + 10, g - 6, 36, 6);
       // erbe appese a un filo
@@ -904,48 +1058,58 @@ const Scenes = (() => {
       // grande focolare acceso "per abitudine"
       blocks(ctx, W * 0.04, floorY - 168, 190, 168, '#5a5a60', 10, r, 0.18);
       blocks(ctx, W * 0.02, floorY - 182, 220, 16, '#6e6e78', 10, r, 0.12);
+      /* Le «braci che covano da chissà quanto» di k1: fuoco basso e largo, ceppi e brace
+         rossa fra loro. Erano due rettangoli concentrici arancione e giallo — a spigolo
+         vivo, cioè un pannello luminoso acceso dentro un camino. Stesso helper del
+         focolare della taverna: una fiamma disegnata in un posto solo. */
       ctx.fillStyle = '#14100e'; ctx.fillRect(W * 0.04 + 34, floorY - 106, 122, 106);
-      glow(ctx, W * 0.04 + 95, floorY - 50, 90, 70, '245,166,35');
-      ctx.fillStyle = '#f5a623'; ctx.fillRect(W * 0.04 + 48, floorY - 70, 94, 70);
-      ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.04 + 66, floorY - 48, 58, 48);
+      fire(ctx, W * 0.04 + 95, floorY - 6, 96, 58, r);
       // pentolone appeso sul fuoco
       ctx.fillStyle = '#3a3a45'; ctx.fillRect(W * 0.04 + 60, floorY - 132, 70, 12);
       blocks(ctx, W * 0.04 + 64, floorY - 122, 62, 40, '#8a5a2a', 8, r, 0.14);
       ctx.fillStyle = '#c8a032'; ctx.fillRect(W * 0.04 + 64, floorY - 126, 62, 6);
-      // rastrelliera di pentole di rame
+      /* Rastrelliera: TRE casseruole di rame grandi invece di sette rettangolini. E via
+         le cinque trecce d'aglio: erano bastoncini verdi e bianchi di undici pixel appesi
+         fra le pentole, e non si capiva se fossero pentole, prosciutti o panni stesi —
+         e l'aglio non lo nomina nessuna scena delle cucine. Un oggetto che dopo due
+         tentativi non si legge si toglie: la parete sgombra attorno alle tre casseruole
+         vale più di quindici macchie. */
       blocks(ctx, W * 0.30, 44, W * 0.42, 10, '#4a3524', 10, r, 0.1);
-      for (let i = 0; i < 7; i++) {
-        const px = W * 0.31 + i * (W * 0.40 / 7);
-        const s = 22 + (i % 3) * 8;
-        ctx.fillStyle = i % 2 ? '#c87a32' : '#b06a28';
-        ctx.fillRect(px, 54, s, s * 0.8);
-        ctx.fillStyle = '#8a5520'; ctx.fillRect(px + s - 4, 56, 12, 4);
-      }
-      // trecce d'aglio ed erbe appese
-      for (let i = 0; i < 5; i++) {
-        const hx = W * 0.34 + i * 40;
-        ctx.strokeStyle = '#6e5a3a'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(hx, 54); ctx.lineTo(hx, 84); ctx.stroke();
-        ctx.fillStyle = i % 2 ? '#e8e0c8' : '#5a8a4a';
-        for (let k = 0; k < 3; k++) ctx.fillRect(hx - 5, 84 + k * 9, 11, 9);
-      }
+      copperPan(ctx, 326, 62, 76, 48);
+      copperPan(ctx, 478, 58, 84, 54);
+      copperPan(ctx, 622, 64, 68, 42);
       // lungo tavolo da lavoro macchiato da due secoli di sughi
       blocks(ctx, W * 0.34, floorY - 62, W * 0.44, 16, '#7a5c3d', 10, r, 0.14);
       ctx.fillStyle = '#5a3a28';
       for (let i = 0; i < 9; i++) ctx.fillRect(W * 0.35 + r() * W * 0.4, floorY - 60 + r() * 10, 8 + r() * 14, 4);
       ctx.fillStyle = '#4a3524';
       ctx.fillRect(W * 0.36, floorY - 46, 14, 46); ctx.fillRect(W * 0.74, floorY - 46, 14, 46);
-      // sul tavolo: tagliere, verdure, un coltello piantato
-      ctx.fillStyle = '#8a6a45'; ctx.fillRect(W * 0.40, floorY - 72, 46, 10);
-      ctx.fillStyle = '#c85a4a'; ctx.fillRect(W * 0.43, floorY - 78, 10, 8);
-      ctx.fillStyle = '#5fca6a'; ctx.fillRect(W * 0.55, floorY - 76, 14, 8);
-      ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.66, floorY - 86, 4, 24);
-      ctx.fillStyle = '#4a3524'; ctx.fillRect(W * 0.655, floorY - 94, 14, 10);
-      // credenza con stoviglie
+      /* LE SETTE PORTATE PERFETTE. Quattro portate grandi sui loro vassoi d'argento,
+         allineate alla stessa quota e a passo regolare di centocinque pixel: è la
+         «precisione da parata militare» che il testo nomina, e adesso si vede. */
+      const topY = floorY - 62;
+      for (let i = 0; i < 4; i++) {
+        // la x si arrotonda: in un painter pixel-art un fillRect su coordinata
+        // frazionaria non è un rettangolo, sono due bordi mezzi trasparenti (lezione 55)
+        const cx = Math.round(W * 0.34 + (W * 0.44) * (0.125 + i * 0.25));
+        tray(ctx, cx, topY - 8, 92);
+        if (i === 0) roastDuck(ctx, cx, topY - 8, 78);
+        else if (i === 1) souffle(ctx, cx, topY - 8, 54);
+        else if (i === 2) tureen(ctx, cx, topY - 8, 66, r);
+        else plateStack(ctx, cx, topY - 10, 62, 7);
+      }
+      /* Credenza: sei piatti TONDI da quarantasei pixel su due palchetti, non dodici
+         quadratini di 18×16 su tre — che a griglia leggevano come una finestra a
+         riquadri. Un piatto è un disco: se lo si disegna quadrato non è un piatto. */
       blocks(ctx, W * 0.82, floorY - 130, W * 0.16, 130, '#5a4530', 10, r, 0.14);
-      for (let row = 0; row < 3; row++) {
-        blocks(ctx, W * 0.82, floorY - 110 + row * 34, W * 0.16, 8, '#4a3524', 8, r, 0.1);
-        for (let i = 0; i < 4; i++) { ctx.fillStyle = '#e8e4d8'; ctx.fillRect(W * 0.83 + i * 26, floorY - 126 + row * 34, 18, 16); }
+      for (let row = 0; row < 2; row++) {
+        const shelfY = floorY - 70 + row * 60;
+        blocks(ctx, W * 0.82, shelfY, W * 0.16, 8, '#4a3524', 8, r, 0.1);
+        for (let i = 0; i < 3; i++) {
+          const cx = W * 0.82 + 30 + i * 47;
+          ctx.fillStyle = '#c4bfae'; pixelDisc(ctx, cx, shelfY - 24, 23, 3);   // tesa
+          ctx.fillStyle = '#eae6d8'; pixelDisc(ctx, cx, shelfY - 24, 18, 3);   // cavo del piatto
+        }
       }
       torch(ctx, W * 0.30, H * 0.42); torch(ctx, W * 0.78, H * 0.42);
     },
@@ -1078,7 +1242,7 @@ const Scenes = (() => {
         blocks(ctx, x, y, pw, ph, i % 2 ? '#5a5468' : '#4d4860', 10, r, 0.14);
         blocks(ctx, x - 6, y, pw + 12, 8, '#6a6478', 8, r, 0.1);  // cornicione
         // finestre illuminate, storte anche loro
-        ctx.fillStyle = 'rgba(245,197,66,.14)'; ctx.fillRect(x + 24, y + 14, 40, 30);
+        glow(ctx, x + 43, y + 29, 54, 48, '245,197,66');
         ctx.fillStyle = '#f5c542'; ctx.fillRect(x + 34, y + 20, 18, 18);
         ctx.fillStyle = '#4d4860'; ctx.fillRect(x + 42, y + 20, 3, 18);
       }
@@ -1123,7 +1287,7 @@ const Scenes = (() => {
       ctx.fillRect(W * 0.44, H * 0.24 - 14, 10, 14); ctx.fillRect(W * 0.495, H * 0.24 - 22, 10, 22); ctx.fillRect(W * 0.55, H * 0.24 - 14, 10, 14);
       for (const fx of [0.2, 0.5, 0.8]) {
         ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx - 4, 46, 8, 20);
-        ctx.fillStyle = 'rgba(160,106,224,.2)'; ctx.fillRect(W * fx - 18, 22, 36, 40);
+        glow(ctx, W * fx, 42, 58, 62, '160,106,224');
         ctx.fillStyle = '#a06ae0'; ctx.fillRect(W * fx - 7, 34, 14, 14);
         ctx.fillStyle = '#d8b8f5'; ctx.fillRect(W * fx - 3, 38, 6, 8);
       }
@@ -1151,7 +1315,7 @@ const Scenes = (() => {
       ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.44, H - 80, 10, 34); ctx.fillRect(W * 0.53, H - 80, 10, 34);
       for (let i = 0; i < 5; i++) { ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.425 + i * 0.026 * W, H - 100, 16, 6); }
       for (const fx of [0.08, 0.34, 0.62, 0.9]) {
-        ctx.fillStyle = 'rgba(95,224,138,.12)'; ctx.fillRect(W * fx - 16, H * 0.46 - 20, 42, 48);
+        glow(ctx, W * fx + 3, H * 0.5 - 4, 64, 68, '95,224,138');
         ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx, H * 0.5, 7, 16);
         ctx.fillStyle = '#5fe08a'; ctx.fillRect(W * fx - 2, H * 0.5 - 12, 11, 12);
         ctx.fillStyle = '#c8f5d8'; ctx.fillRect(W * fx + 1, H * 0.5 - 8, 5, 6);
@@ -1185,7 +1349,9 @@ const Scenes = (() => {
         ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * 0.5 + dx, y - 12, 7, 12);
         ctx.fillStyle = '#f5e042'; ctx.fillRect(W * 0.5 + dx - 2, y - 20, 11, 10);
       }
-      ctx.fillStyle = 'rgba(245,224,66,.08)'; ctx.fillRect(W * 0.5 - 110, 0, 220, 90);
+      // il lampadario faceva 220×90 di rettangolo giallastro appeso al muro: dietro le
+      // dodici candele si vedeva la CORNICE, non la luce. Adesso è un alone a ellissi.
+      glow(ctx, W * 0.5, 40, 320, 180, '245,224,66');
       blocks(ctx, 0, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
       blocks(ctx, W - 50, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
       ctx.fillStyle = '#f5c542'; ctx.fillRect(0, H * 0.4, 50, 6); ctx.fillRect(W - 50, H * 0.4, 50, 6);
@@ -1262,7 +1428,7 @@ const Scenes = (() => {
       ctx.fillStyle = '#3a2a18';
       ctx.beginPath(); ctx.moveTo(bx + 168, by); ctx.lineTo(bx + 196, by + 6); ctx.lineTo(bx + 168, by + 24); ctx.closePath(); ctx.fill();
       ctx.fillStyle = '#2a1d10'; ctx.fillRect(bx + 76, by - 52, 7, 44);
-      ctx.fillStyle = 'rgba(245,197,66,.18)'; ctx.fillRect(bx + 60, by - 74, 42, 40);
+      glow(ctx, bx + 79, by - 56, 62, 58, '245,197,66');   // la lanterna della zattera
       ctx.fillStyle = '#f5c542'; ctx.fillRect(bx + 70, by - 64, 19, 15);
       // canne sulle rive
       reeds(ctx, 10, g + 14, 6, r); reeds(ctx, W - 70, g + 14, 7, r);
@@ -1297,21 +1463,29 @@ const Scenes = (() => {
          «sette cose piccole» moltiplicato per tre. Adesso sono quattro colonie grandi,
          ognuna ancorata a una superficie che esiste: il bordo di un pilastro o la linea
          dell'acqua, dove il muschio cresce per davvero. */
+      /* Al primo tentativo le colonie avevano il loro alone verde ed erano di un verde da
+         prato: leggevano come quattro cespugli che galleggiano sull'acqua, e rubavano ai
+         cristalli il mestiere di illuminare la grotta — che è quello che il testo dà a
+         loro. Il muschio non fa luce: quindi niente alone, verde spento da pietra bagnata,
+         e sotto ogni colonia la fascia scura del bagnasciuga che la ATTACCA alla roccia
+         invece di lasciarla appoggiata sul pelo dell'acqua. */
       const colonia = (cx, cy, w, h) => {
-        glow(ctx, cx, cy, w * 1.7, h * 2.6, '95,202,106');
+        ctx.fillStyle = '#15281a';
+        ctx.fillRect(Math.round(cx - w / 2) - 2, cy, w + 4, 7);       // bagnasciuga: la base bagnata
         for (let k = 0; k < 16; k++) {
           const t = k / 15;
-          const hh = Math.max(5, Math.round(h * (0.35 + 0.65 * Math.sin(t * Math.PI)) + r() * 6));
+          const hh = Math.max(4, Math.round(h * (0.35 + 0.65 * Math.sin(t * Math.PI)) + r() * 5));
           const x = Math.round(cx - w / 2 + t * w);
-          ctx.fillStyle = '#2e6a36'; ctx.fillRect(x, cy - hh, Math.ceil(w / 15) + 1, hh);
-          ctx.fillStyle = '#4f9a4a'; ctx.fillRect(x, cy - hh, Math.ceil(w / 15) + 1, Math.max(3, hh * 0.4));
-          if (r() > 0.5) { ctx.fillStyle = '#8ae05a'; ctx.fillRect(x, cy - hh, 3, 3); }
+          const wd = Math.ceil(w / 15) + 1;
+          ctx.fillStyle = '#1e4626'; ctx.fillRect(x, cy - hh, wd, hh + 4);
+          ctx.fillStyle = '#356b35'; ctx.fillRect(x, cy - hh, wd, Math.max(3, hh * 0.38));
+          if (r() > 0.6) { ctx.fillStyle = '#4f8f42'; ctx.fillRect(x, cy - hh, 3, 3); }
         }
       };
-      colonia(W * 0.34, H - 84, 86, 22);          // sul ciglio del canale
-      colonia(W * 0.62, H - 84, 74, 18);
-      colonia(W * 0.16 + 58, H * 0.8, 66, 26);    // al piede del pilastro dell'arco
-      colonia(W * 0.5 - 58, H * 0.8, 62, 22);
+      colonia(W * 0.34, H - 84, 86, 16);          // sul ciglio del canale
+      colonia(W * 0.62, H - 84, 74, 13);
+      colonia(W * 0.16 + 58, H * 0.8, 66, 19);    // al piede del pilastro dell'arco
+      colonia(W * 0.5 - 58, H * 0.8, 62, 16);
       /* LA SCALA DI SERVIZIO — «la scala sale dritta alle cantine», dice Bertoldo.
          Prima erano lastre rosa (#3a3548, un colore che non appartiene a niente in questa
          scena) con quattordici pixel di vuoto fra un gradino e l'altro. Alzate piene e
@@ -1351,7 +1525,10 @@ const Scenes = (() => {
         const a = i * Math.PI / 10;
         ctx.fillRect(W * 0.5 + Math.cos(a) * 70 - 4, H * 0.6 - Math.sin(a) * 70 - 4, 9, 9);
       }
-      ctx.fillStyle = 'rgba(245,224,66,.18)'; ctx.fillRect(0, H * 0.5, W, H * 0.3);
+      // il bagliore dell'alba era una fascia di 960×108 con lo spigolo netto sopra e
+      // sotto: una riga orizzontale che tagliava il cielo a metà. La luce del sole si
+      // allarga DAL sole, quindi l'alone è centrato su di lui e sfuma.
+      glow(ctx, W * 0.5, H * 0.6, W * 0.9, 250, '245,224,66');
       hills(ctx, W, g + 2, 48, '#2a4a2e', r, 32);
       house(ctx, W * 0.06, g, 104, 82, '#a8825a', '#8a4030', r, false);
       house(ctx, W * 0.74, g, 112, 86, '#b09068', '#7a5a40', r, false);
