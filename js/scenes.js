@@ -872,23 +872,174 @@ const Scenes = (() => {
     },
 
     strada(ctx, W, H) {
+      /* IL BIVIO DELLA CIVETTA, quattordici scene, e il nome dice le due cose
+         che il quadro non aveva: «LA STRADA SI DIVIDE sotto una vecchia QUERCIA
+         dove una CIVETTA vi osserva con l'aria di chi ne ha viste tante. Il
+         cartello di legno indica TRE DIREZIONI (la terza è stata aggiunta a
+         mano, con una grafia tremolante)». Più «il muretto è di pietra a secco,
+         alto quanto un ginocchio» dove si accucciano i due banditi.
+         Prima: sette alberi quasi identici in fila a distanza quasi uguale, un
+         sentiero SOLO che scendeva al centro, e un cartello da 84x30 con due
+         righe illeggibili. Cioè: nessun bivio nel Bivio, nessuna quercia,
+         nessuna civetta, e un cartello che non indicava niente. */
       const r = rng(31);
-      skyGradient(ctx, W, H, '#0d0a1f', '#33204a', 10);
-      stars(ctx, W, H, r, 45);
-      moon(ctx, W * 0.15, 66, 26, '#c8b8e8', true);
-      const g = H - 84;
-      hills(ctx, W, g + 4, 46, '#152515', r, 30);
-      for (let i = 0; i < 7; i++) tree(ctx, 40 + i * (W / 7) + (r() * 34 - 17), g + 8, 58 + r() * 30, '#1d3a22', '#3a2a18', r);
-      ground(ctx, W, H, g, '#26402a', r, 12, 10);
-      // sentiero che si allontana in prospettiva
-      for (let i = 0; i < 14; i++) {
-        const t = i / 14;
-        const pw = 40 + t * 150;
-        blocks(ctx, W * 0.5 - pw / 2 + Math.sin(i * 0.7) * 24, g + 8 + i * ((H - g) / 14), pw, 10, '#6e5a42', 10, r, 0.2);
+      const g = H - 96;
+      skyGradient(ctx, W, g + 20, '#0d0a1f', '#33204a', 10);
+      stars(ctx, W, g, r, 45);
+      moon(ctx, W * 0.82, 56, 26, '#c8b8e8', true);
+      hills(ctx, W, g + 4, 46, '#111c11', r, 30);
+      /* GLI ALBERI DI FONDO: sagome CONTROLUCE (più scure del cielo — l'unica
+         luce è un'eclissi), di altezza e distanza irregolari. Sette cloni a
+         passo quasi uguale leggono come una staccionata di broccoli. */
+      for (const [fx, alt] of [[0.05, 74], [0.13, 52], [0.235, 96], [0.35, 60],
+                               [0.60, 88], [0.70, 54], [0.79, 70], [0.93, 100]]) {
+        tree(ctx, W * fx, g + 8, alt, '#0f1c12', '#1c150c', r);
       }
-      sign(ctx, W * 0.82, g + 10, 84, 30, 2);
-      bush(ctx, W * 0.12, g + 8, 24, '#2a4a2e', r);
-      bush(ctx, W * 0.66, g + 12, 20, '#2a4a2e', r);
+            /* L'ERBA stava a #1c2e1f, luminanza 38: quattro punti SOTTO la soglia a
+         cui un pixel conta come nero. Tutto il prato — un terzo del quadro —
+         risultava buio, e il fondale segnava l'85% di nero pur avendo il
+         soggetto in piena vista. Un prato sotto un'eclissi non e' nero: e'
+         verde spento. */
+      ground(ctx, W, H, g, '#28402a', r, 12, 10);
+      ctx.fillStyle = 'rgba(120,160,120,.05)'; ctx.fillRect(0, g, W, 3);
+
+      /* LE DUE STRADE, che si dividono. Sono due piani orizzontali: partono
+         larghe dal bordo basso, si stringono andando in là e convergono verso
+         due punti diversi sull'orizzonte — è la divergenza che fa il bivio. */
+      const strada2 = (x0, x1, largo0, largo1) => {
+        for (let k = 0; k <= 44; k++) {
+          const t = k / 44;
+          const xx = x0 + (x1 - x0) * t;
+          const yy = H - t * (H - g - 6);
+          const larg = largo0 + (largo1 - largo0) * t;
+          blocks(ctx, xx - larg / 2, yy, larg, Math.ceil((H - g) / 44) + 2, mix('#6e5a42', '#3e3426', t), 9, r, 0.16);
+          ctx.fillStyle = `rgba(24,18,12,${(0.24 * (1 - t)).toFixed(3)})`;
+          ctx.fillRect(xx - larg / 2, yy, 3, 3); ctx.fillRect(xx + larg / 2 - 3, yy, 3, 3);
+        }
+      };
+      strada2(W * 0.47, W * 0.16, 130, 16);
+      strada2(W * 0.53, W * 0.86, 130, 16);
+      blocks(ctx, W * 0.40, H - 34, W * 0.20, 34, '#6e5a42', 9, r, 0.16);   // il tratto comune, davanti
+
+      /* IL MURETTO DI PIETRA A SECCO, alto quanto un ginocchio (45 cm): pietre
+         di taglia diversa incastrate senza malta, e la fila di copertina in
+         cima. È dietro di lui che i due banditi si accucciano. */
+      {
+        const my = g + 26;
+        /* Pietre da 13 px e non da 7: a sette, su un prato scuro, leggevano
+           come PIETRISCO. E i tre corsi devono vedersi — una pietra a secco si
+           riconosce dai giunti aperti fra pietre di taglia diversa, non dalla
+           grana. */
+        for (let x = W * 0.055; x < W * 0.40; x += 13) {
+          const alt = 30 + Math.round(Math.sin(x * 0.07) * 3);
+          for (let q = 0; q < 3; q++) {
+            const hh = 9 + ((x + q * 17) % 3);
+            const larg = 13 - ((x + q * 5) % 3);
+            ctx.fillStyle = ['#4e4e46', '#3a3a34', '#59594f'][(x / 13 + q) % 3 | 0];
+            ctx.fillRect(x, my + alt - (q + 1) * hh, larg, hh - 2);
+            ctx.fillStyle = 'rgba(196,204,192,.07)'; ctx.fillRect(x, my + alt - (q + 1) * hh, larg, 2);
+            ctx.fillStyle = 'rgba(8,10,8,.44)'; ctx.fillRect(x, my + alt - (q + 1) * hh + hh - 2, larg, 2);
+          }
+          ctx.fillStyle = '#62625a'; ctx.fillRect(x, my + alt - 36, 13, 5);       // la copertina
+          ctx.fillStyle = 'rgba(200,210,200,.10)'; ctx.fillRect(x, my + alt - 36, 13, 1);
+          ctx.fillStyle = 'rgba(8,10,8,.42)'; ctx.fillRect(x, my + alt - 1, 13, 5);
+        }
+      }
+
+      /* LA VECCHIA QUERCIA DEL BIVIO: il tronco grosso e nodoso, i rami che si
+         aprono a candelabro, la chioma larga — ed è l'albero sotto cui la
+         strada si divide, quindi sta nel mezzo, non in fila con gli altri. */
+      {
+        const qx = W * 0.335, qb = g + 16;
+        for (let y = qb; y > 96; y -= 1) {                                        // il tronco
+          const t = (qb - y) / (qb - 96);
+          const sp = Math.round(46 - t * 16);
+          const cx2 = qx + Math.sin(t * 1.8) * 9;
+          ctx.fillStyle = mix('#2a2016', '#1e1710', t * 0.6);
+          ctx.fillRect(cx2 - sp / 2, y, sp, 1);
+          for (let q = 0; q < 5; q++) {                                           // corteccia, solchi verticali
+            const ox = (q - 2) * 9 + ((q * 7) % 4) - 1;
+            if (Math.abs(ox) > sp / 2 - 2) continue;
+            ctx.fillStyle = q % 2 ? 'rgba(10,8,5,.42)' : 'rgba(112,96,68,.11)';
+            ctx.fillRect(cx2 + ox, y, 3, 1);
+          }
+        }
+        ctx.fillStyle = '#241b12';                                                // le radici
+        for (const dx of [-40, -22, 20, 38]) for (let k = 0; k < 22; k++) ctx.fillRect(qx + dx * (1 + k / 22 * 0.6), qb + k * 0.4, 8, 5);
+        // i rami a candelabro
+        for (const [ang, lun] of [[-1.15, 120], [-0.55, 96], [0.45, 108], [1.05, 88], [-0.05, 70]]) {
+          for (let k = 0; k < lun; k++) {
+            const xx = qx + Math.sin(ang) * k, yy = 100 - Math.cos(ang) * k * 0.62;
+            ctx.fillStyle = '#241b12'; ctx.fillRect(xx, yy, Math.max(3, 11 - k / 12 | 0), 4);
+          }
+        }
+        // la chioma: sagoma scura, col filo di luna in alto a destra
+        for (let q = 0; q < 200; q++) {
+          const ax = qx - 168 + (r() * 336 | 0), ay = -10 + (r() * 118 | 0);
+          const w2 = 15 + (r() * 13 | 0), h2 = 10 + (r() * 8 | 0);
+          ctx.fillStyle = ['#0d1a11', '#09150d', '#111f15'][q % 3];
+          ctx.fillRect(ax, ay, w2, h2);
+          const vl = (ax - (qx - 168)) / 336 * 0.6 + (1 - (ay + 10) / 118) * 0.4;
+          if (vl > 0.66) {
+            ctx.fillStyle = `rgba(176,164,208,${(0.09 + (vl - 0.66) * 0.24).toFixed(3)})`;
+            ctx.fillRect(ax, ay, w2, 2); ctx.fillRect(ax + w2 - 2, ay, 2, h2);
+          }
+        }
+        /* LA CIVETTA, su un ramo basso: pancia chiara, due occhi grandi e
+           tondi con la pupilla, il becco fra i due, e i ciuffetti. Sono gli
+           occhi che fanno la civetta: grandi, gialli e frontali. */
+        const ox2 = qx + 78, oy2 = 138;
+        ctx.fillStyle = '#241b12'; ctx.fillRect(ox2 - 26, oy2 + 22, 56, 5);       // il ramo su cui sta
+        ctx.fillStyle = '#5a4a36'; pixelEllipse(ctx, ox2, oy2, 17, 21, 3);        // il corpo
+        ctx.fillStyle = '#8a7a5e'; pixelEllipse(ctx, ox2, oy2 + 4, 12, 15, 3);    // la pancia chiara
+        ctx.fillStyle = '#3e3222';                                                // le ali richiuse
+        ctx.fillRect(ox2 - 17, oy2 - 6, 6, 22); ctx.fillRect(ox2 + 11, oy2 - 6, 6, 22);
+        ctx.fillStyle = '#f0d878'; pixelDisc(ctx, ox2 - 7, oy2 - 8, 6, 2);        // gli occhi
+        pixelDisc(ctx, ox2 + 7, oy2 - 8, 6, 2);
+        ctx.fillStyle = '#100c06'; pixelDisc(ctx, ox2 - 7, oy2 - 8, 3, 2); pixelDisc(ctx, ox2 + 7, oy2 - 8, 3, 2);
+        ctx.fillStyle = '#c8a038'; ctx.fillRect(ox2 - 2, oy2 - 5, 4, 6);          // il becco
+        ctx.fillStyle = '#3e3222';                                                // i ciuffetti
+        ctx.fillRect(ox2 - 14, oy2 - 20, 5, 7); ctx.fillRect(ox2 + 9, oy2 - 20, 5, 7);
+        ctx.fillStyle = '#5a4a36'; ctx.fillRect(ox2 - 6, oy2 + 20, 4, 5); ctx.fillRect(ox2 + 2, oy2 + 20, 4, 5);
+        glow(ctx, ox2, oy2 - 8, 15, 6, '240,216,120');
+      }
+
+      /* IL CARTELLO A TRE BRACCI. Il terzo è aggiunto a mano: legno più chiaro,
+         inchiodato di sbieco, con la scritta tremolante — e si vede che è
+         l'ultimo perché è l'unico storto. */
+      {
+        const cx2 = W * 0.505, cb = H - 30;
+        ctx.fillStyle = '#3e3022'; ctx.fillRect(cx2 - 6, cb - 132, 13, 132);
+        ctx.fillStyle = '#54432e'; ctx.fillRect(cx2 - 6, cb - 132, 4, 132);
+        ctx.fillStyle = 'rgba(10,8,5,.44)'; ctx.fillRect(cx2 - 14, cb - 4, 30, 6);
+        const braccio = (yy, verso, larg, alto, col, storto) => {
+          ctx.save();
+          ctx.translate(cx2 + (verso > 0 ? 5 : -5), yy);
+          if (storto) ctx.rotate(verso > 0 ? 0.10 : -0.13);
+          const x0 = verso > 0 ? 0 : -larg;
+          ctx.fillStyle = col; ctx.fillRect(x0, 0, larg, alto);
+          ctx.fillStyle = shade(col, 1.22); ctx.fillRect(x0, 0, larg, 3);
+          ctx.fillStyle = shade(col, 0.66); ctx.fillRect(x0, alto - 3, larg, 3);
+          // la punta a freccia
+          for (let k = 0; k < alto / 2; k++) {
+            ctx.fillStyle = col;
+            ctx.fillRect(verso > 0 ? larg + k : -larg - k - 1, k, 1, alto - k * 2);
+          }
+          // le lettere: due righe di trattini, tremolanti se il braccio è storto
+          ctx.fillStyle = storto ? 'rgba(28,20,12,.72)' : 'rgba(26,20,12,.60)';
+          for (let q = 0; q < 9; q++) {
+            const lx = x0 + 7 + q * ((larg - 16) / 9);
+            ctx.fillRect(lx, 6 + (storto ? ((q * 5) % 3) - 1 : 0), 5 + (q % 3), 3);
+            if (q < 6) ctx.fillRect(lx, 13 + (storto ? ((q * 7) % 3) - 1 : 0), 4 + (q % 2), 2);
+          }
+          ctx.restore();
+        };
+        braccio(cb - 126, -1, 112, 24, '#6a5438', false);   // BOSCO DEI SUSSURRI
+        braccio(cb - 92, 1, 118, 24, '#6a5438', false);     // MINIERE DI FERROVECCHIO
+        braccio(cb - 58, 1, 96, 22, '#8a7250', true);       // e la terza, aggiunta a mano
+      }
+      bush(ctx, W * 0.10, g + 14, 26, '#182c1c', r);
+      bush(ctx, W * 0.72, g + 18, 22, '#182c1c', r);
     },
 
     bosco(ctx, W, H) {
@@ -1012,22 +1163,42 @@ const Scenes = (() => {
       skyGradient(ctx, W, H, '#150d24', '#3d1535', 10);
       stars(ctx, W, H, r, 40);
       moon(ctx, W * 0.18, 54, 32, '#c8b8e8', true);   // spostata: non più coperta dalla torre
+      /* «Il Castello Crepuscolo si arrampica sulla montagna come UN ARTIGLIO DI
+         PIETRA NERA». Era dipinto in #3a3045 e #332a40 — luminanza 50 — su un
+         cielo che all'orizzonte fa 33: pietra PIÙ CHIARA del cielo, cioè un
+         castello illuminato da niente in una notte di eclissi, e una sagoma che
+         il misuratore dei soggetti non riusciva nemmeno a trovare (diciassette
+         punti di salto, sotto la soglia). Nera com'è scritto: la sagoma esiste,
+         il rosso delle finestre diventa l'unica cosa viva, e il velo della
+         Barriera si vede perché ha qualcosa di scuro dietro. */
       const g = H - 60;
       hills(ctx, W, g - 10, 50, '#170f22', r, 34);
       // mura
-      blocks(ctx, W * 0.08, g - 150, W * 0.84, 132, '#3a3045', 12, r, 0.15);
-      for (let x = W * 0.08; x < W * 0.9; x += 36) blocks(ctx, x, g - 168, 20, 18, '#3a3045', 8, r, 0.15);
+      blocks(ctx, W * 0.08, g - 150, W * 0.84, 132, '#171320', 12, r, 0.15);
+      for (let x = W * 0.08; x < W * 0.9; x += 36) blocks(ctx, x, g - 168, 20, 18, '#171320', 8, r, 0.15);
       // torri laterali
-      blocks(ctx, W * 0.05, g - 240, 70, 222, '#332a40', 10, r, 0.15);
-      blocks(ctx, W * 0.87, g - 240, 70, 222, '#332a40', 10, r, 0.15);
+      blocks(ctx, W * 0.05, g - 240, 70, 222, '#120f1a', 10, r, 0.15);
+      blocks(ctx, W * 0.87, g - 240, 70, 222, '#120f1a', 10, r, 0.15);
       // mastio centrale, più alto e affusolato
-      blocks(ctx, W * 0.43, g - 286, 130, 136, '#3d3350', 10, r, 0.15);
-      blocks(ctx, W * 0.415, g - 300, 160, 18, '#4a3f6b', 10, r, 0.12);
-      const spike = (x, w, y) => { for (let i = 0; i < 6; i++) blocks(ctx, x + i * (w / 12), y - i * 11, w - i * (w / 6), 11, '#5a2035', 8, r, 0.15); };
+      blocks(ctx, W * 0.43, g - 286, 130, 136, '#1a1526', 10, r, 0.15);
+      blocks(ctx, W * 0.415, g - 300, 160, 18, '#221c30', 10, r, 0.12);
+      const spike = (x, w, y) => { for (let i = 0; i < 6; i++) blocks(ctx, x + i * (w / 12), y - i * 11, w - i * (w / 6), 11, '#2a1020', 8, r, 0.15); };
       spike(W * 0.05, 70, g - 240); spike(W * 0.87, 70, g - 240); spike(W * 0.43, 130, g - 300);
-      ctx.fillStyle = '#e84a5a';
-      ctx.fillRect(W * 0.46, g - 262, 11, 16); ctx.fillRect(W * 0.53, g - 232, 11, 16);
-      ctx.fillRect(W * 0.08 + 24, g - 210, 8, 12); ctx.fillRect(W * 0.9, g - 210, 8, 12);
+      /* «Dalle finestre PULSA una luce rossastra»: due finestre non pulsano,
+         fanno due puntini. Su un castello nero le finestre accese sono la sola
+         cosa che si vede, quindi sono tante e di intensità diversa. */
+      const finestre = [[0.46, 262, 11, 17, 1.0], [0.53, 232, 11, 17, 0.8], [0.49, 196, 10, 15, 0.6],
+                        [0.075, 214, 9, 14, 0.9], [0.075, 176, 9, 14, 0.5], [0.088, 138, 8, 12, 0.7],
+                        [0.895, 214, 9, 14, 0.9], [0.895, 176, 9, 14, 0.6], [0.908, 138, 8, 12, 0.4],
+                        [0.20, 118, 8, 12, 0.5], [0.31, 118, 8, 12, 0.8], [0.62, 118, 8, 12, 0.6],
+                        [0.72, 118, 8, 12, 0.9], [0.41, 92, 7, 11, 0.4], [0.57, 92, 7, 11, 0.7]];
+      for (const [fx, fy, fw, fh, forza] of finestre) {
+        glow(ctx, W * fx + fw / 2, g - fy + fh / 2, fw * 1.7, fh * 1.4, '232,74,90');
+        ctx.fillStyle = `rgba(232,74,90,${(0.42 + forza * 0.5).toFixed(2)})`;
+        ctx.fillRect(W * fx, g - fy, fw, fh);
+        ctx.fillStyle = `rgba(255,196,180,${(0.20 + forza * 0.4).toFixed(2)})`;
+        ctx.fillRect(W * fx + 2, g - fy + 2, fw - 4, 4);
+      }
       // fossato e ponte levatoio con catene
       blocks(ctx, 0, g, W, H - g, '#1d1830', 12, r, 0.2);
       blocks(ctx, W * 0.18, g - 20, W * 0.64, 24, '#0f1d2e', 10, r, 0.22);
@@ -1038,16 +1209,118 @@ const Scenes = (() => {
       // portone
       ctx.fillStyle = '#1a1020'; ctx.fillRect(W * 0.45, g - 96, 100, 76);
       ctx.fillStyle = '#0d0810'; ctx.fillRect(W * 0.45 + 10, g - 86, 80, 66);
-      // Barriera Notturna: un velo d'ombra sottile, che si intuisce senza coprire il castello
-      for (let i = 0; i < 4; i++) {
-        ctx.fillStyle = `rgba(40,12,60,${0.045 + i * 0.012})`;
-        ctx.fillRect(W * 0.03 - i * 5, g - 300 + i * 14, W * 0.94 + i * 10, 300);
+      /* LA BARRIERA NOTTURNA: «un velo d'ombra liquida che ondeggia COME ACQUA
+         VERTICALE». Prima erano quattro rettangoli sovrapposti a opacità
+         crescente e quattordici trattini sparsi: un velo piatto. L'acqua
+         verticale si disegna colonna per colonna, con la fase che scorre in
+         altezza — è l'ondeggiare che la fa liquida, non la trasparenza. */
+      /* Le creste vanno ORIZZONTALI e ondeggianti, non diagonali: `sin(u*26 +
+         v*9)` faceva fasce inclinate che leggevano come graffi o pioggia. Un
+         velo d'acqua verticale, visto di faccia, ha le onde che corrono in
+         orizzontale e SALGONO — quindi la fase sta in y e la deformazione in x. */
+      for (let y = g - 306; y < g + 6; y += 2) {
+        const v = (y - (g - 306)) / 312;
+        for (let x = W * 0.02; x < W * 0.98; x += 3) {
+          const u = (x - W * 0.02) / (W * 0.96);
+          const onda = Math.sin(y * 0.085 + Math.sin(u * 7.5) * 2.6 + Math.sin(u * 2.1) * 1.4);
+          const a = 0.028 + Math.max(0, onda) * 0.055;
+          ctx.fillStyle = `rgba(48,14,72,${a.toFixed(3)})`;
+          ctx.fillRect(x, y, 3, 2);
+          if (onda > 0.90) { ctx.fillStyle = `rgba(168,112,232,${(0.10 - v * 0.04).toFixed(3)})`; ctx.fillRect(x, y, 3, 1); }
+        }
       }
-      ctx.fillStyle = 'rgba(140,80,220,.14)';
-      for (let i = 0; i < 14; i++) ctx.fillRect(W * 0.04 + r() * W * 0.9, g - 300 + r() * 290, 26 + r() * 70, 3);
-      // bagliore del velo lungo il bordo superiore
-      ctx.fillStyle = 'rgba(160,106,224,.10)';
-      ctx.fillRect(W * 0.02, g - 306, W * 0.96, 8);
+      ctx.fillStyle = 'rgba(170,116,236,.10)'; ctx.fillRect(W * 0.02, g - 310, W * 0.96, 6);
+
+      /* E LA LUNA, che sta a sinistra, deve prendere gli SPIGOLI: un castello di
+         pietra nera senza un filo di luce sui bordi è una macchia nera, e il
+         quadro segnava il 95% di pixel scuri. Il filo di luna a sinistra e il
+         rimbalzo caldo delle finestre sono le due cose che gli danno il volume
+         senza schiarire la pietra. */
+      ctx.fillStyle = 'rgba(190,178,232,.16)';
+      for (const [bx2, by2, bh2] of [[W * 0.05, g - 240, 222], [W * 0.08, g - 150, 132],
+                                     [W * 0.43, g - 286, 136], [W * 0.87, g - 240, 222]]) {
+        ctx.fillRect(bx2, by2, 3, bh2);
+      }
+      ctx.fillStyle = 'rgba(190,178,232,.10)';
+      ctx.fillRect(W * 0.08, g - 150, W * 0.84, 3); ctx.fillRect(W * 0.415, g - 300, 160, 3);
+      for (const [fx, fy, fw, fh, forza] of finestre) {         // il rimbalzo caldo sul muro
+        ctx.fillStyle = `rgba(184,58,60,${(0.05 + forza * 0.05).toFixed(3)})`;
+        ctx.fillRect(W * fx - fw, g - fy - fh * 0.6, fw * 3, fh * 2.2);
+      }
+
+      /* LA FILA DI CARROZZE che scarica gli ospiti al portone, e in fondo IL
+         FURGONE «MASCHERART — Forniture per Feste dell'Altro Mondo», da cui il
+         fattorino sta scaricando scatole di maschere di ricambio. Sono la
+         ragione per cui si entra da lì, e nel quadro non c'erano. */
+      {
+        const carrozza = (cx2, sc, col) => {
+          const cy2 = g + 6;
+          ctx.fillStyle = 'rgba(6,4,10,.45)'; ctx.fillRect(cx2 - 46 * sc, cy2 + 8 * sc, 96 * sc, 6 * sc);
+          ctx.fillStyle = col; ctx.fillRect(cx2 - 34 * sc, cy2 - 40 * sc, 70 * sc, 34 * sc);      // la cassa
+          ctx.fillStyle = shade(col, 1.3); ctx.fillRect(cx2 - 34 * sc, cy2 - 40 * sc, 70 * sc, 3 * sc);
+          ctx.fillStyle = '#e8c060'; ctx.fillRect(cx2 - 24 * sc, cy2 - 34 * sc, 20 * sc, 15 * sc); // il finestrino acceso
+          ctx.fillStyle = shade(col, 0.6); ctx.fillRect(cx2 - 34 * sc, cy2 - 46 * sc, 74 * sc, 7 * sc);
+          ctx.fillStyle = '#1a1520';                                                              // le ruote
+          pixelDisc(ctx, cx2 - 24 * sc, cy2 + 2 * sc, 12 * sc, 2);
+          pixelDisc(ctx, cx2 + 26 * sc, cy2 + 2 * sc, 16 * sc, 2);
+          ctx.fillStyle = '#3e3348';
+          pixelDisc(ctx, cx2 - 24 * sc, cy2 + 2 * sc, 5 * sc, 2); pixelDisc(ctx, cx2 + 26 * sc, cy2 + 2 * sc, 6 * sc, 2);
+          ctx.fillStyle = '#2a2230'; ctx.fillRect(cx2 + 36 * sc, cy2 - 26 * sc, 26 * sc, 4 * sc);  // il timone
+          glow(ctx, cx2 - 38 * sc, cy2 - 34 * sc, 9 * sc, 8 * sc, '240,200,110');                 // la lanterna
+          ctx.fillStyle = '#f0c868'; ctx.fillRect(cx2 - 40 * sc, cy2 - 38 * sc, 6 * sc, 8 * sc);
+        };
+        /* LE POZZE DELLE LANTERNE sul terreno, prima delle carrozze: la
+           lanterna c'era ma non illuminava niente, e il primo piano — che è la
+           parte che DEVE restare leggibile in un quadro di pietra nera —
+           restava allo stesso buio del cielo. */
+        /* ...e la pozza va costruita come un'ELLISSE con la x arrotondata: al
+           primo colpo partivo da `px2 - rx2` in virgola mobile, quindi le celle
+           da tre pixel non si allineavano fra una riga e l'altra e il risultato
+           era una linea TRATTEGGIATA di puntini gialli, non una pozza. */
+        for (const [px2, forza] of [[W * 0.262, 1.0], [W * 0.123, 0.85], [W * 0.030, 0.65], [W * 0.42, 0.95], [W * 0.70, 0.75]]) {
+          const cx3 = Math.round(px2), cy3 = g + 22;
+          const rx3 = Math.round(150 * forza), ry3 = Math.round(46 * forza);
+          for (let y = Math.max(0, cy3 - ry3); y < Math.min(H, cy3 + ry3); y++) {
+            for (let x = Math.max(0, cx3 - rx3); x < Math.min(W, cx3 + rx3); x += 3) {
+              const d = Math.hypot((x - cx3) / rx3, (y - cy3) / ry3);
+              if (d >= 1) continue;
+              const a = 0.30 * forza * Math.pow(1 - d, 1.8);
+              if (a <= 0.005) continue;
+              ctx.fillStyle = `rgba(240,198,110,${a.toFixed(3)})`;
+              ctx.fillRect(x, y, 3, 1);
+            }
+          }
+        }
+        carrozza(W * 0.30, 1.00, '#241a2e');
+        carrozza(W * 0.155, 0.80, '#2a1f34');
+        carrozza(W * 0.055, 0.62, '#1e1626');
+        // gli OSPITI in fila al portone, sagome in abito lungo, con la maschera chiara
+        for (let k = 0; k < 9; k++) {
+          const ox2 = W * 0.375 + k * 17 + (k % 3) * 3, alt = 40 + (k % 4) * 4;
+          ctx.fillStyle = ['#191325', '#221a2c', '#14101e'][k % 3];
+          ctx.fillRect(ox2, g + 12 - alt, 12, alt);
+          ctx.fillStyle = '#0f0b16'; ctx.fillRect(ox2 - 2, g + 12 - alt + 10, 16, alt - 10);
+          ctx.fillStyle = '#d8cfc0'; ctx.fillRect(ox2 + 2, g + 12 - alt, 8, 7);     // la maschera
+          ctx.fillStyle = '#2a2230'; ctx.fillRect(ox2 + 3, g + 12 - alt + 2, 2, 2); ctx.fillRect(ox2 + 7, g + 12 - alt + 2, 2, 2);
+        }
+        // IL FURGONE DI SERVIZIO, dietro le carrozze
+        {
+          const fx2 = W * 0.70, fy2 = g + 4;
+          ctx.fillStyle = 'rgba(6,4,10,.45)'; ctx.fillRect(fx2 - 8, fy2 + 10, 112, 6);
+          ctx.fillStyle = '#2e2a3a'; ctx.fillRect(fx2, fy2 - 44, 96, 44);
+          ctx.fillStyle = '#3a3548'; ctx.fillRect(fx2, fy2 - 44, 96, 3);
+          ctx.fillStyle = '#d8d2c0'; ctx.fillRect(fx2 + 8, fy2 - 36, 58, 12);        // la scritta MASCHERART
+          ctx.fillStyle = 'rgba(40,34,50,.80)';
+          for (let q = 0; q < 8; q++) ctx.fillRect(fx2 + 11 + q * 7, fy2 - 33, 4, 6);
+          ctx.fillStyle = '#1a1520'; pixelDisc(ctx, fx2 + 18, fy2 + 2, 12, 2); pixelDisc(ctx, fx2 + 78, fy2 + 2, 12, 2);
+          ctx.fillStyle = '#3e3348'; pixelDisc(ctx, fx2 + 18, fy2 + 2, 5, 2); pixelDisc(ctx, fx2 + 78, fy2 + 2, 5, 2);
+          // il fattorino, che scarica una scatola di maschere
+          ctx.fillStyle = '#241d2e'; ctx.fillRect(fx2 + 100, fy2 - 34, 13, 34);
+          ctx.fillStyle = '#c8b898'; ctx.fillRect(fx2 + 100, fy2 - 40, 13, 7);
+          ctx.fillStyle = '#6a5c48'; ctx.fillRect(fx2 + 112, fy2 - 26, 20, 15);      // la scatola
+          ctx.fillStyle = '#d8cfc0'; ctx.fillRect(fx2 + 115, fy2 - 30, 6, 5); ctx.fillRect(fx2 + 123, fy2 - 29, 6, 5);
+        }
+      }
     },
 
     cucine(ctx, W, H) {
@@ -1284,32 +1557,144 @@ const Scenes = (() => {
        si toglie. Il codice sta in git, se un giorno servisse una sala del trono vera. */
 
     cripta(ctx, W, H) {
+      /* LE CANTINE DEL CASTELLO, undici scene — e il fondale le disegnava come
+         una CRIPTA SEPOLCRALE: tre nicchie ad arco identiche a distanza uguale,
+         quattro candele identiche a distanza uguale, due sarcofagi con la croce
+         d'oro. Il testo dice un'altra cosa:
+           «Emergete tra le CANTINE del castello: volte di pietra, BOTTI
+            GIGANTESCHE etichettate con annate tipo "1650 — annata malinconica"
+            e "1806 — retrogusto di rimpianto", e RAGNATELE COME TENDE DA
+            SALOTTO. Da una scala in fondo filtrano musica e luce.»
+         E qui vive GERBOLD, lo scheletro maggiordomo, che sta lucidando il
+         CUCCHIAINO 4.712 di un mucchio di argenteria, in livrea stirata.
+         Una cripta con i sarcofagi e una cantina con le botti non sono la
+         stessa stanza, e undici scene si svolgono nella seconda. */
       const r = rng(71);
-      blocks(ctx, 0, 0, W, H, '#242030', 16, r, 0.22);
-      blocks(ctx, 0, H - 50, W, 50, '#1a1724', 14, r, 0.18);
-      for (const fx of [0.2, 0.5, 0.8]) {
-        blocks(ctx, W * fx - 34, H * 0.24, 68, H * 0.58, '#161320', 12, r, 0.12);
-        blocks(ctx, W * fx - 64, H * 0.22, 28, H * 0.62, '#3d374d', 10, r, 0.15);
-        blocks(ctx, W * fx + 36, H * 0.22, 28, H * 0.62, '#3d374d', 10, r, 0.15);
-        blocks(ctx, W * fx - 64, H * 0.15, 128, 26, '#443d55', 10, r, 0.15);
+      const floorY = H - 62;
+      blocks(ctx, 0, 0, W, floorY, '#2b2436', 16, r, 0.18);
+      /* LE VOLTE DI PIETRA: tre archi a tutto sesto, con i conci in chiave. Non
+         sono nicchie: sono le campate del soffitto, quindi cominciano in alto e
+         il loro intradosso e' un semicerchio. */
+      for (const fx of [0.17, 0.5, 0.83]) {
+        const cx2 = W * fx, R = 118;
+        for (let a = 0; a <= 180; a += 2) {
+          const rad = a * Math.PI / 180;
+          const xx = cx2 - Math.cos(rad) * R, yy = 126 - Math.sin(rad) * R * 0.62;
+          if (yy < 0) continue;
+          ctx.fillStyle = (a / 12 | 0) % 2 ? '#3a3348' : '#443c56';   // i conci alternati
+          ctx.fillRect(xx - 7, yy, 15, 15);
+          ctx.fillStyle = 'rgba(160,150,190,.10)'; ctx.fillRect(xx - 7, yy, 15, 3);
+        }
+        ctx.fillStyle = '#1d1928';                                     // il vano dietro l'arco
+        for (let a = 6; a <= 174; a += 2) {
+          const rad = a * Math.PI / 180;
+          const xx = cx2 - Math.cos(rad) * (R - 12), yy = 126 - Math.sin(rad) * (R - 12) * 0.62;
+          ctx.fillRect(xx - 6, yy + 8, 13, 126 - yy + 8);
+        }
+        ctx.fillStyle = '#4e4560';                                     // i piedritti
+        ctx.fillRect(cx2 - R - 6, 126, 16, floorY - 126);
+        ctx.fillRect(cx2 + R - 10, 126, 16, floorY - 126);
       }
-      for (const fx of [0.12, 0.68]) {
-        blocks(ctx, W * fx, H - 104, 130, 54, '#4a4460', 8, r, 0.15);
-        blocks(ctx, W * fx - 6, H - 112, 142, 12, '#5a5372', 8, r, 0.12);
-        ctx.fillStyle = '#f5c542'; ctx.fillRect(W * fx + 56, H - 96, 16, 4); ctx.fillRect(W * fx + 62, H - 102, 4, 16);
+      blocks(ctx, 0, floorY, W, H - floorY, '#221d2e', 14, r, 0.14);
+      ctx.fillStyle = 'rgba(8,6,12,.5)'; ctx.fillRect(0, floorY, W, 4);
+      ctx.fillStyle = 'rgba(20,16,28,.30)';
+      for (let y = floorY + 8, passo = 7; y < H; passo *= 1.5, y += passo) ctx.fillRect(0, y, W, 2);
+
+      /* LE BOTTI GIGANTESCHE, di taglie diverse, con i cerchi di ferro, le
+         doghe e L'ETICHETTA con l'annata — che e' la battuta della stanza. Una
+         botte grande da cantina e' alta un metro e ottanta: a 120 px/m fa 216. */
+      const botte = (bx, by, bw, bh, col) => {
+        for (let x = 0; x < bw; x++) {
+          const u = x / bw - 0.5;
+          // il ventre: a 0,12 la botte si stringeva solo del 6% ai lati, cioe'
+          // era un cilindro. Una botte ha il ventre, ed e' il ventre che la fa
+          // riconoscere di profilo.
+          const cu = Math.round(bh * 0.5 * (1 - Math.pow(Math.abs(u) * 2, 2.2) * 0.16));
+          const yy = by + bh / 2 - cu;
+          ctx.fillStyle = mix(col, shade(col, 0.62), Math.abs(u) * 1.5);
+          ctx.fillRect(bx + x, yy, 1, cu * 2);
+          if (x % 13 === 0) { ctx.fillStyle = 'rgba(14,10,6,.40)'; ctx.fillRect(bx + x, yy, 2, cu * 2); }  // le doghe
+        }
+        ctx.fillStyle = '#3e3a44';                                      // i cerchi di ferro
+        for (const q of [0.14, 0.40, 0.60, 0.86]) {
+          const yy = by + bh * q;
+          ctx.fillRect(bx + 2, yy, bw - 4, 7);
+          ctx.fillStyle = 'rgba(180,178,196,.14)'; ctx.fillRect(bx + 2, yy, bw - 4, 2);
+          ctx.fillStyle = '#3e3a44';
+        }
+        ctx.fillStyle = '#241a10'; pixelDisc(ctx, bx + bw * 0.5, by + bh * 0.5, 11, 3);   // il cocchiume
+        ctx.fillStyle = '#5a4632'; pixelDisc(ctx, bx + bw * 0.5, by + bh * 0.5, 6, 2);
+        // L'ETICHETTA con l'annata, inchiodata di sbieco
+        ctx.save(); ctx.translate(bx + bw * 0.22, by + bh * 0.24); ctx.rotate(-0.07);
+        ctx.fillStyle = '#d8cfae'; ctx.fillRect(0, 0, 54, 26);
+        ctx.fillStyle = '#b8ad8a'; ctx.fillRect(0, 0, 54, 3);
+        ctx.fillStyle = 'rgba(50,38,22,.72)';
+        ctx.fillRect(6, 6, 40, 4);                                     // l'annata, in grande
+        for (let q = 0; q < 3; q++) ctx.fillRect(6, 14 + q * 4, 30 - q * 6, 2);
+        ctx.restore();
+        ctx.fillStyle = 'rgba(8,6,10,.44)'; ctx.fillRect(bx - 4, by + bh - 5, bw + 8, 8);
+      };
+      botte(W * 0.035, floorY - 178, 148, 178, '#5a4028');
+      botte(W * 0.205, floorY - 152, 124, 152, '#4e3822');
+      botte(W * 0.665, floorY - 190, 158, 190, '#5f4429');
+      botte(W * 0.845, floorY - 140, 116, 140, '#4a3420');
+
+      /* LA SCALA IN FONDO, da cui «filtrano musica e luce»: e' l'unica cosa
+         chiara del quadro, e sta in mezzo, fra le botti. */
+      {
+        const sx = W * 0.435, sw = 132;
+        ctx.fillStyle = '#1a1624'; ctx.fillRect(sx - 8, 118, sw + 16, floorY - 118);
+        for (let k = 0; k < 11; k++) {                                 // i gradini
+          const yy = floorY - 6 - k * 15, larg = sw - k * 6;
+          ctx.fillStyle = mix('#4e4560', '#6e6484', k / 10);
+          ctx.fillRect(sx + (sw - larg) / 2, yy, larg, 8);
+          ctx.fillStyle = `rgba(255,232,180,${(0.05 + k * 0.022).toFixed(3)})`;
+          ctx.fillRect(sx + (sw - larg) / 2, yy, larg, 3);
+        }
+        glow(ctx, sx + sw / 2, 132, 44, 30, '255,224,160');
+        ctx.fillStyle = 'rgba(255,226,168,.16)'; ctx.fillRect(sx + 22, 118, sw - 44, 26);
       }
-      blocks(ctx, W * 0.42, H - 92, 130, 12, '#4a3524', 8, r, 0.12);
-      ctx.fillStyle = '#3a2a18'; ctx.fillRect(W * 0.44, H - 80, 10, 34); ctx.fillRect(W * 0.53, H - 80, 10, 34);
-      for (let i = 0; i < 5; i++) { ctx.fillStyle = '#c8ccd8'; ctx.fillRect(W * 0.425 + i * 0.026 * W, H - 100, 16, 6); }
-      for (const fx of [0.08, 0.34, 0.62, 0.9]) {
-        glow(ctx, W * fx + 3, H * 0.5 - 4, 64, 68, '95,224,138');
-        ctx.fillStyle = '#f0f0e8'; ctx.fillRect(W * fx, H * 0.5, 7, 16);
-        ctx.fillStyle = '#5fe08a'; ctx.fillRect(W * fx - 2, H * 0.5 - 12, 11, 12);
-        ctx.fillStyle = '#c8f5d8'; ctx.fillRect(W * fx + 1, H * 0.5 - 8, 5, 6);
+
+      /* IL TAVOLO DI GERBOLD, con IL MUCCHIO DI ARGENTERIA e il cucchiaino
+         4.712: un mucchio, non cinque cosini in fila, e uno solo tirato fuori
+         dal mucchio e messo sul panno. */
+      {
+        const tx = W * 0.40, ty = floorY - 46, tw = 196;
+        ctx.fillStyle = 'rgba(8,6,10,.44)'; ctx.fillRect(tx - 6, floorY - 6, tw + 12, 8);
+        blocks(ctx, tx, ty, tw, 12, '#4a352a', 6, r, 0.10);
+        ctx.fillStyle = '#5c4335'; ctx.fillRect(tx, ty, tw, 3);
+        ctx.fillStyle = '#2e2118'; ctx.fillRect(tx + 10, ty + 12, 11, 34); ctx.fillRect(tx + tw - 21, ty + 12, 11, 34);
+        // il mucchio: cucchiai accatastati alla rinfusa, che luccicano
+        for (let k = 0; k < 46; k++) {
+          const ax = tx + 96 + (r() * 88 | 0), ay = ty - 4 - (r() * 22 | 0);
+          const ang = (r() - 0.5) * 2;
+          ctx.save(); ctx.translate(ax, ay); ctx.rotate(ang);
+          ctx.fillStyle = ['#8e94a4', '#a8aebc', '#787e8c'][k % 3];
+          ctx.fillRect(0, 0, 16, 3);
+          ctx.fillStyle = '#c2c8d4'; pixelDisc(ctx, 0, 1, 3, 2);
+          ctx.restore();
+        }
+        // il panno, e IL cucchiaino: quello che sta lucidando adesso
+        ctx.fillStyle = '#6a2a34'; ctx.fillRect(tx + 20, ty - 3, 58, 8);
+        ctx.fillStyle = '#e8eef8'; ctx.fillRect(tx + 30, ty - 6, 22, 4);
+        ctx.fillStyle = '#ffffff'; pixelDisc(ctx, tx + 30, ty - 4, 4, 2);
+        glow(ctx, tx + 34, ty - 4, 16, 6, '232,238,248');
       }
-      ctx.strokeStyle = 'rgba(200,200,220,.28)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(60, 50); ctx.moveTo(30, 0); ctx.lineTo(60, 50); ctx.moveTo(0, 30); ctx.lineTo(60, 50); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W, 0); ctx.lineTo(W - 60, 50); ctx.moveTo(W - 30, 0); ctx.lineTo(W - 60, 50); ctx.stroke();
+
+      /* LE RAGNATELE COME TENDE DA SALOTTO: non due fili in un angolo — dei
+         drappi, che pendono dalle volte con l'orlo che ricade. */
+      for (const [tx2, tw2, prof] of [[W * 0.055, 150, 66], [W * 0.395, 176, 52], [W * 0.775, 164, 74]]) {
+        for (let x = 0; x < tw2; x += 3) {
+          const u = x / tw2;
+          const cade = prof * Math.sin(u * Math.PI) + 8;
+          ctx.fillStyle = 'rgba(214,214,232,.10)';
+          ctx.fillRect(tx2 + x, 2, 3, cade);
+          ctx.fillStyle = 'rgba(228,228,244,.16)';
+          ctx.fillRect(tx2 + x, 2 + cade - 3, 3, 3);          // l'orlo, che si vede
+        }
+        ctx.fillStyle = 'rgba(228,228,244,.13)';              // i fili radiali
+        for (let q = 0; q < 5; q++) ctx.fillRect(tx2 + q * (tw2 / 5), 2, 2, prof * 0.8);
+      }
     },
 
     ballo(ctx, W, H) {
@@ -1386,39 +1771,236 @@ const Scenes = (() => {
     },
 
     fiume(ctx, W, H) {
+      /* IL FIUME, ventun scene, e il testo chiede tre cose che il quadro non
+         dava:
+           «Sopra di voi, un salice ENORME — la corteccia rugosa come pelle
+            antica — allunga UN RAMO come per stringervi la mano.»
+         C'erano QUATTRO salici identici, alti novanta pixel, a distanza uguale:
+         non un salice enorme, ma una siepe. E un albero che parla e allunga la
+         mano deve essere il soggetto, non uno di quattro cloni.
+           «Porto il cielo capovolto sulla schiena — è l'ACQUA che riflette il
+            cielo capovolto.»
+         È la risposta dell'indovinello del Salice, ed è la ragione per cui quel
+         fiume esiste: l'acqua era un campo blu piatto senza un riflesso.
+           «un molo di legno marcio che sembra tenersi in piedi per pura
+            cocciutaggine», e il BARCONE di Bertoldo, col cappello sul sedile.
+         Il molo era una barra orizzontale con tre pali, il barcone una zattera
+         da 168 px, e il cappello — che è il modo in cui Bertoldo si rivela —
+         non c'era. */
       const r = rng(113);
-      skyGradient(ctx, W, H, '#0a0d18', '#1a2a3d', 10);
-      stars(ctx, W, H, r, 40);
-      moon(ctx, W * 0.80, 52, 24, '#c8b8e8', true);
-      const g = H * 0.54;
-      hills(ctx, W, g - 10, 46, '#101d16', r, 30);
-      // riva con profilo irregolare
+      const acquaY = Math.round(H * 0.46);
+      skyGradient(ctx, W, acquaY, '#0a0d18', '#1a2a3d', 10);
+      stars(ctx, W, acquaY - 8, r, 44);
+      moon(ctx, W * 0.78, 48, 24, '#c8b8e8', true);
+      hills(ctx, W, acquaY - 12, 44, '#101d16', r, 30);
+      // la riva di là, col profilo irregolare
       for (let x = 0; x < W; x += 14) {
-        const off = Math.round((r() - 0.5) * 2) * 6;
-        blocks(ctx, x, g - 26 + off, 14, 34, '#14261c', 10, r, 0.2);
+        const off = Math.round((r() - 0.5) * 2) * 5;
+        blocks(ctx, x, acquaY - 20 + off, 14, 26, '#14261c', 10, r, 0.2);
       }
-      // salici piangenti veri
-      for (let i = 0; i < 4; i++) willow(ctx, 60 + i * (W / 3.6), g + 4, 92 + r() * 26, '#1d3a2a', '#2e2115', r);
-      // acqua
-      blocks(ctx, 0, g + 6, W, H - g - 6, '#0f2438', 14, r, 0.25);
-      ctx.fillStyle = 'rgba(200,184,232,.2)';
-      for (let i = 0; i < 12; i++) ctx.fillRect(W * 0.6 + r() * W * 0.34, g + 20 + r() * (H - g - 30), 14 + r() * 22, 3);
-      ctx.fillStyle = 'rgba(90,157,224,.14)';
-      for (let i = 0; i < 18; i++) ctx.fillRect(r() * W, g + 14 + r() * (H - g - 20), 10 + r() * 30, 2);
-      // molo di legno
-      blocks(ctx, 0, g + 10, W * 0.22, 12, '#5a4530', 10, r, 0.15);
-      for (const px of [0.04, 0.12, 0.19]) ctx.fillRect(W * px, g + 22, 8, 26);
-      // barcone con prua, palo e lanterna
-      const bx = W * 0.36, by = g + 42;
-      blocks(ctx, bx, by, 168, 24, '#3a2a18', 8, r, 0.14);
-      blocks(ctx, bx + 8, by - 9, 152, 11, '#4a3524', 8, r, 0.12);
-      ctx.fillStyle = '#3a2a18';
-      ctx.beginPath(); ctx.moveTo(bx + 168, by); ctx.lineTo(bx + 196, by + 6); ctx.lineTo(bx + 168, by + 24); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#2a1d10'; ctx.fillRect(bx + 76, by - 52, 7, 44);
-      glow(ctx, bx + 79, by - 56, 62, 58, '245,197,66');   // la lanterna della zattera
-      ctx.fillStyle = '#f5c542'; ctx.fillRect(bx + 70, by - 64, 19, 15);
-      // canne sulle rive
-      reeds(ctx, 10, g + 14, 6, r); reeds(ctx, W - 70, g + 14, 7, r);
+
+      /* L'ACQUA come PIANO ORIZZONTALE: le rughe si allargano venendo avanti, e
+         dentro ci sta il cielo capovolto — la luna eclissata riflessa, spezzata
+         in bande, e le sagome degli alberi allungate verso di noi. */
+      /* L'ACQUA PORTA IL CIELO CAPOVOLTO, e quindi vicino all'orizzonte è più
+         CHIARA del cielo, non più scura. Era #0f2438 (luminanza 31) sotto un
+         cielo che all'orizzonte fa 40: un fiume più scuro del cielo che
+         riflette è la negazione dell'indovinello su cui questa scena è
+         costruita. In lontananza l'acqua è specchio (prende il cielo), venendo
+         avanti diventa vetro (si vede il fondo, che è nero). */
+      for (let y = acquaY; y < H; y++) {
+        const t = (y - acquaY) / (H - acquaY);
+        blocks(ctx, 0, y, W, 1, mix('#24374e', '#0b1826', Math.pow(t, 0.7)), 14, r, 0.16);
+      }
+      for (let y = acquaY, passo = 3; y < H; passo *= 1.36, y += passo) {
+        ctx.fillStyle = `rgba(120,164,214,${(0.05 + (y - acquaY) / (H - acquaY) * 0.05).toFixed(3)})`;
+        ctx.fillRect(0, y, W, Math.max(1, passo * 0.4 | 0));
+      }
+      // IL CIELO CAPOVOLTO: il riflesso della luna, spezzato dalle rughe
+      {
+        const mx = W * 0.78;
+        for (let k = 0; k < 46; k++) {
+          const t = k / 45;
+          const yy = acquaY + 4 + k * (1 + t * 3.4);
+          if (yy > H) break;
+          const larg = 30 + t * 46, sfa = (r() - 0.5) * (10 + t * 26);
+          ctx.fillStyle = `rgba(190,172,224,${(0.26 * (1 - t * 0.86)).toFixed(3)})`;
+          ctx.fillRect(mx - larg / 2 + sfa, yy, larg, Math.max(1, 2 + t * 3 | 0));
+        }
+      }
+
+      /* IL SALICE, uno, ENORME: il tronco esce dal bordo alto, la corteccia è
+         rugosa a solchi verticali, le radici artigliano la riva, e IL RAMO che
+         «allunga come per stringervi la mano» arriva fino al centro del quadro
+         con le fronde che pendono. */
+      {
+        const tx = W * 0.145, base = acquaY + 12;
+        /* L'ORDINE conta: la chioma va DIETRO il tronco. Al primo tentativo il
+           tronco era disegnato prima e le duecento macchie di fogliame gli
+           passavano sopra: quello che si vedeva era una massa di corteccia fra
+           le foglie, cioè una zolla di radici appesa in aria, non un albero. */
+        /* LA CHIOMA È CONTROLUCE. Prima le foglie erano #1d3a2a e #24452f —
+           luminanza 47 e 57 — su un cielo notturno che va da 13 a 38: cioè
+           foglie PIÙ CHIARE del cielo, illuminate da niente, in una scena la
+           cui unica luce è una luna eclissata. Una chioma davanti a un cielo
+           notturno è una SAGOMA più scura del cielo, e prende la luna solo sul
+           bordo dalla parte da cui viene — qui in alto a destra. Così la
+           sagoma dell'albero esiste, invece di sfumare nel cielo. */
+        for (let q = 0; q < 210; q++) {
+          const ax = tx - 130 + (r() * 300 | 0), ay = -14 + (r() * 128 | 0);
+          const w2 = 14 + (r() * 12 | 0), h2 = 9 + (r() * 7 | 0);
+          ctx.fillStyle = ['#0c1a12', '#08150e', '#101f16'][q % 3];
+          ctx.fillRect(ax, ay, w2, h2);
+          // il filo di luna, sulle foglie esposte in alto a destra
+          const versoLuna = (ax - (tx - 130)) / 300 * 0.6 + (1 - (ay + 14) / 128) * 0.4;
+          if (versoLuna > 0.62) {
+            ctx.fillStyle = `rgba(176,164,208,${(0.10 + (versoLuna - 0.62) * 0.26).toFixed(3)})`;
+            ctx.fillRect(ax, ay, w2, 2);
+            ctx.fillRect(ax + w2 - 2, ay, 2, h2);
+          }
+        }
+        // IL TRONCO: 74 px alla base, che si stringe salendo e entra nella chioma
+        for (let y = base; y > -6; y -= 1) {
+          const t = (base - y) / (base + 6);
+          const sp = Math.round(74 - t * 24);
+          const cx2 = tx + Math.sin(t * 1.4) * 14;
+          ctx.fillStyle = mix('#3a2a1a', '#2a1e12', t * 0.5);
+          ctx.fillRect(cx2 - sp / 2, y, sp, 1);
+          ctx.fillStyle = 'rgba(120,100,68,.20)'; ctx.fillRect(cx2 - sp / 2, y, 4, 1);   // il fianco in luce
+          /* LA CORTECCIA. L'offset del solco dipendeva da y (`q*17 + y*3`),
+             quindi ogni solco andava in DIAGONALE e i cinque insieme facevano
+             un reticolo: sullo schermo veniva un CESTO INTRECCIATO. Un solco di
+             corteccia è VERTICALE, e la sua x non cambia salendo. */
+          for (let q = 0; q < 7; q++) {
+            const ox = (q - 3) * 11 + ((q * 7) % 5) - 2;
+            if (Math.abs(ox) > sp / 2 - 2) continue;
+            const scuro = q % 3 !== 1;
+            ctx.fillStyle = scuro ? 'rgba(14,10,6,.40)' : 'rgba(132,110,76,.13)';
+            ctx.fillRect(cx2 + ox, y, scuro ? 3 : 2, 1);
+          }
+        }
+        // le radici, che artigliano la riva
+        ctx.fillStyle = '#2e2115';
+        for (const [dx, dl] of [[-64, 30], [-38, 22], [34, 26], [62, 34], [-14, 16], [16, 18]]) {
+          for (let k = 0; k < dl; k++) ctx.fillRect(tx + dx * (1 + k / dl * 0.5), base + k * 0.5, 9, 5);
+        }
+        /* IL RAMO CHE ALLUNGA LA MANO: dal tronco verso il centro, in leggera
+           discesa, con quattro dita di rametto in punta — è quello il gesto. */
+        const rl = 300;
+        for (let k = 0; k < rl; k++) {
+          const t = k / rl;
+          const xx = tx + 30 + k, yy = 96 + Math.sin(t * 1.5) * 26 + t * t * 40;
+          const sp = Math.round(17 - t * 11);
+          ctx.fillStyle = mix('#3a2a1a', '#2e2115', t);
+          ctx.fillRect(xx, yy, 2, sp);
+          ctx.fillStyle = 'rgba(120,100,68,.18)'; ctx.fillRect(xx, yy, 2, 3);
+          if (k % 24 === 0 && t > 0.2) {                      // le fronde che pendono dal ramo
+            const lun = 30 + (r() * 54 | 0);
+            for (let q = 0; q < lun; q++) {
+              ctx.fillStyle = q % 7 < 4 ? '#12241a' : '#0d1c13';
+              ctx.fillRect(xx + Math.sin(q * 0.18) * 3, yy + sp + q, 3, 2);
+            }
+          }
+        }
+        for (let q = 0; q < 4; q++) {                          // le quattro dita in punta
+          const fx2 = tx + 30 + rl, fy2 = 96 + Math.sin(1.5) * 26 + 40;
+          for (let k = 0; k < 26; k++) {
+            ctx.fillStyle = '#2e2115';
+            ctx.fillRect(fx2 + k, fy2 - 10 + q * 7 + k * (0.28 + q * 0.20), 3, 3);
+          }
+        }
+        // e le fronde lunghe del salice, che è quello che lo fa salice: davanti
+        // alla chioma e ai lati del tronco, non sopra
+        for (let q = 0; q < 30; q++) {
+          const ax = tx - 122 + q * 9;
+          if (Math.abs(ax - tx) < 26) continue;                // non davanti al tronco
+          const lun = 60 + (r() * 130 | 0);
+          for (let k = 0; k < lun; k++) {
+            ctx.fillStyle = k % 9 < 5 ? '#14271b' : '#0e1e14';
+            ctx.fillRect(ax + Math.sin(k * 0.09 + q) * 5, 100 + k, 3, 2);
+          }
+        }
+        // il riflesso del salice nell'acqua: una macchia allungata verso di noi
+        for (let y = acquaY; y < H; y += 2) {
+          const t = (y - acquaY) / (H - acquaY);
+          ctx.fillStyle = `rgba(18,44,30,${(0.30 * (1 - t * 0.8)).toFixed(3)})`;
+          ctx.fillRect(tx - 90 - t * 60, y, 210 + t * 150, 2);
+        }
+      }
+
+      /* IL MOLO DI LEGNO MARCIO, in scorcio: le tavole convergono, i pali si
+         accorciano andando in là, e una tavola manca (è marcio: si tiene in
+         piedi per pura cocciutaggine). */
+      {
+        const m0 = 0, m1 = W * 0.40, y0 = H - 26, y1 = acquaY + 26;
+        for (let k = 0; k < 40; k++) {
+          const t = k / 39;
+          const xx = m0 + (m1 - m0) * t, yy = y0 + (y1 - y0) * t;
+          const larg = Math.round(70 - t * 46);
+          if (k === 21 || k === 22) continue;                  // la tavola che manca
+          /* E IL TAVOLATO VA DI TRAVERSO. Al primo tentativo il piano era una
+             fascia unica che si stringe: leggeva come una RAMPA. Un molo si
+             riconosce dalle tavole trasversali — e sono anche loro un piano
+             orizzontale, quindi si allargano venendo avanti, che qui viene da
+             sé perché ogni passo di k è una tavola. */
+          const passo = Math.ceil((m1 - m0) / 39) + 1;
+          ctx.fillStyle = mix('#5a4530', '#3e3020', t);
+          ctx.fillRect(xx, yy, passo, larg);
+          ctx.fillStyle = `rgba(150,124,88,${(0.16 * (1 - t)).toFixed(3)})`;
+          ctx.fillRect(xx, yy, passo, 2);
+          ctx.fillStyle = `rgba(12,8,4,${(0.34 * (1 - t * 0.5)).toFixed(3)})`;
+          ctx.fillRect(xx, yy, 1, larg);                      // la fuga fra due tavole
+          ctx.fillStyle = `rgba(20,14,8,${(0.40 * (1 - t * 0.4)).toFixed(3)})`;
+          ctx.fillRect(xx, yy + larg - 3, passo, 3);          // e il bordo di sotto, in ombra
+        }
+        for (const t of [0.12, 0.44, 0.78]) {                   // i pali, sempre più corti
+          const xx = m0 + (m1 - m0) * t, yy = y0 + (y1 - y0) * t;
+          const sp = Math.round(13 - t * 7), lun = Math.round(64 - t * 40);
+          ctx.fillStyle = '#3a2c1c'; ctx.fillRect(xx, yy + Math.round(70 - t * 46) - 4, sp, lun);
+          ctx.fillStyle = 'rgba(10,20,30,.34)';
+          ctx.fillRect(xx, yy + Math.round(70 - t * 46) + lun - 8, sp + 4, 6);
+        }
+      }
+
+      /* IL BARCONE di Bertoldo: un barcone, non una zattera — 300 px, con la
+         prua alzata, la falchetta, il SEDILE e IL CAPPELLO sopra, il palo da
+         barcaiolo appoggiato, e la lanterna. */
+      {
+        const bx = W * 0.44, by = H - 82;
+        // il riflesso, prima della barca
+        ctx.fillStyle = 'rgba(8,16,26,.44)'; ctx.fillRect(bx - 6, by + 40, 316, 22);
+        blocks(ctx, bx, by, 300, 40, '#3a2a18', 8, r, 0.12);            // lo scafo
+        blocks(ctx, bx + 6, by - 12, 288, 14, '#4a3524', 8, r, 0.10);   // la falchetta
+        ctx.fillStyle = '#5c4530'; ctx.fillRect(bx + 6, by - 12, 288, 3);
+        ctx.fillStyle = '#2e2114';                                      // le ordinate, dentro
+        for (let k = 0; k < 6; k++) ctx.fillRect(bx + 26 + k * 46, by + 2, 6, 24);
+        ctx.fillStyle = '#3a2a18';                                      // la prua alzata
+        for (let k = 0; k < 40; k++) ctx.fillRect(bx + 300 + k, by - Math.round(k * 0.42), 1, 40 + Math.round(k * 0.42));
+        ctx.fillStyle = '#4a3524'; for (let k = 0; k < 40; k++) ctx.fillRect(bx + 300 + k, by - Math.round(k * 0.42) - 12, 1, 14);
+        // IL SEDILE e IL CAPPELLO che si solleva da solo
+        ctx.fillStyle = '#54402c'; ctx.fillRect(bx + 96, by - 22, 84, 11);
+        ctx.fillStyle = '#66503a'; ctx.fillRect(bx + 96, by - 22, 84, 3);
+        ctx.fillStyle = '#22252e'; ctx.fillRect(bx + 108, by - 30, 58, 8);          // la tesa
+        ctx.fillStyle = '#2c303a'; ctx.fillRect(bx + 120, by - 44, 34, 15);         // la cupola
+        ctx.fillStyle = '#171a21'; ctx.fillRect(bx + 120, by - 33, 34, 4);          // il nastro
+        ctx.fillStyle = 'rgba(150,160,180,.14)'; ctx.fillRect(bx + 120, by - 44, 34, 2);
+        // IL PALO DA BARCAIOLO, appoggiato alla falchetta
+        ctx.fillStyle = '#5a4530';
+        for (let k = 0; k < 210; k++) ctx.fillRect(bx + 190 + k * 0.5, by - 8 - k * 0.72, 5, 2);
+        // la lanterna, a prua
+        ctx.fillStyle = '#2a1d10'; ctx.fillRect(bx + 250, by - 62, 7, 42);
+        glow(ctx, bx + 253, by - 66, 22, 20, '245,197,66');
+        ctx.fillStyle = '#f5c542'; ctx.fillRect(bx + 246, by - 74, 17, 14);
+        ctx.fillStyle = '#fff0b0'; ctx.fillRect(bx + 249, by - 71, 9, 7);
+        // e il suo riflesso, che trema
+        for (let k = 0; k < 26; k++) {
+          const t = k / 25;
+          ctx.fillStyle = `rgba(245,197,66,${(0.16 * (1 - t)).toFixed(3)})`;
+          ctx.fillRect(bx + 248 - t * 12 + (r() - 0.5) * 10, by + 42 + k * 3, 14 + t * 18, 2);
+        }
+      }
+      // canne, dove il molo lascia la riva
+      reeds(ctx, W - 66, acquaY + 6, 7, r); reeds(ctx, W - 130, acquaY + 2, 5, r);
     },
 
     cisterna(ctx, W, H) {

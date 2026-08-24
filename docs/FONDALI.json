@@ -1,0 +1,19 @@
+{
+  "_perche": "Deroghe e soglie di ../dnd-motore/tools/soggetto.mjs, ognuna con la sua ragione scritta.",
+  "_soglie": {
+    "nero": 0.72,
+    "perche": "tutta la Corona di Mezzanotte si svolge nella notte dell'ECLISSI: la luna si mangia da sola e non c'e' un'altra sorgente in cielo. Quindici fondali su diciannove hanno piu' della meta' dei pixel sotto la luminanza 42 perche' sono notte vera. La soglia sta al 72%: sopra, non c'e' piu' un primo piano leggibile e il quadro e' nero e vuoto."
+  },
+  "titolo": {
+    "nero": "e' la schermata del titolo: la Corona sospesa sopra la torre, sotto l'eclissi. Il nome del gioco lo scrive il DOM sopra la tela.",
+    "oggetti": "un titolo con due oggetti sopra i cento pixel sarebbe una scena, non un titolo."
+  },
+  "castelloEsterno": {
+    "nero": "«Il Castello Crepuscolo si arrampica sulla montagna come un artiglio di PIETRA NERA, le guglie perse nel CIELO SENZA SOLE»: la pietra DEVE stare sotto il cielo, altrimenti il castello e' illuminato da niente in una notte di eclissi e la sua sagoma non esiste. Quello che si legge in questo quadro sono le quindici finestre rosse che pulsano, il filo di luna sugli spigoli delle torri, e il primo piano — le tre carrozze con le lanterne, la fila di ospiti mascherati, il furgone MASCHERART — dentro le pozze calde delle lanterne.",
+    "soggetto": "il soggetto e' il castello, che occupa 840 px su 960 e 300 su 360 — ma non ha un CONTORNO misurabile, perche' e' nero contro un cielo notturno: il suo profilo lo fanno il filo di luna sugli spigoli e le finestre. E' esattamente il caso in cui la sagoma si vede e il salto di luminanza non c'e'.",
+    "oggetti": "le carrozze (96 px), il furgone (96), gli ospiti (12 ognuno) stanno tutti sotto i cento pixel di lato, e ci stanno perche' sono LONTANI: sono al portone, cioe' in fondo alla piazza d'armi. Ingrandirli vorrebbe dire portare le carrozze addosso alla macchina."
+  },
+  "fiume": {
+    "soggetto": "il soggetto e' il salice ENORME (il tronco piu' la chioma: 336 px per 250), che il misuratore spezza perche' la chioma e' una SAGOMA CONTROLUCE — piu' scura del cielo, come deve essere sotto un'eclissi — e quindi non ha un contorno di luminanza contro il cielo. La macchia piu' grande che trova e' il tronco."
+  }
+}
