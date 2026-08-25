@@ -192,7 +192,18 @@ const Combat = (() => {
       const inRiga = Math.min(3, alive.length - Math.floor(i / 3) * 3);
       const posInRiga = inRiga - 1 - (i % 3);   // 0 = il più a sinistra
       const x = W - 60 - eSize - posInRiga * (eSize + 26);
-      const y = 60 + Math.floor(i / 3) * (eSize + 30) + (i % 2) * 18 + bob;
+      /* I NEMICI STANNO PER TERRA. Erano ancorati al bordo ALTO del quadro
+         (`y = 60 + ...`) mentre gli eroi sono ancorati a quello basso
+         (`y = H - 20 - hSize`): su una tela di 360 px un nemico a scala 5 occupa
+         y da 60 a 140, cioe' il CIELO di quasi tutti i fondali. In ogni scontro
+         del gioco i mostri galleggiavano a mezz'aria sopra il mare e gli eroi
+         stavano sull'erba, e nessuno se n'era accorto perche' il banco di prova
+         non guarda i pixel e i fondali si guardano senza gli sprite sopra.
+         Adesso stanno sul suolo come gli eroi, quattordici pixel piu' su —
+         quel tanto che li mette qualche metro piu' indietro invece che in aria —
+         e le file successive salgono, che e' il verso in cui si allontana un
+         gruppo. */
+      const y = H - 34 - eSize - Math.floor(i / 3) * (eSize + 18) - (i % 2) * 10 + bob;
       e._x = x; e._y = y; e._size = eSize;
       if (e.dead) { ctx.globalAlpha = 0.18; }
       const def = Sprites.registry[e.sprite];
