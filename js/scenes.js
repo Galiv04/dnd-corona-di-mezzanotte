@@ -2025,7 +2025,7 @@ const Scenes = (() => {
       }
       // il lampadario faceva 220×90 di rettangolo giallastro appeso al muro: dietro le
       // dodici candele si vedeva la CORNICE, non la luce. Adesso è un alone a ellissi.
-      glow(ctx, W * 0.5, 40, 320, 180, '245,224,66');
+      glow(ctx, W * 0.5, 40, 88, 50, '245,224,66');   // 320 = 1280 px di alone: piu' del canvas
       blocks(ctx, 0, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
       blocks(ctx, W - 50, 0, 50, H - 60, '#5a1525', 10, r, 0.15);
       ctx.fillStyle = '#f5c542'; ctx.fillRect(0, H * 0.4, 50, 6); ctx.fillRect(W - 50, H * 0.4, 50, 6);
